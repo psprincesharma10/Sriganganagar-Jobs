@@ -248,7 +248,7 @@ export default function App() {
 
     try {
       // Ensure jobs table insert fields exactly match database columns requested
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from('jobs')
         .insert([{
           job_title: jobData.job_title_en,
@@ -256,32 +256,16 @@ export default function App() {
           phone: jobData.phone,
           poster_name: jobData.poster_name || null,
           phone_hidden: jobData.phone_hidden,
-          pinned: false,
           expires_at: expiryDate.toISOString(),
-        }])
-        .select();
+        }]);
 
       if (error) {
-        console.error('Exact Supabase jobs insert error details:', error);
+        console.error('Supabase jobs insert error details:', error);
         throw error;
       }
 
-      const returnedRow = data && data[0];
-      const newJob: Job = {
-        id: returnedRow?.id || ('job-' + Date.now()),
-        created_at: returnedRow?.created_at || new Date('2026-05-24T11:17:41Z').toISOString(),
-        job_title_en: returnedRow?.job_title || jobData.job_title_en,
-        job_title_hi: returnedRow?.job_title || jobData.job_title_hi,
-        job_description_en: returnedRow?.job_description || jobData.job_description_en,
-        job_description_hi: returnedRow?.job_description || jobData.job_description_hi,
-        phone: returnedRow?.phone || jobData.phone,
-        poster_name: returnedRow?.poster_name || jobData.poster_name || undefined,
-        phone_hidden: typeof returnedRow?.phone_hidden === 'boolean' ? returnedRow.phone_hidden : jobData.phone_hidden,
-        expires_at: returnedRow?.expires_at || expiryDate.toISOString(),
-        pinned: typeof returnedRow?.pinned === 'boolean' ? returnedRow.pinned : false,
-      };
-
-      setJobs(prev => [newJob, ...prev]);
+      // Refresh data so the frontend is fully in sync with the database records
+      await loadSupabaseData();
       triggerToast(lang === 'en' ? 'Job posted successfully! Live immediately.' : 'नौकरी सफलतापूर्वक पोस्ट हो गई है! तुरंत लाइव है।');
     } catch (err: any) {
       console.error('Supabase job publication failed inside try-catch:', err);
