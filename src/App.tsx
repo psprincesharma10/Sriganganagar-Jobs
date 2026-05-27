@@ -7,7 +7,7 @@ import JobPostingModal from './components/JobPostingModal';
 import AdPostingModal from './components/AdPostingModal';
 import UnlockModal from './components/UnlockModal';
 import AdminDashboard from './components/AdminDashboard';
-import { supabase, isSupabaseConfigured } from './supabaseClient';
+import { supabase } from './supabaseClient';
 
 import { 
   Building, 
@@ -34,32 +34,9 @@ export default function App() {
     return (saved as Language) || 'en';
   });
 
-  const [jobs, setJobs] = useState<Job[]>(() => {
-    const saved = localStorage.getItem('sgn_jobs_db');
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved) as Job[];
-        // Filter out expired jobs immediately on initialization
-        const now = new Date('2026-05-24T11:17:41Z').getTime();
-        return parsed.filter(j => new Date(j.expires_at).getTime() >= now);
-      } catch (e) {
-        console.error('Failed reading jobs DB', e);
-      }
-    }
-    return INITIAL_JOBS;
-  });
+  const [jobs, setJobs] = useState<Job[]>([]);
 
-  const [ads, setAds] = useState<Ad[]>(() => {
-    const saved = localStorage.getItem('sgn_ads_db');
-    if (saved) {
-      try {
-        return JSON.parse(saved) as Ad[];
-      } catch (e) {
-        console.error('Failed reading ads DB', e);
-      }
-    }
-    return INITIAL_ADS;
-  });
+  const [ads, setAds] = useState<Ad[]>([]);
 
   const [defaultExpiryMonths, setDefaultExpiryMonths] = useState<number>(() => {
     const saved = localStorage.getItem('sgn_expiry_months');
@@ -92,10 +69,6 @@ export default function App() {
   const [dbConnected, setDbConnected] = useState(false);
 
   const loadSupabaseData = async () => {
-    if (!isSupabaseConfigured) {
-      console.log('Supabase is not configured yet. Running in offline/localStorage mode.');
-      return;
-    }
     setIsLoading(true);
     try {
       // 1. Fetch live jobs from Supabase
@@ -103,14 +76,20 @@ export default function App() {
         .from('jobs')
         .select('*');
 
-      if (jobsError) throw jobsError;
+      if (jobsError) {
+        console.error('Exact Supabase jobs fetch error:', jobsError);
+        throw jobsError;
+      }
 
       // 2. Fetch live ads from Supabase
       const { data: dbAds, error: adsError } = await supabase
         .from('ads')
         .select('*');
 
-      if (adsError) throw adsError;
+      if (adsError) {
+        console.error('Exact Supabase ads fetch error:', adsError);
+        throw adsError;
+      }
 
       let finalJobs: Job[] = [];
       let finalAds: Ad[] = [];
@@ -133,8 +112,6 @@ export default function App() {
       } else {
         console.log('Jobs table in Supabase is empty. Commencing auto-seed of default jobs...');
         const jobsToInsert = INITIAL_JOBS.map(job => ({
-          id: job.id,
-          created_at: job.created_at,
           job_title: job.job_title_en || job.job_title_hi,
           job_description: job.job_description_en || job.job_description_hi,
           phone: job.phone,
@@ -146,9 +123,28 @@ export default function App() {
 
         const { error: insertErr } = await supabase.from('jobs').insert(jobsToInsert);
         if (insertErr) {
-          console.error('Error inserting feed seeding:', insertErr.message);
+          console.error('Error inserting feed seeding:', insertErr);
         }
-        finalJobs = INITIAL_JOBS;
+        
+        // Re-fetch after seeding so we have authentic database-allocated IDs and timestamps
+        const { data: freshJobs } = await supabase.from('jobs').select('*');
+        if (freshJobs && freshJobs.length > 0) {
+          finalJobs = freshJobs.map((row: any) => ({
+            id: row.id,
+            created_at: row.created_at,
+            job_title_en: row.job_title || '',
+            job_title_hi: row.job_title || '',
+            job_description_en: row.job_description || '',
+            job_description_hi: row.job_description || '',
+            phone: row.phone,
+            poster_name: row.poster_name || undefined,
+            phone_hidden: typeof row.phone_hidden === 'boolean' ? row.phone_hidden : false,
+            expires_at: row.expires_at || new Date().toISOString(),
+            pinned: typeof row.pinned === 'boolean' ? row.pinned : false,
+          }));
+        } else {
+          finalJobs = INITIAL_JOBS;
+        }
       }
 
       // If the ads table is empty, auto-seed it with state defaults
@@ -167,8 +163,6 @@ export default function App() {
       } else {
         console.log('Ads table in Supabase is empty. Commencing auto-seed of default ads...');
         const adsToInsert = INITIAL_ADS.map(ad => ({
-          id: ad.id,
-          created_at: ad.created_at,
           business_name: ad.business_name,
           image_url: ad.image_url,
           contact: ad.contact || null,
@@ -180,9 +174,26 @@ export default function App() {
 
         const { error: insertErr } = await supabase.from('ads').insert(adsToInsert);
         if (insertErr) {
-          console.error('Error inserting ad seeding:', insertErr.message);
+          console.error('Error inserting ad seeding:', insertErr);
         }
-        finalAds = INITIAL_ADS;
+
+        // Re-fetch after seeding to have database IDs
+        const { data: freshAds } = await supabase.from('ads').select('*');
+        if (freshAds && freshAds.length > 0) {
+          finalAds = freshAds.map((row: any) => ({
+            id: row.id,
+            created_at: row.created_at,
+            business_name: row.business_name || '',
+            image_url: row.image_url || '',
+            contact: row.contact || undefined,
+            short_description: row.short_description || '',
+            sponsored: typeof row.sponsored === 'boolean' ? row.sponsored : true,
+            status: row.status || 'pending',
+            featured: typeof row.featured === 'boolean' ? row.featured : false,
+          }));
+        } else {
+          finalAds = INITIAL_ADS;
+        }
       }
 
       const now = new Date('2026-05-24T11:17:41Z').getTime();
@@ -192,7 +203,7 @@ export default function App() {
       setAds(finalAds);
       setDbConnected(true);
     } catch (err: any) {
-      console.error('Failed fetching data from Supabase. Working with localized memory:', err.message || err);
+      console.error('Failed fetching data from Supabase:', err.message || err);
       setDbConnected(false);
     } finally {
       setIsLoading(false);
@@ -204,14 +215,6 @@ export default function App() {
   }, []);
 
   // --- Synchronization & Expiry Effects ---
-  useEffect(() => {
-    localStorage.setItem('sgn_jobs_db', JSON.stringify(jobs));
-  }, [jobs]);
-
-  useEffect(() => {
-    localStorage.setItem('sgn_ads_db', JSON.stringify(ads));
-  }, [ads]);
-
   useEffect(() => {
     localStorage.setItem('sgn_job_lang', lang);
   }, [lang]);
@@ -239,83 +242,93 @@ export default function App() {
 
   // 1. Post Instant Job Live
   const handleCreateJob = async (jobData: Omit<Job, 'id' | 'created_at' | 'expires_at' | 'pinned'>) => {
-    const nowStr = new Date('2026-05-24T11:17:41Z').toISOString();
-    
     // Calculate expiry based on admin configuration settings
     const expiryDate = new Date('2026-05-24T11:17:41Z');
     expiryDate.setMonth(expiryDate.getMonth() + defaultExpiryMonths);
 
-    const generatedId = 'job-' + Date.now();
-    const newJob: Job = {
-      ...jobData,
-      id: generatedId,
-      created_at: nowStr,
-      expires_at: expiryDate.toISOString(),
-      pinned: false,
-    };
-
-    // Update local state instantly for low latency
-    setJobs(prev => [newJob, ...prev]);
-
-    if (isSupabaseConfigured) {
-      try {
-        const { error } = await supabase.from('jobs').insert([{
-          id: generatedId,
-          created_at: nowStr,
+    try {
+      // Ensure jobs table insert fields exactly match database columns requested
+      const { data, error } = await supabase
+        .from('jobs')
+        .insert([{
           job_title: jobData.job_title_en,
           job_description: jobData.job_description_en,
           phone: jobData.phone,
           poster_name: jobData.poster_name || null,
           phone_hidden: jobData.phone_hidden,
+          pinned: false,
           expires_at: expiryDate.toISOString(),
-          pinned: false
-        }]);
-        if (error) throw error;
-      } catch (err: any) {
-        console.error('Supabase job publication failed:', err.message || err);
-        triggerToast(lang === 'en' ? '⚠️ Saved locally, but Supabase error occurred.' : '⚠️ स्थानीय रूप से सहेजा गया, पर डेटाबेस त्रुटि हुई।');
-        return;
+        }])
+        .select();
+
+      if (error) {
+        console.error('Exact Supabase jobs insert error details:', error);
+        throw error;
       }
+
+      const returnedRow = data && data[0];
+      const newJob: Job = {
+        id: returnedRow?.id || ('job-' + Date.now()),
+        created_at: returnedRow?.created_at || new Date('2026-05-24T11:17:41Z').toISOString(),
+        job_title_en: returnedRow?.job_title || jobData.job_title_en,
+        job_title_hi: returnedRow?.job_title || jobData.job_title_hi,
+        job_description_en: returnedRow?.job_description || jobData.job_description_en,
+        job_description_hi: returnedRow?.job_description || jobData.job_description_hi,
+        phone: returnedRow?.phone || jobData.phone,
+        poster_name: returnedRow?.poster_name || jobData.poster_name || undefined,
+        phone_hidden: typeof returnedRow?.phone_hidden === 'boolean' ? returnedRow.phone_hidden : jobData.phone_hidden,
+        expires_at: returnedRow?.expires_at || expiryDate.toISOString(),
+        pinned: typeof returnedRow?.pinned === 'boolean' ? returnedRow.pinned : false,
+      };
+
+      setJobs(prev => [newJob, ...prev]);
+      triggerToast(lang === 'en' ? 'Job posted successfully! Live immediately.' : 'नौकरी सफलतापूर्वक पोस्ट हो गई है! तुरंत लाइव है।');
+    } catch (err: any) {
+      console.error('Supabase job publication failed inside try-catch:', err);
+      triggerToast(lang === 'en' ? `⚠️ Supabase error: ${err.message || err}` : `⚠️ सिंक त्रुटि: ${err.message || err}`);
     }
-    triggerToast(lang === 'en' ? 'Job posted successfully! Live immediately.' : 'नौकरी सफलतापूर्वक पोस्ट हो गई है! तुरंत लाइव है।');
   };
 
   // 2. Submit Business Ad
   const handleCreateAd = async (adData: Omit<Ad, 'id' | 'created_at' | 'sponsored' | 'status' | 'featured'>) => {
-    const generatedId = 'ad-' + Date.now();
-    const nowStr = new Date('2026-05-24T11:17:41Z').toISOString();
-    const newAd: Ad = {
-      ...adData,
-      id: generatedId,
-      created_at: nowStr,
-      sponsored: true,
-      status: 'pending', // Requires approval
-      featured: false,
-    };
-
-    setAds(prev => [newAd, ...prev]);
-
-    if (isSupabaseConfigured) {
-      try {
-        const { error } = await supabase.from('ads').insert([{
-          id: generatedId,
-          created_at: nowStr,
+    try {
+      const { data, error } = await supabase
+        .from('ads')
+        .insert([{
           business_name: adData.business_name,
           image_url: adData.image_url,
           contact: adData.contact || null,
           short_description: adData.short_description,
           sponsored: true,
-          status: 'pending',
-          featured: false
-        }]);
-        if (error) throw error;
-      } catch (err: any) {
-        console.error('Supabase ad submission failed:', err.message || err);
-        triggerToast(lang === 'en' ? '⚠️ Ad submitted locally, database sync failed.' : '⚠️ विज्ञापन सबमिट हुआ, डेटाबेस सिंक त्रुटि।');
-        return;
+          status: 'pending', // Requires approval
+          featured: false,
+        }])
+        .select();
+
+      if (error) {
+        console.error('Exact Supabase ads insert error details:', error);
+        throw error;
       }
+
+      const returnedRow = data && data[0];
+      const newAd: Ad = {
+        id: returnedRow?.id || ('ad-' + Date.now()),
+        created_at: returnedRow?.created_at || new Date('2026-05-24T11:17:41Z').toISOString(),
+        business_name: returnedRow?.business_name || adData.business_name,
+        image_url: returnedRow?.image_url || adData.image_url,
+        contact: returnedRow?.contact || adData.contact || undefined,
+        short_description: returnedRow?.short_description || adData.short_description,
+        sponsored: typeof returnedRow?.sponsored === 'boolean' ? returnedRow.sponsored : true,
+        status: returnedRow?.status || 'pending',
+        featured: typeof returnedRow?.featured === 'boolean' ? returnedRow.featured : false,
+      };
+
+      setAds(prev => [newAd, ...prev]);
+      triggerToast(lang === 'en' ? 'Ad submitted! Waiting for admin approval.' : 'विज्ञापन सबमिट हुआ! एडमिन की मंजूरी की आवश्यकता है।');
+    } catch (err: any) {
+      console.error('Supabase ad submission failed inside try-catch:', err);
+      triggerToast(lang === 'en' ? `⚠️ Supabase error: ${err.message || err}` : `⚠️ विज्ञापन पंजीकरण में त्रुटि: ${err.message || err}`);
     }
-    triggerToast(lang === 'en' ? 'Ad submitted! Waiting for admin approval.' : 'विज्ञापन सबमिट हुआ! एडमिन की मंजूरी की आवश्यकता है।');
   };
 
   // 3. Premium Contact Unlock Handler
@@ -370,16 +383,14 @@ export default function App() {
 
     setJobs(prev => prev.map(j => (j.id === id ? { ...j, phone_hidden: newHidden } : j)));
 
-    if (isSupabaseConfigured) {
-      try {
-        const { error } = await supabase
-          .from('jobs')
-          .update({ phone_hidden: newHidden })
-          .eq('id', id);
-        if (error) throw error;
-      } catch (err: any) {
-        console.error('Supabase toggle job phone visibility failed:', err.message || err);
-      }
+    try {
+      const { error } = await supabase
+        .from('jobs')
+        .update({ phone_hidden: newHidden })
+        .eq('id', id);
+      if (error) throw error;
+    } catch (err: any) {
+      console.error('Supabase toggle job phone visibility failed:', err.message || err);
     }
     triggerToast(lang === 'en' ? 'Job phone visibility updated!' : 'जॉब फोन दृश्यता अपडेट की गई!');
   };
@@ -391,16 +402,14 @@ export default function App() {
 
     setJobs(prev => prev.map(j => (j.id === id ? { ...j, pinned: newPinned } : j)));
 
-    if (isSupabaseConfigured) {
-      try {
-        const { error } = await supabase
-          .from('jobs')
-          .update({ pinned: newPinned })
-          .eq('id', id);
-        if (error) throw error;
-      } catch (err: any) {
-        console.error('Supabase toggle pin failed:', err.message || err);
-      }
+    try {
+      const { error } = await supabase
+        .from('jobs')
+        .update({ pinned: newPinned })
+        .eq('id', id);
+      if (error) throw error;
+    } catch (err: any) {
+      console.error('Supabase toggle pin failed:', err.message || err);
     }
     triggerToast(lang === 'en' ? 'Job pin status toggled!' : 'जॉब पिन स्थिति अपडेट की गई!');
   };
@@ -408,16 +417,14 @@ export default function App() {
   const handleDeleteJob = async (id: string) => {
     setJobs(prev => prev.filter(j => j.id !== id));
 
-    if (isSupabaseConfigured) {
-      try {
-        const { error } = await supabase
-          .from('jobs')
-          .delete()
-          .eq('id', id);
-        if (error) throw error;
-      } catch (err: any) {
-        console.error('Supabase delete job failed:', err.message || err);
-      }
+    try {
+      const { error } = await supabase
+        .from('jobs')
+        .delete()
+        .eq('id', id);
+      if (error) throw error;
+    } catch (err: any) {
+      console.error('Supabase delete job failed:', err.message || err);
     }
     triggerToast(lang === 'en' ? 'Job deleted successfully' : 'नौकरी सफलतापूर्वक हटा दी गई');
   };
@@ -426,16 +433,14 @@ export default function App() {
   const handleApproveAd = async (id: string) => {
     setAds(prev => prev.map(a => (a.id === id ? { ...a, status: 'approved' } : a)));
 
-    if (isSupabaseConfigured) {
-      try {
-        const { error } = await supabase
-          .from('ads')
-          .update({ status: 'approved' })
-          .eq('id', id);
-        if (error) throw error;
-      } catch (err: any) {
-        console.error('Supabase approve ad failed:', err.message || err);
-      }
+    try {
+      const { error } = await supabase
+        .from('ads')
+        .update({ status: 'approved' })
+        .eq('id', id);
+      if (error) throw error;
+    } catch (err: any) {
+      console.error('Supabase approve ad failed:', err.message || err);
     }
     triggerToast(lang === 'en' ? 'Ad approved and live!' : 'विज्ञापन स्वीकृत और लाइव हुआ!');
   };
@@ -443,16 +448,14 @@ export default function App() {
   const handleRejectAd = async (id: string) => {
     setAds(prev => prev.map(a => (a.id === id ? { ...a, status: 'rejected' } : a)));
 
-    if (isSupabaseConfigured) {
-      try {
-        const { error } = await supabase
-          .from('ads')
-          .update({ status: 'rejected' })
-          .eq('id', id);
-        if (error) throw error;
-      } catch (err: any) {
-        console.error('Supabase reject ad failed:', err.message || err);
-      }
+    try {
+      const { error } = await supabase
+        .from('ads')
+        .update({ status: 'rejected' })
+        .eq('id', id);
+      if (error) throw error;
+    } catch (err: any) {
+      console.error('Supabase reject ad failed:', err.message || err);
     }
     triggerToast(lang === 'en' ? 'Ad rejected!' : 'विज्ञापन खारिज किया गया!');
   };
@@ -464,16 +467,14 @@ export default function App() {
 
     setAds(prev => prev.map(a => (a.id === id ? { ...a, featured: newFeatured } : a)));
 
-    if (isSupabaseConfigured) {
-      try {
-        const { error } = await supabase
-          .from('ads')
-          .update({ featured: newFeatured })
-          .eq('id', id);
-        if (error) throw error;
-      } catch (err: any) {
-        console.error('Supabase toggle feature ad failed:', err.message || err);
-      }
+    try {
+      const { error } = await supabase
+        .from('ads')
+        .update({ featured: newFeatured })
+        .eq('id', id);
+      if (error) throw error;
+    } catch (err: any) {
+      console.error('Supabase toggle feature ad failed:', err.message || err);
     }
     triggerToast(lang === 'en' ? 'Ad premium featured status updated!' : 'विज्ञापन विशेष स्थिति अपडेट की गई!');
   };
@@ -481,16 +482,14 @@ export default function App() {
   const handleDeleteAd = async (id: string) => {
     setAds(prev => prev.filter(a => a.id !== id));
 
-    if (isSupabaseConfigured) {
-      try {
-        const { error } = await supabase
-          .from('ads')
-          .delete()
-          .eq('id', id);
-        if (error) throw error;
-      } catch (err: any) {
-        console.error('Supabase delete ad failed:', err.message || err);
-      }
+    try {
+      const { error } = await supabase
+        .from('ads')
+        .delete()
+        .eq('id', id);
+      if (error) throw error;
+    } catch (err: any) {
+      console.error('Supabase delete ad failed:', err.message || err);
     }
     triggerToast(lang === 'en' ? 'Ad completely deleted' : 'विज्ञापन पूरी तरह हटा दिया गया');
   };
@@ -670,21 +669,14 @@ export default function App() {
         </div>
         
         {/* Supabase Status Indicator Badge */}
-        {isSupabaseConfigured ? (
-          <span className={`px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider flex items-center gap-1 ${
-            dbConnected 
-              ? 'bg-emerald-950/40 text-emerald-200 border border-emerald-500/20 shadow-xs' 
-              : 'bg-amber-950/40 text-amber-200 border border-amber-500/20 animate-pulse'
-          }`}>
-            <span className={`w-1.5 h-1.5 rounded-full ${dbConnected ? 'bg-emerald-400' : 'bg-amber-400 animate-ping'}`} />
-            <span>{dbConnected ? 'Cloud Sync Live' : 'Connecting Sync...'}</span>
-          </span>
-        ) : (
-          <span className="px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-rose-950/40 text-rose-200 border border-rose-500/10 flex items-center gap-1">
-            <span className="w-1.5 h-1.5 rounded-full bg-rose-400" />
-            <span>Offline Local Mode</span>
-          </span>
-        )}
+        <span className={`px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider flex items-center gap-1 ${
+          dbConnected 
+            ? 'bg-emerald-950/40 text-emerald-200 border border-emerald-500/20 shadow-xs' 
+            : 'bg-amber-950/40 text-amber-200 border border-amber-500/20 animate-pulse'
+        }`}>
+          <span className={`w-1.5 h-1.5 rounded-full ${dbConnected ? 'bg-emerald-400' : 'bg-amber-400 animate-ping'}`} />
+          <span>{dbConnected ? 'Cloud Sync Live' : 'Connecting Sync...'}</span>
+        </span>
       </div>
 
       {/* Main Container */}
