@@ -1,0 +1,6 @@
+{
+  "name": "Sriganganagar Jobs",
+  "description": "Local job board and business ads directory for Sri Ganganagar, Rajasthan.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
