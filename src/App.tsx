@@ -174,6 +174,7 @@ export default function App() {
             ad_description: extra.ad_description || row.short_description || '',
             phone_number: extra.phone_number || row.contact || '',
             whatsapp_number: extra.whatsapp_number || row.contact || '',
+            whatsapp_url: extra.whatsapp_url || '',
             website_url: extra.website_url || '',
             expiry_days: extra.expiry_days || 30,
             location: extra.location || 'Sri Ganganagar'
@@ -268,6 +269,7 @@ export default function App() {
         ad_description: adData.ad_description || adData.short_description || '',
         phone_number: adData.phone_number || adData.contact || '',
         whatsapp_number: adData.whatsapp_number || adData.contact || '',
+        whatsapp_url: adData.whatsapp_url || '',
         website_url: adData.website_url || '',
         expiry_days: adData.expiry_days || 30,
         location: adData.location || 'Sri Ganganagar',

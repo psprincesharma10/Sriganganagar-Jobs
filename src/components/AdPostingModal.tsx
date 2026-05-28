@@ -34,10 +34,9 @@ export default function AdPostingModal({
   onPostAd,
 }: AdPostingModalProps) {
   const [businessName, setBusinessName] = useState('');
-  const [adTitle, setAdTitle] = useState('');
   const [adDescription, setAdDescription] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
-  const [whatsappNumber, setWhatsappNumber] = useState('');
+  const [whatsappUrl, setWhatsappUrl] = useState('');
   const [imageUrl, setImageUrl] = useState('');
   const [websiteUrl, setWebsiteUrl] = useState('');
   const [expiryDays, setExpiryDays] = useState('30');
@@ -75,11 +74,6 @@ export default function AdPostingModal({
       return;
     }
 
-    if (!adTitle.trim()) {
-      setErrorStr(lang === 'en' ? 'Ad Title is required!' : 'विज्ञापन का शीर्षक लिखना अनिवार्य है!');
-      return;
-    }
-
     if (!adDescription.trim()) {
       setErrorStr(lang === 'en' ? 'Ad Description is required!' : 'विज्ञापन का विवरण लिखना अनिवार्य है!');
       return;
@@ -94,14 +88,6 @@ export default function AdPostingModal({
     if (cleanPhone.length !== 10) {
       setErrorStr(lang === 'en' ? 'Please enter a valid 10-digit phone number!' : 'कृपया सही 10-अंकों का फ़ोन नंबर दर्ज करें!');
       return;
-    }
-
-    if (whatsappNumber.trim()) {
-      const cleanWA = whatsappNumber.replace(/\D/g, '');
-      if (cleanWA.length !== 10) {
-        setErrorStr(lang === 'en' ? 'Please enter a valid 10-digit WhatsApp number!' : 'कृपया सही 10-अंकों का व्हाट्सएप नंबर दर्ज करें!');
-        return;
-      }
     }
 
     if (!imageUrl.trim()) {
@@ -120,10 +106,10 @@ export default function AdPostingModal({
       image_url: imageUrl.trim(),
       contact: phoneNumber.trim(),
 
-      ad_title: adTitle.trim(),
+      ad_title: businessName.trim(),
       ad_description: adDescription.trim(),
       phone_number: phoneNumber.trim(),
-      whatsapp_number: whatsappNumber.trim() || phoneNumber.trim(),
+      whatsapp_url: whatsappUrl.trim() || undefined,
       website_url: websiteUrl.trim() || undefined,
       expiry_days: Number(expiryDays) || 30,
       location: location.trim(),
@@ -131,10 +117,9 @@ export default function AdPostingModal({
 
     // Reset Form
     setBusinessName('');
-    setAdTitle('');
     setAdDescription('');
     setPhoneNumber('');
-    setWhatsappNumber('');
+    setWhatsappUrl('');
     setImageUrl('');
     setWebsiteUrl('');
     setExpiryDays('30');
@@ -163,7 +148,7 @@ export default function AdPostingModal({
           </div>
           <button 
             onClick={onClose}
-            className="text-slate-900/80 hover:text-slate-900 transition-colors cursor-pointer p-1.5 rounded-full hover:bg-black/10"
+            className="text-slate-900/80 hover:text-slate-900 transition-colors p-1.5 rounded-full hover:bg-black/10 cursor-pointer"
           >
             <X size={20} />
           </button>
@@ -180,8 +165,8 @@ export default function AdPostingModal({
               </p>
               <p className="opacity-90 leading-relaxed">
                 {lang === 'en' 
-                  ? 'Your sponsored ad will appear at the top spotlight slider and within the jobs feed. It becomes active instantly after Admin vetting!' 
-                  : 'आपका स्पॉन्सर्ड विज्ञापन मुख्य स्पॉटलाइट और जॉब फीड के बीच दिखाई देगा। एडमिन द्वारा मंज़ूरी के बाद यह लाइव हो जाएगा!'}
+                  ? 'Your sponsored ad will appear within the Business Showcase sidebar and between job posts. It becomes active instantly after Admin approval!' 
+                  : 'आपका स्पॉन्सर्ड विज्ञापन बिज़नेस शोकेस साइडबार और जॉब फीड के बीच दिखाई देगा। एडमिन द्वारा मंज़ूरी के बाद यह लाइव हो जाएगा!'}
               </p>
             </div>
           </div>
@@ -194,36 +179,19 @@ export default function AdPostingModal({
             </div>
           )}
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Business Name */}
-            <div>
-              <label className="block text-xs font-black text-slate-700 uppercase tracking-widest mb-1">
-                {lang === 'en' ? 'Business Name' : 'व्यवसाय का नाम'} <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="text"
-                required
-                value={businessName}
-                onChange={(e) => setBusinessName(e.target.value)}
-                placeholder={lang === 'en' ? 'e.g., Apex Spoken English Institute' : 'जैसे: एपेक्स स्पोकन इंग्लिश'}
-                className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-[#f59e0b] focus:ring-2 focus:ring-amber-500 focus:border-transparent text-sm transition-all"
-              />
-            </div>
-
-            {/* Ad Title */}
-            <div>
-              <label className="block text-xs font-black text-slate-700 uppercase tracking-widest mb-1">
-                {lang === 'en' ? 'Ad Title' : 'विज्ञापन का शीर्षक'} <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="text"
-                required
-                value={adTitle}
-                onChange={(e) => setAdTitle(e.target.value)}
-                placeholder={lang === 'en' ? 'e.g., Free Grammar Class + Demo!' : 'जैसे: निशुल्क ग्रामर क्लास व डेमो!'}
-                className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-[#f59e0b] focus:ring-2 focus:ring-amber-500 focus:border-transparent text-sm transition-all"
-              />
-            </div>
+          {/* Business Name Field */}
+          <div>
+            <label className="block text-xs font-black text-slate-700 uppercase tracking-widest mb-1">
+              {lang === 'en' ? 'Business Name' : 'व्यवसाय का नाम'} <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="text"
+              required
+              value={businessName}
+              onChange={(e) => setBusinessName(e.target.value)}
+              placeholder={lang === 'en' ? 'e.g., Apex Spoken English Institute' : 'जैसे: एपेक्स स्पोकन इंग्लिश'}
+              className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-[#f59e0b] focus:ring-2 focus:ring-amber-500 focus:border-transparent text-sm transition-all"
+            />
           </div>
 
           {/* Ad Description */}
@@ -242,15 +210,15 @@ export default function AdPostingModal({
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Phone Number */}
+            {/* Contact Number */}
             <div>
               <label className="block text-xs font-black text-slate-700 uppercase tracking-widest mb-1">
-                {lang === 'en' ? 'Phone Number' : 'फ़ोन नंबर (कॉल)'} <span className="text-red-500">*</span>
+                {lang === 'en' ? 'Contact Number' : 'सुरक्षित संपर्क नंबर (Call)'} <span className="text-red-500">*</span>
               </label>
               <div className="relative">
                 <Phone size={15} className="absolute left-3.5 top-3.5 text-slate-400" />
                 <input
-                  type="tel"
+                  type="text"
                   required
                   maxLength={10}
                   value={phoneNumber}
@@ -261,19 +229,18 @@ export default function AdPostingModal({
               </div>
             </div>
 
-            {/* WhatsApp Number */}
+            {/* WhatsApp URL */}
             <div>
               <label className="block text-xs font-black text-slate-700 uppercase tracking-widest mb-1">
-                {lang === 'en' ? 'WhatsApp Number' : 'व्हाट्सएप नंबर'}
+                {lang === 'en' ? 'WhatsApp URL (Optional)' : 'व्हाट्सएप यूआरएल (वैकल्पिक)'}
               </label>
               <div className="relative">
                 <MessageSquare size={15} className="absolute left-3.5 top-3.5 text-green-500" />
                 <input
-                  type="tel"
-                  maxLength={10}
-                  value={whatsappNumber}
-                  onChange={(e) => setWhatsappNumber(e.target.value.replace(/\D/g, ''))}
-                  placeholder="e.g., 98290XXXXX"
+                  type="url"
+                  value={whatsappUrl}
+                  onChange={(e) => setWhatsappUrl(e.target.value)}
+                  placeholder="e.g., https://wa.me/9194143XXXXX"
                   className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 focus:outline-hidden focus:ring-2 focus:ring-amber-500 focus:border-transparent text-sm font-mono transition-all"
                 />
               </div>

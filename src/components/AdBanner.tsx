@@ -30,10 +30,12 @@ export default function AdBanner({
   const whatsapp = ad.whatsapp_number || phone;
   const website = ad.website_url || '';
   const location = ad.location || 'Sri Ganganagar';
+  const adWhatsappUrl = ad.whatsapp_url || '';
 
   const cleanPhone = phone.replace(/\D/g, '');
   const cleanWA = whatsapp.replace(/\D/g, '');
-  const whatsappUrl = cleanWA ? `https://wa.me/91${cleanWA}?text=${encodeURIComponent(lang === 'en' ? 'Hello, saw your sponsored ad on SriGanganagar Jobs Board' : 'नमस्ते, मैंने श्रीगंगानगर जॉब्स पर आपका प्रायोजित विज्ञापन देखा।')}` : '';
+  const legacyWhatsappUrl = cleanWA ? `https://wa.me/91${cleanWA}?text=${encodeURIComponent(lang === 'en' ? 'Hello, saw your sponsored ad on SriGanganagar Jobs Board' : 'नमस्ते, मैंने श्रीगंगानगर जॉब्स पर आपका प्रायोजित विज्ञापन देखा।')}` : '';
+  const finalWhatsappUrl = adWhatsappUrl || legacyWhatsappUrl;
 
   return (
     <div 
@@ -71,22 +73,17 @@ export default function AdBanner({
             <span>{lang === 'en' ? 'Featured' : 'विशेष'}</span>
           </div>
         )}
-
-        <div className="absolute bottom-3 left-3 bg-black/60 backdrop-blur-xs text-white text-[10px] font-bold px-2 py-0.5 rounded flex items-center gap-1">
-          <Navigation size={10} className="text-amber-400" />
-          <span>{location}</span>
-        </div>
       </div>
 
       {/* Content Side Section */}
       <div className="p-6 flex-grow flex flex-col justify-between">
         <div>
           <span className="text-[10px] text-amber-600 block font-extrabold tracking-widest uppercase mb-1 flex items-center gap-1">
-            <span>{businessName}</span>
+            <span>{lang === 'en' ? '★ Premium Showcase Partner' : '★ प्रीमियम शोकेस पार्टनर'}</span>
           </span>
           
           <h4 className="text-lg font-extrabold text-slate-900 tracking-tight leading-snug mb-2 font-sans">
-            {adTitle || businessName}
+            {businessName}
           </h4>
           
           <p className="text-xs text-slate-600 mb-4 whitespace-pre-wrap leading-relaxed font-sans">
@@ -113,70 +110,66 @@ export default function AdBanner({
               {phone && (
                 <a 
                   href={`tel:${cleanPhone}`}
-                  className="px-3 py-1.5 text-xs font-black text-slate-950 bg-[#eefaf7] hover:bg-[#d8f4ed] border-2 border-emerald-500 rounded-xl flex items-center gap-1.5 transition-all shadow-xs"
+                  className="px-4 py-2 text-xs font-black text-slate-950 bg-[#eefaf7] hover:bg-[#d8f4ed] border-2 border-emerald-500 rounded-xl flex items-center gap-1.5 transition-all shadow-xs"
                 >
                   <Phone size={13} className="text-emerald-600" />
-                  <span>{lang === 'en' ? 'Call' : 'कॉल'}</span>
-                </a>
-              )}
-
-              {whatsappUrl && (
-                <a 
-                  href={whatsappUrl}
-                  target="_blank"
-                  referrerPolicy="no-referrer"
-                  className="px-3 py-1.5 text-xs font-black text-white bg-[#25D366] hover:bg-[#20ba5a] rounded-xl flex items-center gap-1.5 transition-all shadow-xs"
-                >
-                  <MessageSquare size={13} className="fill-white text-[#25D366]" />
-                  <span>{lang === 'en' ? 'WhatsApp' : 'व्हाट्सएप'}</span>
-                </a>
-              )}
-
-              {website && (
-                <a 
-                  href={website.startsWith('http') ? website : `https://${website}`}
-                  target="_blank"
-                  referrerPolicy="no-referrer"
-                  className="px-3 py-1.5 text-xs font-black text-slate-950 bg-amber-400 hover:bg-amber-500 rounded-xl flex items-center gap-1.5 transition-all shadow-xs"
-                >
-                  <Globe size={13} />
-                  <span>{lang === 'en' ? 'Website' : 'वेबसाइट'}</span>
-                  <ExternalLink size={10} />
+                  <span>{lang === 'en' ? 'Call Now' : 'अभी कॉल करें'}</span>
                 </a>
               )}
             </div>
           </div>
-
-          {/* Expiry / Status Badge under ad container */}
-          {ad.expiry_days && (
-            <div className="text-[10px] text-slate-400 font-bold flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
-              <span>
-                {lang === 'en' 
-                  ? `Campaign active for ${ad.expiry_days} Days` 
-                  : `विज्ञापन अभियान ${ad.expiry_days} दिनों के लिए सक्रिय`}
-              </span>
-            </div>
-          )}
         </div>
 
         {/* Administration Controls Box (Authenticated Admin Mode) */}
         {isAdmin && (
           <div className="mt-4 pt-3 border-t border-red-100 bg-red-50/50 p-3 rounded-2xl">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-[11px] font-black text-slate-600 flex items-center gap-1 uppercase tracking-wider">
+              <span className="text-[11px] font-black text-rose-700 flex items-center gap-1 uppercase tracking-wider">
                 <ShieldAlert size={12} className="text-red-500" />
-                <span>Ad Administration Control</span>
+                <span>Ad Control & Pricing Plan</span>
               </span>
               <span className={`text-[10px] uppercase font-black px-2 py-0.5 rounded-lg border ${
                 ad.status === 'approved' 
-                  ? 'bg-emerald-105 border-emerald-200 text-emerald-800' 
+                  ? 'bg-emerald-100 border-emerald-200 text-emerald-800' 
                   : ad.status === 'pending'
-                  ? 'bg-amber-105 border-amber-200 text-amber-850'
-                  : 'bg-red-105 border-red-200 text-red-800'
+                  ? 'bg-amber-100 border-amber-200 text-amber-800'
+                  : 'bg-red-100 border-red-200 text-red-800'
               }`}>
                 {ad.status}
               </span>
+            </div>
+
+            {/* Future Paid Ad Management Internal Fields (Admin Only) */}
+            <div className="mb-3 p-2.5 bg-white/90 rounded-xl border border-red-100/50 text-xs space-y-1.5 shadow-2xs">
+              <span className="block text-[9px] font-black text-rose-600 uppercase tracking-widest">
+                ⚙️ Internal Metadata (For Targeting & Pricing Plans)
+              </span>
+              <div className="grid grid-cols-2 gap-2 text-[10px] font-sans text-slate-700">
+                <div>
+                  <span className="font-bold text-slate-400 uppercase tracking-wider">Location Target:</span>
+                  <p className="font-extrabold text-slate-900 leading-tight">{location}</p>
+                </div>
+                <div>
+                  <span className="font-bold text-slate-400 uppercase tracking-wider">Duration Days:</span>
+                  <p className="font-extrabold text-slate-900 leading-tight">{ad.expiry_days || 30} Days</p>
+                </div>
+                {website && (
+                  <div className="col-span-2 border-t border-slate-100 pt-1.5">
+                    <span className="font-bold text-slate-400 uppercase tracking-wider">Website URL:</span>
+                    <a href={website} target="_blank" rel="noreferrer" className="block text-blue-600 font-extrabold truncate hover:underline">
+                      {website}
+                    </a>
+                  </div>
+                )}
+                {finalWhatsappUrl && (
+                  <div className="col-span-2 border-t border-slate-100 pt-1.5">
+                    <span className="font-bold text-slate-400 uppercase tracking-wider">WhatsApp Contact URL:</span>
+                    <a href={finalWhatsappUrl} target="_blank" rel="noreferrer" className="block text-emerald-600 font-extrabold truncate hover:underline">
+                      {finalWhatsappUrl}
+                    </a>
+                  </div>
+                )}
+              </div>
             </div>
 
             <div className="flex flex-wrap items-center gap-1 bg-white p-1.5 rounded-xl border border-red-100 shadow-xs">

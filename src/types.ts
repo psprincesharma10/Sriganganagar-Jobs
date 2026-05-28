@@ -28,6 +28,7 @@ export interface Ad {
   ad_description?: string;
   phone_number?: string;
   whatsapp_number?: string;
+  whatsapp_url?: string;
   website_url?: string;
   expiry_days?: number;
   location?: string;
