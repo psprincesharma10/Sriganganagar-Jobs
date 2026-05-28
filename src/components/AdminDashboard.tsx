@@ -34,7 +34,7 @@ export default function AdminDashboard({
 }: AdminDashboardProps) {
   
   const pendingAds = ads.filter(ad => ad.status === 'pending');
-  const activeAds = ads.filter(ad => ad.status === 'approved' || ad.status === 'active' || ad.is_active === true);
+  const activeAds = ads.filter(ad => ad.status === 'approved');
   const pinnedJobsCount = jobs.filter(j => j.pinned).length;
 
   return (
@@ -252,7 +252,7 @@ export default function AdminDashboard({
                   </td>
                 </tr>
               ))}
-              {ads.filter(a => a.status === 'approved' || a.status === 'active' || a.is_active === true).map(ad => (
+              {ads.filter(a => a.status === 'approved').map(ad => (
                 <tr key={ad.id} className="hover:bg-slate-50">
                   <td className="p-3 font-semibold text-slate-900 truncate max-w-[150px]">
                     {ad.business_name}

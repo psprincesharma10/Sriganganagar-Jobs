@@ -3,7 +3,6 @@ import { Job, Ad, Language } from './types';
 import { INITIAL_JOBS, INITIAL_ADS } from './data';
 import JobCard from './components/JobCard';
 import AdBanner from './components/AdBanner';
-import BusinessAdCard from './components/BusinessAdCard';
 import JobPostingModal from './components/JobPostingModal';
 import AdPostingModal from './components/AdPostingModal';
 import UnlockModal from './components/UnlockModal';
@@ -159,30 +158,22 @@ export default function App() {
               console.error('Failed to parse rich ad description:', e);
             }
           }
-          
-          const businessName = row.business_name || '';
-          const imageUrl = row.image_url || '';
-          const dbContact = row.contact_number || row.contact || '';
-          const dbDescription = row.ad_description || row.short_description || '';
-          
           return {
             id: row.id,
             created_at: row.created_at,
-            business_name: businessName,
-            image_url: imageUrl,
-            contact: dbContact,
-            contact_number: dbContact,
-            short_description: extra.short_description || dbDescription || '',
+            business_name: row.business_name || '',
+            image_url: row.image_url || '',
+            contact: row.contact || undefined,
+            short_description: extra.short_description || row.short_description || '',
             sponsored: typeof row.sponsored === 'boolean' ? row.sponsored : true,
             status: row.status || 'pending',
             featured: typeof row.featured === 'boolean' ? row.featured : false,
-            is_active: typeof row.is_active === 'boolean' ? row.is_active : false,
             
             // Populating extended fields
-            ad_title: extra.ad_title || businessName,
-            ad_description: dbDescription || extra.ad_description || '',
-            phone_number: dbContact || extra.phone_number || '',
-            whatsapp_number: extra.whatsapp_number || dbContact || '',
+            ad_title: extra.ad_title || row.business_name || '',
+            ad_description: extra.ad_description || row.short_description || '',
+            phone_number: extra.phone_number || row.contact || '',
+            whatsapp_number: extra.whatsapp_number || row.contact || '',
             whatsapp_url: extra.whatsapp_url || '',
             website_url: extra.website_url || '',
             expiry_days: extra.expiry_days || 30,
@@ -291,17 +282,12 @@ export default function App() {
         .from('ads')
         .insert([{
           business_name: adData.business_name,
-          ad_description: adData.ad_description || adData.short_description || '',
-          contact_number: adData.contact || adData.phone_number || '',
           image_url: adData.image_url,
-          status: 'active',
-          is_active: true,
-          sponsored: true,
-          featured: false,
-          
-          // Legacy compatibility
-          contact: adData.contact || adData.phone_number || null,
+          contact: adData.contact || null,
           short_description: payloadDescription,
+          sponsored: true,
+          status: 'pending', // Requires approval
+          featured: false,
         }]);
 
       if (error) {
@@ -312,7 +298,7 @@ export default function App() {
       // Reload all matching data from Supabase in real-time
       await loadSupabaseData();
 
-      triggerToast(lang === 'en' ? 'Sponsored ad submitted successfully! Active and live.' : 'प्रायोजित विज्ञापन सफलतापूर्वक सबमिट हुआ और तुरंत लाइव हो गया है।');
+      triggerToast(lang === 'en' ? 'Sponsored ad submitted successfully! Pending admin approval.' : 'प्रायोजित विज्ञापन सफलतापूर्वक सबमिट हुआ! एडमिन मंज़ूरी के बाद लाइव होगा।');
     } catch (err: any) {
       console.error('Supabase ad submission failed inside try-catch:', err);
       triggerToast(lang === 'en' ? `⚠️ Supabase error: ${err.message || err}` : `⚠️ विज्ञापन पंजीकरण में त्रुटि: ${err.message || err}`);
@@ -520,7 +506,7 @@ export default function App() {
   });
 
   // Active Approved Ads to display and inject
-  const approvedAds = ads.filter(ad => ad.status === 'active' || ad.is_active === true || ad.status === 'approved');
+  const approvedAds = ads.filter(ad => ad.status === 'approved');
   const featuredAds = approvedAds.filter(ad => ad.featured);
 
   // Sri Ganganagar Locations for swift pills
@@ -701,7 +687,7 @@ export default function App() {
               </div>
               <div className="space-y-3">
                 {featuredAds.slice(0, 1).map(ad => (
-                  <BusinessAdCard
+                  <AdBanner
                     key={ad.id}
                     ad={ad}
                     lang={lang}
@@ -865,13 +851,13 @@ export default function App() {
                       />
                     );
 
-                    // Insert approved ad every 2 job listings in feed scroll - do not duplicate ads
-                    if ((index + 1) % 2 === 0 && adIndex < approvedAds.length) {
-                      const adToShow = approvedAds[adIndex];
+                    // Insert approved ad every 2 job listings in feed scroll
+                    if ((index + 1) % 2 === 0 && approvedAds.length > 0) {
+                      const adToShow = approvedAds[adIndex % approvedAds.length];
                       adIndex++;
                       elements.push(
                         <div key={`feed-ad-wrap-${adToShow.id}-${index}`} className="my-4">
-                          <BusinessAdCard
+                          <AdBanner
                             ad={adToShow}
                             lang={lang}
                             isAdmin={isAdmin}
@@ -964,7 +950,7 @@ export default function App() {
             ) : (
               <div className="space-y-4">
                 {approvedAds.map(ad => (
-                  <BusinessAdCard
+                  <AdBanner
                     key={`side-ad-${ad.id}`}
                     ad={ad}
                     lang={lang}

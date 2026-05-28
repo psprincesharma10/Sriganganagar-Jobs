@@ -18,12 +18,10 @@ export interface Ad {
   business_name: string;
   image_url: string; // URL or base64
   contact?: string;
-  contact_number?: string;
   short_description: string;
   sponsored: boolean; // default true
-  status: string; // 'pending' | 'approved' | 'rejected' | 'active'
+  status: 'pending' | 'approved' | 'rejected';
   featured: boolean; // Admin can select to feature/promote
-  is_active?: boolean;
   
   // Extended fields for the new sponsored ads system:
   ad_title?: string;
