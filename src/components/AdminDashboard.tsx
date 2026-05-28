@@ -156,11 +156,14 @@ export default function AdminDashboard({
                     />
                   </div>
                   <div className="space-y-1 min-w-0 flex-1">
-                    <h4 className="font-bold text-xs text-slate-900 truncate">
-                      {ad.business_name}
+                    <h4 className="font-extrabold text-xs text-slate-900 truncate">
+                      {ad.ad_title || ad.business_name}
                     </h4>
+                    <p className="text-[10px] text-emerald-800 font-bold">
+                      Business: {ad.business_name} • {ad.location || 'Sri Ganganagar'}
+                    </p>
                     <p className="text-[11px] text-slate-500 line-clamp-2">
-                      {ad.short_description}
+                      {ad.ad_description || ad.short_description}
                     </p>
                     {ad.contact && (
                       <p className="text-xs font-mono font-bold text-slate-500">Contact: {ad.contact}</p>

@@ -81,27 +81,4 @@ export const INITIAL_JOBS: Job[] = [
   }
 ];
 
-export const INITIAL_ADS: Ad[] = [
-  {
-    id: 'ad-1',
-    created_at: getPastDate(2),
-    business_name: 'Apex Spoken English & IELTS Prep Circle / एपेक्स स्पोकन इंग्लिश',
-    short_description: 'Best English coaching in Sri Ganganagar. Free demo classes. / श्रीगंगानगर में सर्वोत्तम इंग्लिश कोचिंग। फ्री डेमो क्लास।',
-    image_url: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=600&auto=format&fit=crop&q=80',
-    contact: '9887766554',
-    sponsored: true,
-    status: 'approved',
-    featured: true, // Promoted at the top or beautifully embedded
-  },
-  {
-    id: 'ad-2',
-    created_at: getPastDate(6),
-    business_name: 'Rishi Computer Institute / ऋषि कंप्यूटर संस्थान',
-    short_description: 'Free Tally & GST course with certification. / टैली और जीएसटी का फ्री सर्टिफिकेट कोर्स।',
-    image_url: 'https://images.unsplash.com/photo-1542744094-3a31f103e35f?w=600&auto=format&fit=crop&q=80',
-    contact: '9414099999',
-    sponsored: true,
-    status: 'approved',
-    featured: false,
-  }
-];
+export const INITIAL_ADS: Ad[] = [];

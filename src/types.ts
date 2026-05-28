@@ -22,6 +22,15 @@ export interface Ad {
   sponsored: boolean; // default true
   status: 'pending' | 'approved' | 'rejected';
   featured: boolean; // Admin can select to feature/promote
+  
+  // Extended fields for the new sponsored ads system:
+  ad_title?: string;
+  ad_description?: string;
+  phone_number?: string;
+  whatsapp_number?: string;
+  website_url?: string;
+  expiry_days?: number;
+  location?: string;
 }
 
 export interface AdminSettings {

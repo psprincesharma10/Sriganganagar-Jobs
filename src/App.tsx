@@ -147,53 +147,40 @@ export default function App() {
         }
       }
 
-      // If the ads table is empty, auto-seed it with state defaults
+      // If the ads table is empty or has entries
       if (dbAds && dbAds.length > 0) {
-        finalAds = dbAds.map((row: any) => ({
-          id: row.id,
-          created_at: row.created_at,
-          business_name: row.business_name || '',
-          image_url: row.image_url || '',
-          contact: row.contact || undefined,
-          short_description: row.short_description || '',
-          sponsored: typeof row.sponsored === 'boolean' ? row.sponsored : true,
-          status: row.status || 'pending',
-          featured: typeof row.featured === 'boolean' ? row.featured : false,
-        }));
-      } else {
-        console.log('Ads table in Supabase is empty. Commencing auto-seed of default ads...');
-        const adsToInsert = INITIAL_ADS.map(ad => ({
-          business_name: ad.business_name,
-          image_url: ad.image_url,
-          contact: ad.contact || null,
-          short_description: ad.short_description,
-          sponsored: ad.sponsored,
-          status: ad.status,
-          featured: ad.featured
-        }));
-
-        const { error: insertErr } = await supabase.from('ads').insert(adsToInsert);
-        if (insertErr) {
-          console.error('Error inserting ad seeding:', insertErr);
-        }
-
-        // Re-fetch after seeding to have database IDs
-        const { data: freshAds } = await supabase.from('ads').select('*');
-        if (freshAds && freshAds.length > 0) {
-          finalAds = freshAds.map((row: any) => ({
+        finalAds = dbAds.map((row: any) => {
+          let extra: Partial<Ad> = {};
+          if (row.short_description && row.short_description.trim().startsWith('{')) {
+            try {
+              extra = JSON.parse(row.short_description);
+            } catch (e) {
+              console.error('Failed to parse rich ad description:', e);
+            }
+          }
+          return {
             id: row.id,
             created_at: row.created_at,
             business_name: row.business_name || '',
             image_url: row.image_url || '',
             contact: row.contact || undefined,
-            short_description: row.short_description || '',
+            short_description: extra.short_description || row.short_description || '',
             sponsored: typeof row.sponsored === 'boolean' ? row.sponsored : true,
             status: row.status || 'pending',
             featured: typeof row.featured === 'boolean' ? row.featured : false,
-          }));
-        } else {
-          finalAds = INITIAL_ADS;
-        }
+            
+            // Populating extended fields
+            ad_title: extra.ad_title || row.business_name || '',
+            ad_description: extra.ad_description || row.short_description || '',
+            phone_number: extra.phone_number || row.contact || '',
+            whatsapp_number: extra.whatsapp_number || row.contact || '',
+            website_url: extra.website_url || '',
+            expiry_days: extra.expiry_days || 30,
+            location: extra.location || 'Sri Ganganagar'
+          };
+        });
+      } else {
+        finalAds = [];
       }
 
       const now = new Date('2026-05-24T11:17:41Z').getTime();
@@ -276,39 +263,40 @@ export default function App() {
   // 2. Submit Business Ad
   const handleCreateAd = async (adData: Omit<Ad, 'id' | 'created_at' | 'sponsored' | 'status' | 'featured'>) => {
     try {
-      const { data, error } = await supabase
+      const richAdMetadata = {
+        ad_title: adData.ad_title || '',
+        ad_description: adData.ad_description || adData.short_description || '',
+        phone_number: adData.phone_number || adData.contact || '',
+        whatsapp_number: adData.whatsapp_number || adData.contact || '',
+        website_url: adData.website_url || '',
+        expiry_days: adData.expiry_days || 30,
+        location: adData.location || 'Sri Ganganagar',
+        short_description: adData.short_description || ''
+      };
+
+      const payloadDescription = JSON.stringify(richAdMetadata);
+
+      const { error } = await supabase
         .from('ads')
         .insert([{
           business_name: adData.business_name,
           image_url: adData.image_url,
           contact: adData.contact || null,
-          short_description: adData.short_description,
+          short_description: payloadDescription,
           sponsored: true,
           status: 'pending', // Requires approval
           featured: false,
-        }])
-        .select();
+        }]);
 
       if (error) {
         console.error('Exact Supabase ads insert error details:', error);
         throw error;
       }
 
-      const returnedRow = data && data[0];
-      const newAd: Ad = {
-        id: returnedRow?.id || ('ad-' + Date.now()),
-        created_at: returnedRow?.created_at || new Date('2026-05-24T11:17:41Z').toISOString(),
-        business_name: returnedRow?.business_name || adData.business_name,
-        image_url: returnedRow?.image_url || adData.image_url,
-        contact: returnedRow?.contact || adData.contact || undefined,
-        short_description: returnedRow?.short_description || adData.short_description,
-        sponsored: typeof returnedRow?.sponsored === 'boolean' ? returnedRow.sponsored : true,
-        status: returnedRow?.status || 'pending',
-        featured: typeof returnedRow?.featured === 'boolean' ? returnedRow.featured : false,
-      };
+      // Reload all matching data from Supabase in real-time
+      await loadSupabaseData();
 
-      setAds(prev => [newAd, ...prev]);
-      triggerToast(lang === 'en' ? 'Ad submitted! Waiting for admin approval.' : 'विज्ञापन सबमिट हुआ! एडमिन की मंजूरी की आवश्यकता है।');
+      triggerToast(lang === 'en' ? 'Sponsored ad submitted successfully! Pending admin approval.' : 'प्रायोजित विज्ञापन सफलतापूर्वक सबमिट हुआ! एडमिन मंज़ूरी के बाद लाइव होगा।');
     } catch (err: any) {
       console.error('Supabase ad submission failed inside try-catch:', err);
       triggerToast(lang === 'en' ? `⚠️ Supabase error: ${err.message || err}` : `⚠️ विज्ञापन पंजीकरण में त्रुटि: ${err.message || err}`);
@@ -974,6 +962,29 @@ export default function App() {
                 ))}
               </div>
             )}
+
+            {/* Advertising Contact Sticky Banner */}
+            <div className="mt-4 p-4 rounded-2xl bg-[#fffbf0] border border-amber-200/60 shadow-xs space-y-1.5 bh-amber-50">
+              <div className="flex items-center gap-1 text-[10px] font-extrabold uppercase text-amber-800 tracking-widest">
+                <Sparkles size={11} className="fill-amber-500 text-amber-500" />
+                <span>{lang === 'en' ? 'Advertise With Us' : 'यहाँ विज्ञापन लगाएं'}</span>
+              </div>
+              <p className="text-[11px] text-slate-605 leading-relaxed font-sans">
+                {lang === 'en' ? 'Promote your shop, coaching, or local business on Sriganganagar\'s #1 board.' : 'अपने स्थानीय व्यवसाय, कोचिंग या दुकान का श्रीगंगानगर की नंबर #1 वेबसाइट पर प्रचार करें।'}
+              </p>
+              <div className="pt-2 text-[11px] text-slate-700 border-t border-amber-200/50 flex flex-col gap-0.5 font-bold font-sans">
+                <span>
+                  {lang === 'en' ? 'For advertising contact:' : 'विज्ञापन हेतु संपर्क:'}{' '}
+                  <span className="font-black text-slate-900">Prince Sharma</span>
+                </span>
+                <span>
+                  {lang === 'en' ? 'Email:' : 'ईमेल:'}{' '}
+                  <a href="mailto:princeoffice2021@gmail.com" className="text-amber-600 underline font-black hover:text-amber-700">
+                    princeoffice2021@gmail.com
+                  </a>
+                </span>
+              </div>
+            </div>
 
           </div>
 
