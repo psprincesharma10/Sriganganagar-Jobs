@@ -3,9 +3,9 @@ import { Job, Ad, Language } from './types';
 import { INITIAL_JOBS, INITIAL_ADS } from './data';
 import JobCard from './components/JobCard';
 import AdBanner from './components/AdBanner';
-import BusinessAdCard from './components/BusinessAdCard';
 import JobPostingModal from './components/JobPostingModal';
 import AdPostingModal from './components/AdPostingModal';
+import UnlockModal from './components/UnlockModal';
 import AdminDashboard from './components/AdminDashboard';
 import { supabase } from './supabaseClient';
 
@@ -47,6 +47,11 @@ export default function App() {
     return localStorage.getItem('sgn_admin_session') === 'true';
   });
 
+  const [unlockedJobIds, setUnlockedJobIds] = useState<string[]>(() => {
+    const saved = localStorage.getItem('sgn_unlocked_jobs');
+    return saved ? JSON.parse(saved) : [];
+  });
+
   // --- Filtering & Search States ---
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedLocation, setSelectedLocation] = useState<string>('All');
@@ -54,6 +59,7 @@ export default function App() {
 
   // --- UI Control States ---
   const [activeModal, setActiveModal] = useState<'job' | 'ad' | 'login' | null>(null);
+  const [unlockTargetJob, setUnlockTargetJob] = useState<Job | null>(null);
   const [adminPasswordInput, setAdminPasswordInput] = useState('');
   const [loginError, setLoginError] = useState('');
   const [toastMessage, setToastMessage] = useState('');
@@ -209,6 +215,10 @@ export default function App() {
     localStorage.setItem('sgn_job_lang', lang);
   }, [lang]);
 
+  useEffect(() => {
+    localStorage.setItem('sgn_unlocked_jobs', JSON.stringify(unlockedJobIds));
+  }, [unlockedJobIds]);
+
   // Toast auto-clear
   useEffect(() => {
     if (toastMessage) {
@@ -306,6 +316,28 @@ export default function App() {
       console.error('Supabase ad submission failed inside try-catch:', err);
       triggerToast(lang === 'en' ? `⚠️ Supabase error: ${err.message || err}` : `⚠️ विज्ञापन पंजीकरण में त्रुटि: ${err.message || err}`);
     }
+  };
+
+  // 3. Premium Contact Unlock Handler
+  const handleUnlockContact = (job: Job) => {
+    setUnlockTargetJob(job);
+  };
+
+  const handleUnlockSuccess = (jobId: string) => {
+    setUnlockedJobIds(prev => {
+      if (prev.includes(jobId)) return prev;
+      return [...prev, jobId];
+    });
+
+    // Directly mutate the phone_hidden representation dynamically for the session
+    setJobs(prev => prev.map(job => {
+      if (job.id === jobId) {
+        return { ...job, phone_hidden: false };
+      }
+      return job;
+    }));
+
+    triggerToast(lang === 'en' ? '🔒 Contact unlocked!' : '🔒 संपर्क नंबर अनलॉक हुआ!');
   };
 
   // 4. Admin Authentication
@@ -668,7 +700,7 @@ export default function App() {
               </div>
               <div className="space-y-3">
                 {featuredAds.slice(0, 1).map(ad => (
-                  <BusinessAdCard
+                  <AdBanner
                     key={ad.id}
                     ad={ad}
                     lang={lang}
@@ -828,16 +860,17 @@ export default function App() {
                         onDelete={handleDeleteJob}
                         onTogglePhone={handleToggleJobPhone}
                         onTogglePin={handleToggleJobPin}
+                        onUnlockClick={handleUnlockContact}
                       />
                     );
 
-                    // Insert approved ad every 2 job listings in feed scroll - do not duplicate ads
-                    if ((index + 1) % 2 === 0 && adIndex < approvedAds.length) {
-                      const adToShow = approvedAds[adIndex];
+                    // Insert approved ad every 2 job listings in feed scroll
+                    if ((index + 1) % 2 === 0 && approvedAds.length > 0) {
+                      const adToShow = approvedAds[adIndex % approvedAds.length];
                       adIndex++;
                       elements.push(
                         <div key={`feed-ad-wrap-${adToShow.id}-${index}`} className="my-4">
-                          <BusinessAdCard
+                          <AdBanner
                             ad={adToShow}
                             lang={lang}
                             isAdmin={isAdmin}
@@ -930,7 +963,7 @@ export default function App() {
             ) : (
               <div className="space-y-4">
                 {approvedAds.map(ad => (
-                  <BusinessAdCard
+                  <AdBanner
                     key={`side-ad-${ad.id}`}
                     ad={ad}
                     lang={lang}
@@ -1068,6 +1101,15 @@ export default function App() {
         onClose={() => setActiveModal(null)}
         lang={lang}
         onPostAd={handleCreateAd}
+      />
+
+      {/* 3. Unlock Contact Number Premium Modal */}
+      <UnlockModal
+        isOpen={unlockTargetJob !== null}
+        job={unlockTargetJob}
+        lang={lang}
+        onClose={() => setUnlockTargetJob(null)}
+        onUnlockSuccess={handleUnlockSuccess}
       />
 
       {/* 4. Owner Admin Login Secret Pin Prompt Modal */}

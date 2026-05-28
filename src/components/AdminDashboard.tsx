@@ -66,7 +66,7 @@ export default function AdminDashboard({
       </div>
 
       {/* Grid Stats */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100/50">
           <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">
             {lang === 'en' ? 'Total Jobs' : 'कुल नौकरियां'}
@@ -78,6 +78,12 @@ export default function AdminDashboard({
             {lang === 'en' ? 'Pinned Jobs' : 'पिन की गई जॉब्स'}
           </span>
           <span className="text-2xl font-black text-[#128C7E]">{pinnedJobsCount}</span>
+        </div>
+        <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100/50">
+          <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">
+            {lang === 'en' ? 'Pending Ads' : 'मंज़ूरी हेतु विज्ञापन'}
+          </span>
+          <span className="text-2xl font-black text-amber-500">{pendingAds.length}</span>
         </div>
         <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100/50">
           <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">
@@ -124,6 +130,71 @@ export default function AdminDashboard({
             {lang === 'en' ? '1 Year (12M)' : '1 साल (12 महीने)'}
           </button>
         </div>
+      </div>
+
+      {/* Ads Approval and list queue */}
+      <div className="space-y-3">
+        <h3 className="text-sm font-black text-slate-800">
+          {lang === 'en' ? 'Pending Ads Verification Queue' : 'सत्यापन के लिए लंबित विज्ञापन कतार'}
+        </h3>
+
+        {pendingAds.length === 0 ? (
+          <div className="p-6 text-center border-2 border-dashed border-slate-100 rounded-2xl text-xs text-slate-400">
+            {lang === 'en' ? 'No design ads waiting for approval.' : 'मंज़ूरी की प्रतीक्षा में कोई व्यावसायिक विज्ञापन कतार में नहीं हैं।'}
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {pendingAds.map((ad) => (
+              <div key={ad.id} className="border-2 border-amber-200 rounded-2xl overflow-hidden bg-white flex flex-col p-3.5 space-y-3">
+                <div className="flex gap-3">
+                  <div className="w-20 h-20 bg-slate-900 rounded-xl overflow-hidden flex-shrink-0">
+                    <img 
+                      src={ad.image_url} 
+                      alt={ad.business_name} 
+                      className="w-full h-full object-cover"
+                      referrerPolicy="no-referrer"
+                    />
+                  </div>
+                  <div className="space-y-1 min-w-0 flex-1">
+                    <h4 className="font-extrabold text-xs text-slate-900 truncate">
+                      {ad.ad_title || ad.business_name}
+                    </h4>
+                    <p className="text-[10px] text-emerald-800 font-bold">
+                      Business: {ad.business_name} • {ad.location || 'Sri Ganganagar'}
+                    </p>
+                    <p className="text-[11px] text-slate-500 line-clamp-2">
+                      {ad.ad_description || ad.short_description}
+                    </p>
+                    {ad.contact && (
+                      <p className="text-xs font-mono font-bold text-slate-500">Contact: {ad.contact}</p>
+                    )}
+                    <span className="inline-block text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded bg-amber-100 text-amber-800">
+                      Pending Approval
+                    </span>
+                  </div>
+                </div>
+
+                {/* Actions */}
+                <div className="flex gap-2 pt-2 border-t border-slate-50">
+                  <button
+                    onClick={() => onApproveAd(ad.id)}
+                    className="flex-1 py-2 text-xs font-bold text-emerald-800 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 rounded-xl flex items-center justify-center gap-1 transition-colors cursor-pointer"
+                  >
+                    <Check size={14} />
+                    <span>Approve</span>
+                  </button>
+                  <button
+                    onClick={() => onRejectAd(ad.id)}
+                    className="flex-1 py-2 text-xs font-bold text-red-800 bg-red-50 hover:bg-red-100 border border-red-200 rounded-xl flex items-center justify-center gap-1 transition-colors cursor-pointer"
+                  >
+                    <X size={14} />
+                    <span>Reject</span>
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Global quick operations list */}
