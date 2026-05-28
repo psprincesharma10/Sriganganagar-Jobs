@@ -3,6 +3,7 @@ import { Job, Ad, Language } from './types';
 import { INITIAL_JOBS, INITIAL_ADS } from './data';
 import JobCard from './components/JobCard';
 import AdBanner from './components/AdBanner';
+import BusinessAdCard from './components/BusinessAdCard';
 import JobPostingModal from './components/JobPostingModal';
 import AdPostingModal from './components/AdPostingModal';
 import UnlockModal from './components/UnlockModal';
@@ -700,7 +701,7 @@ export default function App() {
               </div>
               <div className="space-y-3">
                 {featuredAds.slice(0, 1).map(ad => (
-                  <AdBanner
+                  <BusinessAdCard
                     key={ad.id}
                     ad={ad}
                     lang={lang}
@@ -864,13 +865,13 @@ export default function App() {
                       />
                     );
 
-                    // Insert approved ad every 2 job listings in feed scroll
-                    if ((index + 1) % 2 === 0 && approvedAds.length > 0) {
-                      const adToShow = approvedAds[adIndex % approvedAds.length];
+                    // Insert approved ad every 2 job listings in feed scroll - do not duplicate ads
+                    if ((index + 1) % 2 === 0 && adIndex < approvedAds.length) {
+                      const adToShow = approvedAds[adIndex];
                       adIndex++;
                       elements.push(
                         <div key={`feed-ad-wrap-${adToShow.id}-${index}`} className="my-4">
-                          <AdBanner
+                          <BusinessAdCard
                             ad={adToShow}
                             lang={lang}
                             isAdmin={isAdmin}
@@ -963,7 +964,7 @@ export default function App() {
             ) : (
               <div className="space-y-4">
                 {approvedAds.map(ad => (
-                  <AdBanner
+                  <BusinessAdCard
                     key={`side-ad-${ad.id}`}
                     ad={ad}
                     lang={lang}
