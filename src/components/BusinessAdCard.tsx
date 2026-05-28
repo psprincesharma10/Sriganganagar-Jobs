@@ -132,33 +132,15 @@ export default function BusinessAdCard({
               )}
             </div>
 
-            <div className="flex gap-1">
-              {ad.status !== 'approved' && ad.status !== 'active' && onApprove && (
-                <button
-                  type="button"
-                  onClick={() => onApprove(ad.id)}
-                  className="flex-1 py-1 text-[9px] font-bold bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 rounded"
-                >
-                  Approve/Active
-                </button>
-              )}
-              {ad.status !== 'rejected' && onReject && (
-                <button
-                  type="button"
-                  onClick={() => onReject(ad.id)}
-                  className="flex-1 py-1 text-[9px] font-bold bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 rounded"
-                >
-                  Reject
-                </button>
-              )}
+             <div className="flex gap-1 justify-end">
               {onDelete && (
                 <button
                   type="button"
                   onClick={() => onDelete(ad.id)}
-                  className="px-1.5 py-1 text-[9px] font-bold bg-rose-50 hover:bg-rose-100 text-rose-800 border border-rose-200 rounded flex items-center justify-center"
+                  className="px-2 py-1 text-[9px] font-bold bg-rose-50 hover:bg-rose-100 text-rose-800 border border-rose-200 rounded flex items-center justify-center gap-1"
                   title="Delete Ad"
                 >
-                  <Trash2 size={11} />
+                  <Trash2 size={11} /> Delete
                 </button>
               )}
             </div>

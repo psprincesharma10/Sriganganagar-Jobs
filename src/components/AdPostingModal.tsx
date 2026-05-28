@@ -165,8 +165,8 @@ export default function AdPostingModal({
               </p>
               <p className="opacity-90 leading-relaxed">
                 {lang === 'en' 
-                  ? 'Your sponsored ad will appear within the Business Showcase sidebar and between job posts. It becomes active instantly after Admin approval!' 
-                  : 'आपका स्पॉन्सर्ड विज्ञापन बिज़नेस शोकेस साइडबार और जॉब फीड के बीच दिखाई देगा। एडमिन द्वारा मंज़ूरी के बाद यह लाइव हो जाएगा!'}
+                  ? 'Your sponsored ad will appear within the Business Showcase sidebar and between job posts. It becomes active instantly upon submission!' 
+                  : 'आपका स्पॉन्सर्ड विज्ञापन बिज़नेस शोकेस साइडबार और जॉब फीड के बीच दिखाई देगा। यह सबमिट करते ही तुरंत लाइव हो जाएगा!'}
               </p>
             </div>
           </div>

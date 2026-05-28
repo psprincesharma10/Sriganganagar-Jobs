@@ -9,7 +9,7 @@ interface JobCardProps {
   onDelete?: (id: string) => void;
   onTogglePhone?: (id: string) => void;
   onTogglePin?: (id: string) => void;
-  onUnlockClick: (job: Job) => void;
+  onUnlockClick?: (job: Job) => void;
 }
 
 export default function JobCard({
@@ -99,30 +99,19 @@ export default function JobCard({
             {lang === 'en' ? 'Employer Phone' : 'नियोक्ता फोन'}
           </span>
           <span className="font-mono text-base font-bold text-slate-800">
-            {job.phone_hidden && !isAdmin ? getMaskedPhone(job.phone) : job.phone}
+            {job.phone}
           </span>
         </div>
 
         <div className="flex items-center gap-2">
-          {job.phone_hidden && !isAdmin ? (
-            <button
-              id={`unlock-${job.id}`}
-              onClick={() => onUnlockClick(job)}
-              className="px-4 py-2 text-xs font-bold text-[#075E54] bg-[#eefaf7] hover:bg-[#d8f4ed] border-2 border-[#128C7E] rounded-xl flex items-center gap-1.5 transition-colors cursor-pointer"
-            >
-              <Sparkles size={14} className="animate-pulse" />
-              <span>{lang === 'en' ? 'Unlock Contact' : 'नंबर देखें'}</span>
-            </button>
-          ) : (
-            <a
-              id={`call-${job.id}`}
-              href={`tel:${job.phone}`}
-              className="px-4 py-2 text-xs font-bold text-white bg-[#25D366] hover:bg-[#20ba5a] rounded-xl flex items-center gap-1.5 transition-colors shadow-sm"
-            >
-              <Phone size={14} />
-              <span>{lang === 'en' ? 'Call Directly' : 'कॉल करें'}</span>
-            </a>
-          )}
+          <a
+            id={`call-${job.id}`}
+            href={`tel:${job.phone}`}
+            className="px-4 py-2 text-xs font-bold text-white bg-[#25D366] hover:bg-[#20ba5a] rounded-xl flex items-center gap-1.5 transition-colors shadow-sm"
+          >
+            <Phone size={14} />
+            <span>{lang === 'en' ? 'Call Directly' : 'कॉल करें'}</span>
+          </a>
         </div>
       </div>
 
