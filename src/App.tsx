@@ -1050,15 +1050,14 @@ export default function App() {
               Made in Rajasthan for local community
             </span>
 
-            {/* Admin trigger handler */}
+            {/* Admin trigger - hidden secret dot, only visible to admin */}
             {!isAdmin ? (
-              <button
-                id="footer-admin-login-btn"
+              <span
+                id="footer-admin-secret"
                 onClick={() => setActiveModal('login')}
-                className="text-[11px] text-slate-400 underline hover:text-white font-black cursor-pointer bg-transparent border-none outline-hidden"
-              >
-                {text.adminTrigger}
-              </button>
+                title=""
+                className="w-2 h-2 rounded-full bg-slate-700 hover:bg-slate-500 cursor-pointer transition-colors inline-block"
+              />
             ) : (
               <button
                 onClick={handleAdminLogout}
