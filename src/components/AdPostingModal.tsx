@@ -55,6 +55,7 @@ export default function AdPostingModal({
   const [websiteUrl, setWebsiteUrl] = useState('');
   const [expiryDays, setExpiryDays] = useState('30');
   const [location, setLocation] = useState('Sri Ganganagar');
+  const [placement, setPlacement] = useState<'sidebar' | 'feed'>('sidebar');
   const [errorStr, setErrorStr] = useState('');
   const [copied, setCopied] = useState(false);
 
@@ -133,6 +134,7 @@ export default function AdPostingModal({
       website_url: websiteUrl.trim() || undefined,
       expiry_days: Number(expiryDays) || 30,
       location: location.trim(),
+      placement: placement,
     });
     setStep('confirm');
   };
@@ -147,6 +149,7 @@ export default function AdPostingModal({
     setWebsiteUrl('');
     setExpiryDays('30');
     setLocation('Sri Ganganagar');
+    setPlacement('sidebar');
     setErrorStr('');
     setCopied(false);
     onClose();
@@ -338,6 +341,26 @@ export default function AdPostingModal({
                   />
                 </div>
               </div>
+            </div>
+
+            {/* Placement Option */}
+            <div>
+              <label className="block text-xs font-black text-slate-700 uppercase tracking-widest mb-1">
+                {lang === 'en' ? 'Ad Placement' : 'विज्ञापन कहाँ दिखाएं'} <span className="text-red-500">*</span>
+              </label>
+              <select
+                value={placement}
+                onChange={(e) => setPlacement(e.target.value as 'sidebar' | 'feed')}
+                className="w-full px-4 py-2.5 bg-white rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent text-sm transition-all cursor-pointer"
+              >
+                <option value="sidebar">{lang === 'en' ? '📌 Side Bar (Right Panel)' : '📌 साइड बार (दाईं तरफ)'}</option>
+                <option value="feed">{lang === 'en' ? '📋 Between Jobs (Every 3rd job)' : '📋 जॉब के बीच में (हर 3 जॉब के बाद)'}</option>
+              </select>
+              <span className="text-[10px] text-slate-400 mt-1 block">
+                {placement === 'sidebar'
+                  ? (lang === 'en' ? 'Your ad shows in the Business Showcase panel on the right.' : 'आपका विज्ञापन दाईं तरफ Business Showcase में दिखेगा।')
+                  : (lang === 'en' ? 'Your ad appears between job listings every 3 posts.' : 'आपका विज्ञापन हर 3 जॉब के बाद दिखेगा।')}
+              </span>
             </div>
 
             {/* Banner Image URL */}

@@ -54,7 +54,6 @@ export default function App() {
 
   // --- Filtering & Search States ---
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedLocation, setSelectedLocation] = useState<string>('All');
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
 
   // --- UI Control States ---
@@ -177,7 +176,8 @@ export default function App() {
             whatsapp_url: extra.whatsapp_url || '',
             website_url: extra.website_url || '',
             expiry_days: extra.expiry_days || 30,
-            location: extra.location || 'Sri Ganganagar'
+            location: extra.location || 'Sri Ganganagar',
+            placement: extra.placement || 'sidebar'
           };
         });
       } else {
@@ -273,6 +273,7 @@ export default function App() {
         website_url: adData.website_url || '',
         expiry_days: adData.expiry_days || 30,
         location: adData.location || 'Sri Ganganagar',
+        placement: adData.placement || 'sidebar',
         short_description: adData.short_description || ''
       };
 
@@ -485,17 +486,13 @@ export default function App() {
       job.job_description_hi.toLowerCase().includes(q) ||
       (job.poster_name && job.poster_name.toLowerCase().includes(q));
 
-    const matchesLocation = selectedLocation === 'All' || 
-      job.job_description_en.toLowerCase().includes(selectedLocation.toLowerCase()) ||
-      job.job_description_hi.toLowerCase().includes(selectedLocation.toLowerCase());
-
     const matchesCategory = selectedCategory === 'All' || 
       job.job_title_en.toLowerCase().includes(selectedCategory.toLowerCase()) ||
       job.job_title_hi.toLowerCase().includes(selectedCategory.toLowerCase()) ||
       job.job_description_en.toLowerCase().includes(selectedCategory.toLowerCase()) ||
       job.job_description_hi.toLowerCase().includes(selectedCategory.toLowerCase());
 
-    return matchesSearch && matchesLocation && matchesCategory;
+    return matchesSearch && matchesCategory;
   });
 
   // Sort: Pinned first, then by creation date newest first
@@ -508,25 +505,22 @@ export default function App() {
   // Active Approved Ads to display and inject
   const approvedAds = ads.filter(ad => ad.status === 'approved');
   const featuredAds = approvedAds.filter(ad => ad.featured);
+  // Split ads by placement preference
+  const sidebarAds = approvedAds.filter(ad => !ad.placement || ad.placement === 'sidebar');
+  const feedAds = approvedAds.filter(ad => ad.placement === 'feed');
 
   // Sri Ganganagar Locations for swift pills
-  const SGN_LOCATIONS = [
-    { en: 'All', hi: 'सभी स्थान' },
-    { en: 'Gol Bazar', hi: 'गोल बाजार' },
-    { en: 'Sukhadia Circle', hi: 'सुखाड़िया सर्कल' },
-    { en: 'Meera Chowk', hi: 'मीरा चौक' },
-    { en: 'Ridhi Sidhi', hi: 'रिद्धि सिद्धि' },
-    { en: 'Chahal Chowk', hi: 'चहल चौक' },
-    { en: 'Padampur Road', hi: 'पदमपुर रोड' }
-  ];
-
-  // Quick categories
   const SGN_CATEGORIES = [
     { en: 'All', hi: 'सभी श्रेणियां' },
-    { en: 'Helper', hi: 'हेल्पर / सहायक' },
-    { en: 'Teacher', hi: 'टीचर / शिक्षक' },
-    { en: 'Computer', hi: 'कंप्यूटर / आॅपरेटर' },
-    { en: 'Delivery', hi: 'डिलीवरी' }
+    { en: 'Full Time', hi: 'फुल टाइम' },
+    { en: 'Part Time', hi: 'पार्ट टाइम' },
+    { en: 'Freelance', hi: 'फ्रीलांस' },
+    { en: 'Daily Worker', hi: 'दैनिक मजदूर' },
+    { en: 'Per Hour', hi: 'प्रति घंटा' },
+    { en: 'Helper', hi: 'हेल्पर' },
+    { en: 'Delivery', hi: 'डिलीवरी' },
+    { en: 'Teacher', hi: 'टीचर' },
+    { en: 'Driver', hi: 'ड्राइवर' },
   ];
 
   // Text constants for bilingual setup
@@ -726,30 +720,8 @@ export default function App() {
               )}
             </div>
 
-            {/* Locations Pill Filter Row */}
-            <div className="space-y-2">
-              <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider block">
-                📍 {lang === 'en' ? 'Filter by Location' : 'स्थान चुनें'}
-              </span>
-              <div className="flex flex-wrap gap-1.5">
-                {SGN_LOCATIONS.map((loc) => (
-                  <button
-                    key={loc.en}
-                    onClick={() => setSelectedLocation(loc.en)}
-                    className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                      (loc.en === 'All' && selectedLocation === 'All') || selectedLocation === loc.en
-                        ? 'bg-[#075E54] text-[#ECE5DD] shadow-xs'
-                        : 'bg-[#F0F2F5] hover:bg-[#ECE5DD] text-slate-700'
-                    }`}
-                  >
-                    {lang === 'en' ? loc.en : loc.hi}
-                  </button>
-                ))}
-              </div>
-            </div>
-
             {/* Categories Pill Filter Row */}
-            <div className="space-y-2 pt-1">
+            <div className="space-y-2">
               <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider block">
                 💼 {lang === 'en' ? 'Filter by Job Category' : 'जॉब की श्रेणी'}
               </span>
@@ -851,9 +823,9 @@ export default function App() {
                       />
                     );
 
-                    // Insert approved ad every 2 job listings in feed scroll
-                    if ((index + 1) % 2 === 0 && approvedAds.length > 0) {
-                      const adToShow = approvedAds[adIndex % approvedAds.length];
+                    // Insert feed ad every 3 job listings
+                    if ((index + 1) % 3 === 0 && feedAds.length > 0) {
+                      const adToShow = feedAds[adIndex % feedAds.length];
                       adIndex++;
                       elements.push(
                         <div key={`feed-ad-wrap-${adToShow.id}-${index}`} className="my-4">
@@ -937,7 +909,7 @@ export default function App() {
             </div>
 
             {/* Display Approved / Promoted Business templates */}
-            {approvedAds.length === 0 ? (
+            {sidebarAds.length === 0 ? (
               <div className="py-8 text-center border border-dashed border-slate-200 rounded-3xl bg-slate-50 p-4">
                 <Megaphone size={20} className="mx-auto text-slate-300 mb-1.5" />
                 <p className="text-xs font-bold text-slate-500">
@@ -949,7 +921,7 @@ export default function App() {
               </div>
             ) : (
               <div className="space-y-4">
-                {approvedAds.map(ad => (
+                {sidebarAds.map(ad => (
                   <AdBanner
                     key={`side-ad-${ad.id}`}
                     ad={ad}

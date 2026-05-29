@@ -32,6 +32,7 @@ export interface Ad {
   website_url?: string;
   expiry_days?: number;
   location?: string;
+  placement?: 'sidebar' | 'feed';
 }
 
 export interface AdminSettings {
