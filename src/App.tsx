@@ -942,50 +942,49 @@ export default function App() {
 
                   return elements;
                 })()}
-              </div>
 
-              {/* Pagination */}
-              {totalPages > 1 && (
-                <div className="flex items-center justify-center gap-2 pt-4 flex-wrap">
-                  <button
-                    onClick={() => { setCurrentPage(p => Math.max(1, p - 1)); window.scrollTo({top: 0, behavior: 'smooth'}); }}
-                    disabled={currentPage === 1}
-                    className="px-4 py-2 text-sm font-bold rounded-xl border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors cursor-pointer"
-                  >
-                    ← {lang === 'en' ? 'Prev' : 'पिछला'}
-                  </button>
-
-                  {Array.from({length: totalPages}, (_, i) => i + 1).map(page => (
+                {/* Pagination */}
+                {totalPages > 1 && (
+                  <div className="flex items-center justify-center gap-2 pt-4 flex-wrap">
                     <button
-                      key={page}
-                      onClick={() => { setCurrentPage(page); window.scrollTo({top: 0, behavior: 'smooth'}); }}
-                      className={`w-9 h-9 text-sm font-black rounded-xl transition-colors cursor-pointer ${
-                        page === currentPage
-                          ? 'bg-[#075E54] text-white shadow-sm'
-                          : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
-                      }`}
+                      onClick={() => { setCurrentPage(p => Math.max(1, p - 1)); window.scrollTo({top: 0, behavior: 'smooth'}); }}
+                      disabled={currentPage === 1}
+                      className="px-4 py-2 text-sm font-bold rounded-xl border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors cursor-pointer"
                     >
-                      {page}
+                      ← {lang === 'en' ? 'Prev' : 'पिछला'}
                     </button>
-                  ))}
 
-                  <button
-                    onClick={() => { setCurrentPage(p => Math.min(totalPages, p + 1)); window.scrollTo({top: 0, behavior: 'smooth'}); }}
-                    disabled={currentPage === totalPages}
-                    className="px-4 py-2 text-sm font-bold rounded-xl border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors cursor-pointer"
-                  >
-                    {lang === 'en' ? 'Next' : 'अगला'} →
-                  </button>
+                    {Array.from({length: totalPages}, (_, i) => i + 1).map(page => (
+                      <button
+                        key={page}
+                        onClick={() => { setCurrentPage(page); window.scrollTo({top: 0, behavior: 'smooth'}); }}
+                        className={`w-9 h-9 text-sm font-black rounded-xl transition-colors cursor-pointer ${
+                          page === currentPage
+                            ? 'bg-[#075E54] text-white shadow-sm'
+                            : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
+                        }`}
+                      >
+                        {page}
+                      </button>
+                    ))}
 
-                  <span className="text-xs text-slate-400 w-full text-center mt-1">
-                    {lang === 'en'
-                      ? `Page ${currentPage} of ${totalPages} · ${sortedJobs.length} total jobs`
-                      : `पेज ${currentPage} / ${totalPages} · कुल ${sortedJobs.length} नौकरियां`}
-                  </span>
-                </div>
-              )}
-            )
-            }
+                    <button
+                      onClick={() => { setCurrentPage(p => Math.min(totalPages, p + 1)); window.scrollTo({top: 0, behavior: 'smooth'}); }}
+                      disabled={currentPage === totalPages}
+                      className="px-4 py-2 text-sm font-bold rounded-xl border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors cursor-pointer"
+                    >
+                      {lang === 'en' ? 'Next' : 'अगला'} →
+                    </button>
+
+                    <span className="text-xs text-slate-400 w-full text-center mt-1">
+                      {lang === 'en'
+                        ? `Page ${currentPage} of ${totalPages} · ${sortedJobs.length} total jobs`
+                        : `पेज ${currentPage} / ${totalPages} · कुल ${sortedJobs.length} नौकरियां`}
+                    </span>
+                  </div>
+                )}
+              </div>
+            )}
 
           </div>
 
