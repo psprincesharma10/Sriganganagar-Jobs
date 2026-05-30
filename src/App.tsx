@@ -993,28 +993,19 @@ export default function App() {
         {/* Right Desktop Sidebar Section (4 cols) */}
         <aside className="lg:col-span-4 space-y-6">
 
-          {/* Promo Video Section */}
+          {/* Promo Animation Section */}
           <div className="rounded-3xl overflow-hidden bg-slate-900 border border-slate-800 shadow-sm">
-            <div className="px-4 pt-4 pb-2 flex items-center gap-2">
-              <span className="text-[10px] font-extrabold text-[#25D366] uppercase tracking-wider">▶ About This Platform</span>
+            <div className="px-4 pt-3 pb-1 flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-[#25D366] animate-pulse inline-block"></span>
+              <span className="text-[10px] font-extrabold text-[#25D366] uppercase tracking-wider">Live Preview</span>
             </div>
-            <div className="relative w-full" style={{paddingBottom: '56.25%'}}>
+            <div className="relative w-full" style={{height: '260px'}}>
               <iframe
-                className="absolute top-0 left-0 w-full h-full"
-                src="https://www.youtube.com/embed/dQw4w9WgXcQ?rel=0&modestbranding=1&autoplay=0"
-                title="Sriganganagar Jobs - Local Job Board"
-                frameBorder="0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
+                src="/promo.html"
+                className="absolute top-0 left-0 w-full h-full border-0"
+                title="SGN Jobs Promo"
+                scrolling="no"
               />
-            </div>
-            <div className="px-4 py-3">
-              <p className="text-xs font-bold text-white">
-                {lang === 'en' ? 'Sriganganagar Jobs — How it works' : 'श्रीगंगानगर जॉब्स — कैसे काम करता है'}
-              </p>
-              <p className="text-[10px] text-slate-400 mt-0.5">
-                {lang === 'en' ? 'Free local job board for Sri Ganganagar' : 'श्रीगंगानगर का मुफ़्त लोकल जॉब बोर्ड'}
-              </p>
             </div>
           </div>
 
