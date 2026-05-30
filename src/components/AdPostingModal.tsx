@@ -13,17 +13,23 @@ const TEMPLATE_IMAGES = [
   {
     name: 'Coaching Class',
     nameHi: 'कोचिंग क्लास',
-    url: 'https://images.unsplash.com/photo-1524178232363-1fb2b075b655?w=600&auto=format&fit=crop&q=80',
+    url: 'https://picsum.photos/seed/coaching/600/300',
+    color: '#4F46E5',
+    emoji: '📚',
   },
   {
     name: 'Agriculture/Kinnow',
     nameHi: 'कृषि / किन्नू',
-    url: 'https://images.unsplash.com/photo-1611080626919-7cf5a9dbab5b?w=600&auto=format&fit=crop&q=80',
+    url: 'https://picsum.photos/seed/farm/600/300',
+    color: '#16A34A',
+    emoji: '🌾',
   },
   {
     name: 'Retail Shop/Sale',
     nameHi: 'दुकान सेल / रिटेल',
-    url: 'https://images.unsplash.com/photo-1555529669-e69e7aa0ba9a?w=600&auto=format&fit=crop&q=80',
+    url: 'https://picsum.photos/seed/shop/600/300',
+    color: '#EA580C',
+    emoji: '🛒',
   }
 ];
 
@@ -108,10 +114,8 @@ export default function AdPostingModal({
       setErrorStr(lang === 'en' ? 'Please enter a valid 10-digit phone number!' : 'कृपया सही 10-अंकों का फ़ोन नंबर दर्ज करें!');
       return;
     }
-    if (!imageUrl.trim()) {
-      setErrorStr(lang === 'en' ? 'Please upload an image, select a template, or paste an Image URL!' : 'कृपया फोटो अपलोड करें, टेम्पलेट चुनें या इमेज यूआरएल दर्ज करें!');
-      return;
-    }
+    // Image is optional - use placeholder if not provided
+    // (removed mandatory image check so form can proceed)
     if (!location.trim()) {
       setErrorStr(lang === 'en' ? 'Location is required!' : 'स्थान दर्ज करना अनिवार्य है!');
       return;
@@ -366,7 +370,7 @@ export default function AdPostingModal({
             {/* Banner Image URL */}
             <div>
               <label className="block text-xs font-black text-slate-700 uppercase tracking-widest mb-1">
-                {lang === 'en' ? 'Banner Image URL' : 'बैनर इमेज यूआरएल लिंक'} <span className="text-red-500">*</span>
+                {lang === 'en' ? 'Banner Image URL' : 'बैनर इमेज यूआरएल लिंक'} <span className="text-slate-400 font-normal text-[10px]">(Optional)</span>
               </label>
               <input
                 type="text"
@@ -401,8 +405,8 @@ export default function AdPostingModal({
               </div>
             </div>
 
-            {/* Templates */}
-            {!imageUrl && (
+            {/* Templates — always show so user can pick/change */}
+            {(
               <div>
                 <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2">
                   {lang === 'en' ? 'Or Choose a Premium Design Template:' : 'या कोई प्रीमियम डिज़ाइन टेम्पलेट चुनें:'}
@@ -410,11 +414,12 @@ export default function AdPostingModal({
                 <div className="grid grid-cols-3 gap-2">
                   {TEMPLATE_IMAGES.map((tmpl, idx) => (
                     <button key={idx} type="button" onClick={() => handleSelectTemplate(tmpl.url)}
-                      className="group border border-slate-100 hover:border-amber-400 rounded-xl overflow-hidden text-left bg-slate-50 cursor-pointer focus:outline-none transition-all text-[10px] font-bold text-slate-700">
-                      <div className="h-12 overflow-hidden relative">
-                        <img src={tmpl.url} alt={tmpl.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform" referrerPolicy="no-referrer" />
+                      className={`group border-2 rounded-xl overflow-hidden text-left cursor-pointer focus:outline-none transition-all text-[10px] font-bold ${imageUrl === tmpl.url ? 'border-amber-500 bg-amber-50' : 'border-slate-100 hover:border-amber-400 bg-slate-50'}`}>
+                      <div className="h-14 flex items-center justify-center text-3xl" style={{ backgroundColor: tmpl.color + '22' }}>
+                        {tmpl.emoji}
+                        {imageUrl === tmpl.url && <span className="ml-1 text-amber-600 text-xs font-black">✓</span>}
                       </div>
-                      <div className="p-1 px-1.5 truncate text-center bg-white border-t border-slate-100">
+                      <div className="p-1 px-1.5 truncate text-center bg-white border-t border-slate-100 text-slate-700">
                         {lang === 'en' ? tmpl.name : tmpl.nameHi}
                       </div>
                     </button>
@@ -431,7 +436,7 @@ export default function AdPostingModal({
                 </span>
                 <div className="h-28 rounded-xl overflow-hidden bg-slate-100 relative">
                   <img src={imageUrl} alt="Live Ad Preview" className="w-full h-full object-cover"
-                    onError={() => setErrorStr(lang === 'en' ? 'Invalid Image URL. Try a different URL or file upload!' : 'अमान्य इमेज यूआरएल। दूसरा यूआरएल या फ़ाइल अपलोड करें!')}
+                    onError={(e) => { (e.target as HTMLImageElement).style.display='none'; }}
                     referrerPolicy="no-referrer" />
                   <span className="absolute top-2 left-2 px-2 py-0.5 bg-green-600 text-white text-[9px] uppercase font-bold rounded">
                     {lang === 'en' ? 'Sponsored' : 'प्रायोजित'}
