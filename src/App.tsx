@@ -372,7 +372,7 @@ export default function App() {
     e.preventDefault();
     setLoginError('');
 
-    if (adminPasswordInput === 'admin335001') {
+    if (adminPasswordInput === 'SGN@Prince#2026') {
       setIsAdmin(true);
       localStorage.setItem('sgn_admin_session', 'true');
       setAdminPasswordInput('');
@@ -577,7 +577,7 @@ export default function App() {
     sideAdSub: lang === 'en' ? 'Reach thousand of locals monthly' : 'प्रति माह हजारों स्थानीय लोगों तक पहुंचे',
     adminTrigger: lang === 'en' ? '🔒 Admin Area' : '🔒 एडमिन क्षेत्र',
     adminPassTitle: lang === 'en' ? 'Enter Owner Passcode' : 'ऑनर सीक्रेट पिन डालें',
-    adminPassDesc: lang === 'en' ? 'Default passcode is PIN Code: admin335001' : 'डिफ़ॉल्ट पिन कोड है: admin335001'
+    adminPassDesc: lang === 'en' ? 'Enter your secret admin password' : 'अपना सीक्रेट एडमिन पासवर्ड डालें'
   };
 
   return (
@@ -1234,7 +1234,7 @@ export default function App() {
                 required
                 value={adminPasswordInput}
                 onChange={(e) => setAdminPasswordInput(e.target.value)}
-                placeholder="Password (e.g. admin335001)"
+                placeholder="Admin Password"
                 className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-hidden focus:ring-2 focus:ring-slate-900 text-sm font-mono"
               />
 
