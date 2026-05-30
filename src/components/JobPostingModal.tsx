@@ -14,14 +14,16 @@ const JOB_CATEGORIES = [
   { en: 'Part Time', hi: 'पार्ट टाइम' },
   { en: 'Freelance', hi: 'फ्रीलांस' },
   { en: 'Daily Worker', hi: 'दैनिक मजदूर' },
-  { en: 'Per Hour', hi: 'प्रति घंटा' },
-  { en: 'Helper', hi: 'हेल्पर' },
-  { en: 'Delivery', hi: 'डिलीवरी' },
-  { en: 'Teacher', hi: 'टीचर / शिक्षक' },
-  { en: 'Computer Operator', hi: 'कंप्यूटर ऑपरेटर' },
-  { en: 'Driver', hi: 'ड्राइवर' },
-  { en: 'Security Guard', hi: 'सिक्योरिटी गार्ड' },
   { en: 'Other', hi: 'अन्य' },
+];
+
+const CITY_LIST = [
+  'Sri Ganganagar', 'Hanumangarh', 'Suratgarh', 'Raisinghnagar', 'Padampur',
+  'Gharsana', 'Gajsinghpur', 'Karanpur', 'Keshrisinghpur', 'Sangaria',
+  'Sadulsahar', 'Vijaynagar', 'Jaitsar', 'Abohar', 'Anupgarh', 'Rawatsar',
+  'Nohar', 'Bhadra', 'Pilibanga', 'Tibi', 'Lalgarh Jattan', 'Sherewala',
+  'Anoopgarh', 'Ridhi Sidhi', 'Gol Bazar', 'Meera Chowk', 'Padampur Road',
+  'Other',
 ];
 
 export default function JobPostingModal({
@@ -35,6 +37,7 @@ export default function JobPostingModal({
   const [description, setDescription] = useState('');
   const [phone, setPhone] = useState('');
   const [posterName, setPosterName] = useState('');
+  const [city, setCity] = useState('Sri Ganganagar');
   const [errorStr, setErrorStr] = useState('');
 
   if (!isOpen) return null;
@@ -62,16 +65,17 @@ export default function JobPostingModal({
     }
 
     const fullTitle = `${title.trim()} (${category})`;
+    const descWithCity = `📍 ${city}\n${description.trim()}`;
 
     onPostJob({
       job_title_en: fullTitle,
       job_title_hi: fullTitle,
-      job_description_en: description.trim(),
-      job_description_hi: description.trim(),
+      job_description_en: descWithCity,
+      job_description_hi: descWithCity,
       phone: cleanPhone,
       poster_name: posterName.trim() || undefined,
       phone_hidden: false,
-    });
+    } as any);
 
     setTitle('');
     setCategory('');
@@ -207,6 +211,22 @@ export default function JobPostingModal({
               placeholder={lang === 'en' ? 'e.g., Gupta Garments, Verma Clinic...' : 'जैसे: गुप्ता गारमेंट्स, वर्मा क्लीनिक...'}
               className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#128C7E] focus:border-transparent text-sm transition-all"
             />
+          </div>
+
+          {/* City */}
+          <div>
+            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+              {lang === 'en' ? 'City / Location' : 'शहर / स्थान'} <span className="text-red-500">*</span>
+            </label>
+            <select
+              value={city}
+              onChange={(e) => setCity(e.target.value)}
+              className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#128C7E] focus:border-transparent text-sm transition-all bg-white cursor-pointer"
+            >
+              {CITY_LIST.map((c) => (
+                <option key={c} value={c}>{c}</option>
+              ))}
+            </select>
           </div>
 
           {/* Buttons */}

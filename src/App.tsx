@@ -58,6 +58,8 @@ export default function App() {
   // --- Filtering & Search States ---
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
+  const [currentPage, setCurrentPage] = useState(1);
+  const JOBS_PER_PAGE = 20;
 
   // --- UI Control States ---
   const [activeModal, setActiveModal] = useState<'job' | 'ad' | 'login' | null>(null);
@@ -270,8 +272,8 @@ export default function App() {
   // 1. Post Instant Job Live
   const handleCreateJob = async (jobData: Omit<Job, 'id' | 'created_at' | 'expires_at' | 'pinned'>) => {
     // Calculate expiry based on admin configuration settings
-    const expiryDate = new Date('2026-05-24T11:17:41Z');
-    expiryDate.setMonth(expiryDate.getMonth() + defaultExpiryMonths);
+    const expiryDate = new Date();
+    expiryDate.setDate(expiryDate.getDate() + 30); // 30 din expiry
 
     try {
       // Ensure jobs table insert fields exactly match database columns requested
@@ -547,11 +549,10 @@ export default function App() {
       job.job_description_hi.toLowerCase().includes(q) ||
       (job.poster_name && job.poster_name.toLowerCase().includes(q));
 
-    const matchesCategory = selectedCategory === 'All' || 
+    const matchesCategory = selectedCategory === 'All' ||
+      (job as any).job_category === selectedCategory ||
       job.job_title_en.toLowerCase().includes(selectedCategory.toLowerCase()) ||
-      job.job_title_hi.toLowerCase().includes(selectedCategory.toLowerCase()) ||
-      job.job_description_en.toLowerCase().includes(selectedCategory.toLowerCase()) ||
-      job.job_description_hi.toLowerCase().includes(selectedCategory.toLowerCase());
+      job.job_title_hi.toLowerCase().includes(selectedCategory.toLowerCase());
 
     return matchesSearch && matchesCategory;
   });
@@ -563,6 +564,10 @@ export default function App() {
     return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
   });
 
+  // Pagination
+  const totalPages = Math.ceil(sortedJobs.length / JOBS_PER_PAGE);
+  const paginatedJobs = sortedJobs.slice((currentPage - 1) * JOBS_PER_PAGE, currentPage * JOBS_PER_PAGE);
+
   // Active Approved Ads to display and inject
   const approvedAds = ads.filter(ad => ad.status === 'approved');
   const featuredAds = approvedAds.filter(ad => ad.featured);
@@ -572,16 +577,12 @@ export default function App() {
 
   // Sri Ganganagar Locations for swift pills
   const SGN_CATEGORIES = [
-    { en: 'All', hi: 'सभी श्रेणियां' },
+    { en: 'All', hi: 'सभी' },
     { en: 'Full Time', hi: 'फुल टाइम' },
     { en: 'Part Time', hi: 'पार्ट टाइम' },
     { en: 'Freelance', hi: 'फ्रीलांस' },
     { en: 'Daily Worker', hi: 'दैनिक मजदूर' },
-    { en: 'Per Hour', hi: 'प्रति घंटा' },
-    { en: 'Helper', hi: 'हेल्पर' },
-    { en: 'Delivery', hi: 'डिलीवरी' },
-    { en: 'Teacher', hi: 'टीचर' },
-    { en: 'Driver', hi: 'ड्राइवर' },
+    { en: 'Other', hi: 'अन्य' },
   ];
 
   // Text constants for bilingual setup
@@ -904,7 +905,7 @@ export default function App() {
                   const elements: React.ReactNode[] = [];
                   let adIndex = 0;
 
-                  sortedJobs.forEach((job, index) => {
+                  paginatedJobs.forEach((job, index) => {
                     elements.push(
                       <JobCard
                         key={job.id}
@@ -942,6 +943,47 @@ export default function App() {
                   return elements;
                 })()}
               </div>
+
+              {/* Pagination */}
+              {totalPages > 1 && (
+                <div className="flex items-center justify-center gap-2 pt-4 flex-wrap">
+                  <button
+                    onClick={() => { setCurrentPage(p => Math.max(1, p - 1)); window.scrollTo({top: 0, behavior: 'smooth'}); }}
+                    disabled={currentPage === 1}
+                    className="px-4 py-2 text-sm font-bold rounded-xl border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors cursor-pointer"
+                  >
+                    ← {lang === 'en' ? 'Prev' : 'पिछला'}
+                  </button>
+
+                  {Array.from({length: totalPages}, (_, i) => i + 1).map(page => (
+                    <button
+                      key={page}
+                      onClick={() => { setCurrentPage(page); window.scrollTo({top: 0, behavior: 'smooth'}); }}
+                      className={`w-9 h-9 text-sm font-black rounded-xl transition-colors cursor-pointer ${
+                        page === currentPage
+                          ? 'bg-[#075E54] text-white shadow-sm'
+                          : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
+                      }`}
+                    >
+                      {page}
+                    </button>
+                  ))}
+
+                  <button
+                    onClick={() => { setCurrentPage(p => Math.min(totalPages, p + 1)); window.scrollTo({top: 0, behavior: 'smooth'}); }}
+                    disabled={currentPage === totalPages}
+                    className="px-4 py-2 text-sm font-bold rounded-xl border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors cursor-pointer"
+                  >
+                    {lang === 'en' ? 'Next' : 'अगला'} →
+                  </button>
+
+                  <span className="text-xs text-slate-400 w-full text-center mt-1">
+                    {lang === 'en'
+                      ? `Page ${currentPage} of ${totalPages} · ${sortedJobs.length} total jobs`
+                      : `पेज ${currentPage} / ${totalPages} · कुल ${sortedJobs.length} नौकरियां`}
+                  </span>
+                </div>
+              )}
             )}
 
           </div>

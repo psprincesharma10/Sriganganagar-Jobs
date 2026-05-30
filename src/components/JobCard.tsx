@@ -1,5 +1,5 @@
 import { Job, Language } from '../types';
-import { Phone, Calendar, User, Pin, Trash2, Eye, EyeOff } from 'lucide-react';
+import { Phone, Calendar, User, Pin, Trash2, Eye, EyeOff, Share2 } from 'lucide-react';
 
 interface JobCardProps {
   key?: string | number;
@@ -81,14 +81,31 @@ export default function JobCard({
           </span>
         </div>
 
-        <a
-          id={`call-${job.id}`}
-          href={`tel:${job.phone}`}
-          className="px-4 py-2 text-xs font-bold text-white bg-[#25D366] hover:bg-[#20ba5a] rounded-xl flex items-center gap-1.5 transition-colors shadow-sm"
-        >
-          <Phone size={14} />
-          <span>{lang === 'en' ? 'Call Directly' : 'कॉल करें'}</span>
-        </a>
+        <div className="flex items-center gap-2">
+          <a
+            href={`https://wa.me/?text=${encodeURIComponent(
+              (lang === 'en' ? 'Job Opening: ' : 'नौकरी: ') +
+              (lang === 'en' ? job.job_title_en : job.job_title_hi) +
+              '\n' + (lang === 'en' ? job.job_description_en : job.job_description_hi) +
+              '\n📞 ' + job.phone +
+              '\n🔗 sriganganagar-jobs.vercel.app'
+            )}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            title={lang === 'en' ? 'Share on WhatsApp' : 'WhatsApp पर शेयर करें'}
+            className="p-2 text-xs font-bold text-[#25D366] bg-[#25D366]/10 hover:bg-[#25D366]/20 rounded-xl flex items-center gap-1 transition-colors"
+          >
+            <Share2 size={14} />
+          </a>
+          <a
+            id={`call-${job.id}`}
+            href={`tel:${job.phone}`}
+            className="px-4 py-2 text-xs font-bold text-white bg-[#25D366] hover:bg-[#20ba5a] rounded-xl flex items-center gap-1.5 transition-colors shadow-sm"
+          >
+            <Phone size={14} />
+            <span>{lang === 'en' ? 'Call Directly' : 'कॉल करें'}</span>
+          </a>
+        </div>
       </div>
 
       {/* Admin Controls */}
