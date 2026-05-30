@@ -445,18 +445,40 @@ export default function App() {
 
   // Admin Ads approval
   const handleApproveAd = async (id: string) => {
+    // Update local state immediately
     setAds(prev => prev.map(a => (a.id === id ? { ...a, status: 'approved' } : a)));
 
     try {
+      // Try updating status column
       const { error } = await supabase
         .from('ads')
-        .update({ status: 'approved' })
+        .update({ status: 'approved', updated_at: new Date().toISOString(), is_active: true })
         .eq('id', id);
-      if (error) throw error;
+      
+      if (error) {
+        console.error('Supabase approve failed:', error.message, error.details, error.hint);
+        triggerToast('⚠️ Supabase update failed! Check RLS policy.');
+        return;
+      }
+      
+      // Verify it was actually saved
+      const { data: check } = await supabase
+        .from('ads')
+        .select('status')
+        .eq('id', id)
+        .single();
+      
+      if (check?.status !== 'approved') {
+        console.error('Status not saved! Supabase RLS may be blocking updates.');
+        triggerToast('⚠️ Status not saved — fix Supabase RLS policy!');
+        return;
+      }
+      
+      triggerToast(lang === 'en' ? '✅ Ad approved and live!' : '✅ विज्ञापन स्वीकृत और लाइव!');
     } catch (err: any) {
-      console.error('Supabase approve ad failed:', err.message || err);
+      console.error('Approve error:', err.message || err);
+      triggerToast('⚠️ Error: ' + (err.message || 'Unknown error'));
     }
-    triggerToast(lang === 'en' ? 'Ad approved and live!' : 'विज्ञापन स्वीकृत और लाइव हुआ!');
   };
 
   const handleRejectAd = async (id: string) => {
