@@ -951,6 +951,31 @@ export default function App() {
         {/* Right Desktop Sidebar Section (4 cols) */}
         <aside className="lg:col-span-4 space-y-6">
 
+          {/* Promo Video Section */}
+          <div className="rounded-3xl overflow-hidden bg-slate-900 border border-slate-800 shadow-sm">
+            <div className="px-4 pt-4 pb-2 flex items-center gap-2">
+              <span className="text-[10px] font-extrabold text-[#25D366] uppercase tracking-wider">▶ About This Platform</span>
+            </div>
+            <div className="relative w-full" style={{paddingBottom: '56.25%'}}>
+              <iframe
+                className="absolute top-0 left-0 w-full h-full"
+                src="https://www.youtube.com/embed/dQw4w9WgXcQ?rel=0&modestbranding=1&autoplay=0"
+                title="Sriganganagar Jobs - Local Job Board"
+                frameBorder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              />
+            </div>
+            <div className="px-4 py-3">
+              <p className="text-xs font-bold text-white">
+                {lang === 'en' ? 'Sriganganagar Jobs — How it works' : 'श्रीगंगानगर जॉब्स — कैसे काम करता है'}
+              </p>
+              <p className="text-[10px] text-slate-400 mt-0.5">
+                {lang === 'en' ? 'Free local job board for Sri Ganganagar' : 'श्रीगंगानगर का मुफ़्त लोकल जॉब बोर्ड'}
+              </p>
+            </div>
+          </div>
+
           {/* Quick info disclaimer card */}
           <div className="p-5 rounded-3xl bg-white border border-slate-100 shadow-xs space-y-3">
             <h4 className="text-xs uppercase font-extrabold tracking-wider text-slate-400 flex items-center gap-1.5">
@@ -1063,21 +1088,32 @@ export default function App() {
               {lang === 'en' ? 'Popular Sri Ganganagar Sectors' : 'लोकप्रिय श्रीगंगानगर व्यापार क्षेत्र'}
             </h4>
             <div className="flex flex-wrap gap-1.5">
-              <span className="px-2.5 py-1 text-[11px] font-semibold bg-slate-50 text-slate-600 rounded-lg border border-slate-100/50">
-                🌾 Grain Mandi (अनाज मंडी)
-              </span>
-              <span className="px-2.5 py-1 text-[11px] font-semibold bg-slate-50 text-slate-600 rounded-lg border border-slate-100/50">
-                🍊 Kinnow Packers (किन्नू पैकिंग)
-              </span>
-              <span className="px-2.5 py-1 text-[11px] font-semibold bg-slate-50 text-slate-600 rounded-lg border border-slate-100/50">
-                📚 Coaching Hubs (कोचिंग हब)
-              </span>
-              <span className="px-2.5 py-1 text-[11px] font-semibold bg-slate-50 text-slate-600 rounded-lg border border-slate-100/50">
-                🏥 Meera Chowk Labs (लैब्स / अस्पताल)
-              </span>
-              <span className="px-2.5 py-1 text-[11px] font-semibold bg-slate-50 text-slate-600 rounded-lg border border-slate-100/50">
-                👚 Gol Bazar Showrooms (शोरूम)
-              </span>
+              {[
+                '🌾 Grain Mandi (अनाज मंडी)',
+                '🍊 Kinnow Packers (किन्नू पैकिंग)',
+                '📚 Coaching Hubs (कोचिंग हब)',
+                '🏫 Schools & Colleges (स्कूल / कॉलेज)',
+                '🎓 University (यूनिवर्सिटी)',
+                '🏥 Hospitals & Labs (अस्पताल / लैब)',
+                '💊 Medical & Pharma (मेडिकल / फार्मा)',
+                '👚 Gol Bazar Showrooms (शोरूम)',
+                '🏭 RICCO Industrial Area (फैक्ट्री)',
+                '⚙️ Manufacturing Plants (मैन्युफैक्चरिंग)',
+                '🏗️ Construction Sites (कंस्ट्रक्शन)',
+                '🏋️ Gym & Fitness Trainers (जिम / ट्रेनर)',
+                '🧪 Diagnostic Labs (डायग्नोस्टिक लैब)',
+                '🏪 Retail Shops (दुकान / रिटेल)',
+                '🚗 Auto & Transport (ऑटो / ट्रांसपोर्ट)',
+                '🍽️ Hotels & Restaurants (होटल / रेस्टोरेंट)',
+                '💻 IT & Computer (आईटी / कंप्यूटर)',
+                '🏦 Banks & Finance (बैंक / फाइनेंस)',
+                '📦 Warehouse & Logistics (गोदाम / लॉजिस्टिक)',
+                '🌀 Other (अन्य)',
+              ].map((sector, i) => (
+                <span key={i} className="px-2.5 py-1 text-[11px] font-semibold bg-slate-50 hover:bg-[#eefaf7] hover:text-[#075E54] text-slate-600 rounded-lg border border-slate-100/50 cursor-default transition-colors">
+                  {sector}
+                </span>
+              ))}
             </div>
           </div>
 
