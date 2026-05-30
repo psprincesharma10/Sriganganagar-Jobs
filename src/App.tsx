@@ -8,6 +8,7 @@ import AdPostingModal from './components/AdPostingModal';
 import UnlockModal from './components/UnlockModal';
 import AdminDashboard from './components/AdminDashboard';
 import { supabase } from './supabaseClient';
+import StaticPage, { PageType } from './components/StaticPage';
 
 import { 
   Building, 
@@ -24,7 +25,9 @@ import {
   Languages, 
   ArrowRight,
   Info,
-  X
+  X,
+  Download,
+  Smartphone
 } from 'lucide-react';
 
 export default function App() {
@@ -62,6 +65,12 @@ export default function App() {
   const [adminPasswordInput, setAdminPasswordInput] = useState('');
   const [loginError, setLoginError] = useState('');
   const [toastMessage, setToastMessage] = useState('');
+  const [installPrompt, setInstallPrompt] = useState<any>(null);
+  const [showInstallBanner, setShowInstallBanner] = useState(false);
+  const [staticPage, setStaticPage] = useState<PageType | null>(null);
+  const [installBannerDismissed, setInstallBannerDismissed] = useState(() => {
+    return localStorage.getItem('sgn_install_dismissed') === 'true';
+  });
 
   // --- Supabase Integration States ---
   const [isLoading, setIsLoading] = useState(false);
@@ -210,6 +219,36 @@ export default function App() {
   useEffect(() => {
     localStorage.setItem('sgn_unlocked_jobs', JSON.stringify(unlockedJobIds));
   }, [unlockedJobIds]);
+
+  // PWA Install Prompt
+  useEffect(() => {
+    const handler = (e: any) => {
+      e.preventDefault();
+      setInstallPrompt(e);
+      if (!installBannerDismissed) {
+        setShowInstallBanner(true);
+      }
+    };
+    window.addEventListener('beforeinstallprompt', handler);
+    return () => window.removeEventListener('beforeinstallprompt', handler);
+  }, [installBannerDismissed]);
+
+  const handleInstallApp = async () => {
+    if (!installPrompt) return;
+    installPrompt.prompt();
+    const { outcome } = await installPrompt.userChoice;
+    if (outcome === 'accepted') {
+      setShowInstallBanner(false);
+      setInstallPrompt(null);
+      triggerToast(lang === 'en' ? '🎉 App installed successfully!' : '🎉 App install ho gayi!');
+    }
+  };
+
+  const handleDismissInstall = () => {
+    setShowInstallBanner(false);
+    setInstallBannerDismissed(true);
+    localStorage.setItem('sgn_install_dismissed', 'true');
+  };
 
   // Toast auto-clear
   useEffect(() => {
@@ -647,6 +686,40 @@ export default function App() {
         </span>
       </div>
 
+      {/* PWA Install Banner */}
+      {showInstallBanner && (
+        <div className="bg-gradient-to-r from-[#075E54] to-[#128C7E] text-white px-4 py-3 flex items-center justify-between gap-3 shadow-md">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-white/15 rounded-xl flex-shrink-0">
+              <Smartphone size={20} className="text-[#25D366]" />
+            </div>
+            <div>
+              <p className="text-sm font-black leading-none">
+                {lang === 'en' ? 'Install SGN Jobs App!' : 'SGN Jobs App Install करें!'}
+              </p>
+              <p className="text-[11px] text-white/80 mt-0.5">
+                {lang === 'en' ? 'Add to home screen for quick access' : 'Home Screen pe add karein — fast access'}
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2 flex-shrink-0">
+            <button
+              onClick={handleInstallApp}
+              className="px-3 py-1.5 bg-[#25D366] hover:bg-[#20ba5a] text-slate-950 text-xs font-black rounded-xl flex items-center gap-1.5 transition-colors cursor-pointer"
+            >
+              <Download size={13} />
+              <span>{lang === 'en' ? 'Install' : 'Install करें'}</span>
+            </button>
+            <button
+              onClick={handleDismissInstall}
+              className="p-1.5 text-white/60 hover:text-white transition-colors cursor-pointer"
+            >
+              <X size={16} />
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Main Container */}
       <main className="max-w-6xl mx-auto px-4 py-6 md:py-8 grid grid-cols-1 lg:grid-cols-12 gap-6">
         
@@ -990,54 +1063,100 @@ export default function App() {
 
       </main>
 
-      {/* Structured Minimal Footer */}
-      <footer className="bg-slate-900 text-slate-400 text-xs py-8 mt-12 border-t border-slate-800">
-        <div className="max-w-6xl mx-auto px-4 flex flex-col md:flex-row items-center justify-between gap-6 text-center md:text-left">
-          
-          <div className="space-y-1">
-            <p className="font-bold text-slate-200">
-              {lang === 'en' ? 'Sri Ganganagar Local App Board' : 'श्रीगंगानगर लोकल जॉब बोर्ड'}
-            </p>
-            <p className="text-[10.5px] text-slate-400">
-              © 2026. Made of simple WhatsApp concepts. Expire-protected listings.
-            </p>
-          </div>
+      {/* Footer */}
+      <footer className="bg-slate-900 text-slate-400 text-xs pt-8 pb-4 mt-12 border-t border-slate-800">
+        <div className="max-w-6xl mx-auto px-4 space-y-6">
 
-          {/* Need Help Section */}
-          <div className="py-2.5 px-4 rounded-2xl bg-slate-800/40 border border-slate-800 text-[11px] max-w-sm space-y-0.5 mx-auto md:mx-0">
-            <p className="font-bold text-slate-300">
-              {lang === 'en' ? 'Need help or facing any issue?' : 'क्या आपको मदद की ज़रूरत है या कोई समस्या आ रही है?'}
-            </p>
-            <p className="text-slate-400">
-              {lang === 'en' ? 'Contact:' : 'संपर्क:'} <span className="text-slate-200 font-medium">Prince Sharma</span>
-            </p>
-            <p className="text-slate-400">
-              {lang === 'en' ? 'Email:' : 'ईमेल:'} <a href="mailto:princeoffice2021@gmail.com" className="text-amber-400 hover:underline">princeoffice2021@gmail.com</a>
-            </p>
-          </div>
+          {/* Top Row */}
+          <div className="flex flex-col md:flex-row items-start justify-between gap-6">
 
-          <div className="flex flex-wrap justify-center items-center gap-4">
-            {/* Standard Privacy/General Note placeholder */}
-            <span className="text-[11px] text-slate-500 font-medium">
-              Made in Rajasthan for local community
-            </span>
+            {/* Brand */}
+            <div className="space-y-2">
+              <p className="font-black text-slate-200 text-sm">
+                🧱 {lang === 'en' ? 'Sriganganagar Jobs' : 'श्रीगंगानगर जॉब्स'}
+              </p>
+              <p className="text-[11px] text-slate-500 max-w-xs leading-relaxed">
+                {lang === 'en'
+                  ? 'Sri Ganganagar ka #1 local job board. Direct phone calls, no login required.'
+                  : 'श्रीगंगानगर का #1 लोकल जॉब बोर्ड। सीधा फोन, कोई लॉगिन नहीं।'}
+              </p>
+              {installPrompt && (
+                <button
+                  onClick={handleInstallApp}
+                  className="mt-1 px-3 py-1.5 bg-[#25D366] hover:bg-[#20ba5a] text-slate-950 text-xs font-black rounded-xl flex items-center gap-1.5 transition-colors cursor-pointer w-fit"
+                >
+                  <Download size={13} />
+                  <span>{lang === 'en' ? 'Install App on Phone' : 'Phone पे App Install करें'}</span>
+                </button>
+              )}
+            </div>
 
-            {/* Admin trigger - hidden secret dot, only visible to admin */}
-            {!isAdmin ? (
-              <span
-                id="footer-admin-secret"
-                onClick={() => setActiveModal('login')}
-                title=""
-                className="w-2 h-2 rounded-full bg-slate-700 hover:bg-slate-500 cursor-pointer transition-colors inline-block"
-              />
-            ) : (
-              <button
-                onClick={handleAdminLogout}
-                className="text-[11.5px] text-red-400 hover:text-red-300 font-bold cursor-pointer bg-transparent border-none outline-hidden flex items-center gap-1"
-              >
-                <span>Logout Admin ({lang === 'en' ? 'Exit' : 'लॉगआउट'})</span>
+            {/* Page Links */}
+            <div className="grid grid-cols-2 gap-x-8 gap-y-2 text-[12px]">
+              <button onClick={() => setStaticPage('about')} className="text-left text-slate-400 hover:text-white transition-colors cursor-pointer">
+                {lang === 'en' ? 'About Us' : 'हमारे बारे में'}
               </button>
-            )}
+              <button onClick={() => setStaticPage('contact')} className="text-left text-slate-400 hover:text-white transition-colors cursor-pointer">
+                {lang === 'en' ? 'Contact Us' : 'संपर्क करें'}
+              </button>
+              <button onClick={() => setStaticPage('privacy')} className="text-left text-slate-400 hover:text-white transition-colors cursor-pointer">
+                {lang === 'en' ? 'Privacy Policy' : 'गोपनीयता नीति'}
+              </button>
+              <button onClick={() => setStaticPage('terms')} className="text-left text-slate-400 hover:text-white transition-colors cursor-pointer">
+                {lang === 'en' ? 'Terms & Conditions' : 'नियम और शर्तें'}
+              </button>
+              <button onClick={() => setStaticPage('disclaimer')} className="text-left text-slate-400 hover:text-white transition-colors cursor-pointer">
+                {lang === 'en' ? 'Disclaimer' : 'अस्वीकरण'}
+              </button>
+              <button onClick={() => setStaticPage('advertise')} className="text-left text-amber-400 hover:text-amber-300 transition-colors cursor-pointer font-bold">
+                {lang === 'en' ? 'Advertise With Us' : 'विज्ञापन दें'}
+              </button>
+              <button onClick={() => setStaticPage('report')} className="text-left text-red-400 hover:text-red-300 transition-colors cursor-pointer font-bold">
+                {lang === 'en' ? 'Report Scam Job' : 'फर्जी जॉब रिपोर्ट'}
+              </button>
+            </div>
+
+            {/* Contact */}
+            <div className="py-2.5 px-4 rounded-2xl bg-slate-800/40 border border-slate-800 text-[11px] space-y-0.5">
+              <p className="font-bold text-slate-300">
+                {lang === 'en' ? 'Need help?' : 'मदद चाहिए?'}
+              </p>
+              <p className="text-slate-400">
+                {lang === 'en' ? 'Contact:' : 'संपर्क:'} <span className="text-slate-200 font-medium">Prince Sharma</span>
+              </p>
+              <p className="text-slate-400">
+                <a href="mailto:princeoffice2021@gmail.com" className="text-amber-400 hover:underline">princeoffice2021@gmail.com</a>
+              </p>
+              <p className="text-slate-400">
+                <a href="tel:+919309352063" className="text-[#25D366] hover:underline">+91-9309352063</a>
+              </p>
+            </div>
+          </div>
+
+          {/* Bottom Row */}
+          <div className="border-t border-slate-800 pt-4 flex flex-col sm:flex-row items-center justify-between gap-2">
+            <p className="text-[11px] text-slate-600">
+              © 2026 Sriganganagar Jobs. Made in Rajasthan 🇮🇳
+            </p>
+            <div className="flex items-center gap-3">
+              <span className="text-[11px] text-slate-500">Made for local community</span>
+              {/* Admin trigger - hidden secret dot */}
+              {!isAdmin ? (
+                <span
+                  id="footer-admin-secret"
+                  onClick={() => setActiveModal('login')}
+                  title=""
+                  className="w-2 h-2 rounded-full bg-slate-800 hover:bg-slate-600 cursor-pointer transition-colors inline-block"
+                />
+              ) : (
+                <button
+                  onClick={handleAdminLogout}
+                  className="text-[11.5px] text-red-400 hover:text-red-300 font-bold cursor-pointer bg-transparent border-none outline-hidden"
+                >
+                  Logout Admin
+                </button>
+              )}
+            </div>
           </div>
 
         </div>
@@ -1060,6 +1179,15 @@ export default function App() {
         lang={lang}
         onPostAd={handleCreateAd}
       />
+
+      {/* Static Pages Modal */}
+      {staticPage && (
+        <StaticPage
+          page={staticPage}
+          lang={lang}
+          onClose={() => setStaticPage(null)}
+        />
+      )}
 
       {/* 3. Unlock Contact Number Premium Modal */}
       <UnlockModal

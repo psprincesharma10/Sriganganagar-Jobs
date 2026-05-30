@@ -1,13 +1,69 @@
 <!doctype html>
-<html lang="en">
+<html lang="hi">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>My Google AI Studio App</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/manifest.json" />
+
+    <!-- Theme Colors -->
+    <meta name="theme-color" content="#075E54" />
+    <meta name="background-color" content="#075E54" />
+    <meta name="msapplication-TileColor" content="#075E54" />
+
+    <!-- App Title & Description -->
+    <title>Sriganganagar Jobs — Local Job Board</title>
+    <meta name="description" content="Sri Ganganagar ka #1 local job board. Seedha phone karo, koi login nahi, koi password nahi. Naukri dhundho ya naukri do — bilkul free!" />
+    <meta name="keywords" content="sriganganagar jobs, sri ganganagar naukri, ganganagar job board, rajasthan jobs, local jobs" />
+    <meta name="author" content="Prince Sharma" />
+
+    <!-- iOS PWA Support -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="SGN Jobs" />
+    <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
+    <link rel="apple-touch-icon" sizes="152x152" href="/icons/icon-152x152.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/icons/icon-192x192.png" />
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" sizes="32x32" href="/icons/icon-96x96.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/icons/icon-72x72.png" />
+
+    <!-- Open Graph (WhatsApp/Facebook share) -->
+    <meta property="og:title" content="Sriganganagar Jobs — Local Job Board" />
+    <meta property="og:description" content="Sri Ganganagar ka #1 local job board. Seedha phone karo, koi login nahi!" />
+    <meta property="og:image" content="/icons/icon-512x512.png" />
+    <meta property="og:url" content="https://sriganganagar-jobs.vercel.app" />
+    <meta property="og:type" content="website" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="Sriganganagar Jobs" />
+    <meta name="twitter:description" content="Local job board for Sri Ganganagar. No login required!" />
+    <meta name="twitter:image" content="/icons/icon-512x512.png" />
+
+    <!-- Windows PWA -->
+    <meta name="msapplication-TileImage" content="/icons/icon-144x144.png" />
+    <meta name="msapplication-tap-highlight" content="no" />
   </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+
+    <!-- Register Service Worker -->
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', function () {
+          navigator.serviceWorker.register('/sw.js')
+            .then(function (reg) {
+              console.log('SGN Jobs SW registered:', reg.scope);
+            })
+            .catch(function (err) {
+              console.log('SW registration failed:', err);
+            });
+        });
+      }
+    </script>
   </body>
 </html>
-
