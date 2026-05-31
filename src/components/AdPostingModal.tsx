@@ -142,7 +142,7 @@ export default function AdPostingModal({
 ` +
       `Admin panel ready rakhein 👇
 ` +
-      `sriganganagar-jobs.vercel.app`
+      `www.sriganganagarjobs.in`
     );
     window.open(`https://wa.me/${adminNo}?text=${msg}`, '_blank');
 
@@ -187,7 +187,7 @@ export default function AdPostingModal({
 ` +
       `✅ *Action Required:* Admin panel se approve karein!
 ` +
-      `🔗 sriganganagar-jobs.vercel.app`
+      `🔗 www.sriganganagarjobs.in`
     );
     // Auto-open WhatsApp notification to admin
     setTimeout(() => {

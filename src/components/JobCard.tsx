@@ -88,7 +88,7 @@ export default function JobCard({
               (lang === 'en' ? job.job_title_en : job.job_title_hi) +
               '\n' + (lang === 'en' ? job.job_description_en : job.job_description_hi) +
               '\n📞 ' + job.phone +
-              '\n🔗 sriganganagar-jobs.vercel.app'
+              '\n🔗 www.sriganganagarjobs.in'
             )}`}
             target="_blank"
             rel="noopener noreferrer"
