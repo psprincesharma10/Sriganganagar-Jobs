@@ -121,11 +121,36 @@ export default function AdPostingModal({
       return;
     }
 
+    // Notify admin on WhatsApp — user reached payment screen
+    const adminNo = '919309352063';
+    const msg = encodeURIComponent(
+      `🔔 *AD PAYMENT SCREEN KHULA!*
+
+` +
+      `📌 *Business:* ${businessName.trim()}
+` +
+      `📍 *Location:* ${location.trim()}
+` +
+      `📅 *Duration:* ${expiryDays} Days
+` +
+      `💰 *Amount:* ₹${PRICING[expiryDays] || 1000}
+` +
+      `📞 *Contact:* ${phoneNumber.trim()}
+
+` +
+      `⚠️ User abhi QR scan karke pay kar raha hai!
+` +
+      `Admin panel ready rakhein 👇
+` +
+      `sriganganagar-jobs.vercel.app`
+    );
+    window.open(`https://wa.me/${adminNo}?text=${msg}`, '_blank');
+
     setStep('payment');
   };
 
   const handlePaymentDone = () => {
-    // Save ad to Supabase (status: pending, will be approved after payment confirmation)
+    // Save ad to Supabase
     onPostAd({
       business_name: businessName.trim(),
       short_description: adDescription.trim(),
@@ -140,6 +165,35 @@ export default function AdPostingModal({
       location: location.trim(),
       placement: placement,
     });
+
+    // Send WhatsApp notification to admin
+    const adminWhatsApp = '919309352063';
+    const msg = encodeURIComponent(
+      `🔔 *NEW AD PAYMENT RECEIVED!*
+
+` +
+      `📌 *Business:* ${businessName.trim()}
+` +
+      `📍 *Location:* ${location.trim()}
+` +
+      `📅 *Duration:* ${expiryDays} Days
+` +
+      `💰 *Amount:* ₹${amount}
+` +
+      `📞 *Contact:* ${phoneNumber.trim()}
+` +
+      `📋 *Placement:* ${placement === 'sidebar' ? 'Side Bar' : 'Job Feed'}
+
+` +
+      `✅ *Action Required:* Admin panel se approve karein!
+` +
+      `🔗 sriganganagar-jobs.vercel.app`
+    );
+    // Auto-open WhatsApp notification to admin
+    setTimeout(() => {
+      window.open(`https://wa.me/${adminWhatsApp}?text=${msg}`, '_blank');
+    }, 800);
+
     setStep('confirm');
   };
 

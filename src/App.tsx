@@ -222,6 +222,16 @@ export default function App() {
     localStorage.setItem('sgn_unlocked_jobs', JSON.stringify(unlockedJobIds));
   }, [unlockedJobIds]);
 
+  // Keep Supabase alive - ping on every page load
+  useEffect(() => {
+    const keepAlive = async () => {
+      try {
+        await supabase.from('jobs').select('id').limit(1);
+      } catch (_) {}
+    };
+    keepAlive();
+  }, []);
+
   // PWA Install Prompt
   useEffect(() => {
     const handler = (e: any) => {
