@@ -22,7 +22,7 @@ export default function JobCard({
 }: JobCardProps) {
 
   const getDaysAgoText = (dateStr: string) => {
-    const diffTime = new Date('2026-05-24T11:17:41Z').getTime() - new Date(dateStr).getTime();
+    const diffTime = new Date().getTime() - new Date(dateStr).getTime();
     const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
     if (diffDays <= 0) return lang === 'en' ? 'Today' : 'आज';
     if (diffDays === 1) return lang === 'en' ? '1 day ago' : '1 दिन पहले';
@@ -30,17 +30,25 @@ export default function JobCard({
   };
 
   const title = lang === 'en' ? job.job_title_en : job.job_title_hi;
+  const isFeatured = (job as any).is_featured === true || job.pinned;
   const description = lang === 'en' ? job.job_description_en : job.job_description_hi;
 
   return (
     <div
       id={`job-card-${job.id}`}
       className={`relative p-5 rounded-2xl bg-white border-2 transition-all duration-300 ${
-        job.pinned
-          ? 'border-[#128C7E] shadow-md bg-emerald-50/10'
+        isFeatured
+          ? 'border-amber-400 shadow-md bg-amber-50/20'
           : 'border-slate-100 hover:border-slate-200 shadow-sm'
       }`}
     >
+      {/* Featured Badge */}
+      {isFeatured && (
+        <div className="absolute top-3 right-3 flex items-center gap-1 bg-amber-400 text-slate-900 text-[10px] font-black px-2 py-0.5 rounded-full">
+          <span>⭐</span><span>FEATURED</span>
+        </div>
+      )}
+
       {/* Meta Header */}
       <div className="flex flex-wrap items-center gap-2 mb-3 text-xs text-slate-500">
         {job.poster_name && (

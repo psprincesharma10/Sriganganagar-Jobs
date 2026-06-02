@@ -38,6 +38,7 @@ export default function JobPostingModal({
   const [phone, setPhone] = useState('');
   const [posterName, setPosterName] = useState('');
   const [city, setCity] = useState('Sri Ganganagar');
+  const [salary, setSalary] = useState('');
   const [errorStr, setErrorStr] = useState('');
 
   if (!isOpen) return null;
@@ -65,7 +66,7 @@ export default function JobPostingModal({
     }
 
     const fullTitle = `${title.trim()} (${category})`;
-    const descWithCity = `📍 ${city}\n${description.trim()}`;
+    const descWithCity = `📍 ${city}\n${description.trim()}${salary ? '\n💰 Salary: ₹' + salary : ''}`;
 
     onPostJob({
       job_title_en: fullTitle,
@@ -177,6 +178,20 @@ export default function JobPostingModal({
               onChange={(e) => setDescription(e.target.value)}
               placeholder={lang === 'en' ? 'Explain duties, timing (e.g. 10 AM to 8 PM), salary, and address...' : 'काम के बारे में बताएं, समय, वेतन और दुकान का पता...'}
               className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#128C7E] focus:border-transparent text-sm transition-all resize-none"
+            />
+          </div>
+
+          {/* Salary */}
+          <div>
+            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+              {lang === 'en' ? 'Salary / Wages (Optional)' : 'वेतन / मजदूरी (वैकल्पिक)'}
+            </label>
+            <input
+              type="text"
+              value={salary}
+              onChange={(e) => setSalary(e.target.value)}
+              placeholder={lang === 'en' ? 'e.g. 8000-12000/month or 500/day' : 'जैसे: 8000-12000/महीना या 500/दिन'}
+              className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#128C7E] focus:border-transparent text-sm transition-all"
             />
           </div>
 

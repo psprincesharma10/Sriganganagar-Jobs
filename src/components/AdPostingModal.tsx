@@ -52,7 +52,7 @@ export default function AdPostingModal({
   lang,
   onPostAd,
 }: AdPostingModalProps) {
-  const [step, setStep] = useState<'form' | 'payment' | 'confirm'>('form');
+  const [step, setStep] = useState<'form' | 'payment' | 'utr' | 'confirm'>('form');
   const [businessName, setBusinessName] = useState('');
   const [adDescription, setAdDescription] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
@@ -64,6 +64,12 @@ export default function AdPostingModal({
   const [placement, setPlacement] = useState<'sidebar' | 'feed'>('sidebar');
   const [errorStr, setErrorStr] = useState('');
   const [copied, setCopied] = useState(false);
+  const [utrNumber, setUtrNumber] = useState('');
+  const [paymentPhone, setPaymentPhone] = useState('');
+  const [paymentDate, setPaymentDate] = useState('');
+  const [paymentTime, setPaymentTime] = useState('');
+  const [screenshot, setScreenshot] = useState('');
+  const [utrError, setUtrError] = useState('');
 
   if (!isOpen) return null;
 
@@ -150,6 +156,7 @@ export default function AdPostingModal({
   };
 
   const handlePaymentDone = () => {
+    // Move to UTR step
     // Save ad to Supabase
     onPostAd({
       business_name: businessName.trim(),
@@ -194,7 +201,7 @@ export default function AdPostingModal({
       window.open(`https://wa.me/${adminWhatsApp}?text=${msg}`, '_blank');
     }, 800);
 
-    setStep('confirm');
+    setStep('utr');
   };
 
   const handleClose = () => {
@@ -210,6 +217,12 @@ export default function AdPostingModal({
     setPlacement('sidebar');
     setErrorStr('');
     setCopied(false);
+    setUtrNumber('');
+    setPaymentPhone('');
+    setPaymentDate('');
+    setPaymentTime('');
+    setScreenshot('');
+    setUtrError('');
     onClose();
   };
 
@@ -623,7 +636,99 @@ export default function AdPostingModal({
           </div>
         )}
 
-        {/* ===================== STEP 3: CONFIRMATION ===================== */}
+        {/* ===================== STEP 3: UTR DETAILS ===================== */}
+        {step === 'utr' && (
+          <div className="p-6 space-y-4 max-h-[80vh] overflow-y-auto">
+            <div className="bg-blue-50 border border-blue-200 rounded-xl p-3 text-xs text-blue-800">
+              <p className="font-black mb-1">🧾 Payment Details Bharo — Ad Turant Live Hogi!</p>
+              <p>Sahi UTR number aur screenshot submit karo — auto approve ho jaayegi.</p>
+            </div>
+
+            {utrError && (
+              <div className="bg-red-50 border border-red-200 rounded-xl p-3 text-xs text-red-600 flex gap-2">
+                <span>{utrError}</span>
+              </div>
+            )}
+
+            <div>
+              <label className="block text-xs font-black text-slate-700 uppercase tracking-widest mb-1">UTR Number *</label>
+              <input type="text" value={utrNumber} onChange={e => setUtrNumber(e.target.value)}
+                placeholder="e.g. 407316548291"
+                className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-amber-500 text-sm font-mono" />
+              <p className="text-[10px] text-slate-400 mt-1">GPay/PhonePe payment history mein milega</p>
+            </div>
+
+            <div>
+              <label className="block text-xs font-black text-slate-700 uppercase tracking-widest mb-1">Payment Phone Number *</label>
+              <input type="tel" maxLength={10} value={paymentPhone} onChange={e => setPaymentPhone(e.target.value.replace(/\D/g,''))}
+                placeholder="Jis number se pay kiya"
+                className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-amber-500 text-sm font-mono" />
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-black text-slate-700 uppercase tracking-widest mb-1">Payment Date *</label>
+                <input type="date" value={paymentDate} onChange={e => setPaymentDate(e.target.value)}
+                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-amber-500 text-sm" />
+              </div>
+              <div>
+                <label className="block text-xs font-black text-slate-700 uppercase tracking-widest mb-1">Payment Time *</label>
+                <input type="time" value={paymentTime} onChange={e => setPaymentTime(e.target.value)}
+                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-amber-500 text-sm" />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-xs font-black text-slate-700 uppercase tracking-widest mb-1">Payment Screenshot *</label>
+              {screenshot ? (
+                <div className="relative rounded-xl overflow-hidden h-32 bg-slate-100">
+                  <img src={screenshot} alt="Payment proof" className="w-full h-full object-contain" />
+                  <button type="button" onClick={() => setScreenshot('')}
+                    className="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full cursor-pointer">✕</button>
+                </div>
+              ) : (
+                <label className="flex flex-col items-center justify-center border-2 border-dashed border-slate-200 hover:border-amber-400 rounded-xl p-4 cursor-pointer transition-colors">
+                  <span className="text-2xl mb-1">📸</span>
+                  <span className="text-xs font-bold text-slate-600">Screenshot Upload Karo</span>
+                  <span className="text-[10px] text-slate-400 mt-0.5">JPEG/PNG — max 3MB</span>
+                  <input type="file" accept="image/*" onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (!file) return;
+                    if (file.size > 3*1024*1024) { setUtrError('3MB se chhoti image chahiye'); return; }
+                    const reader = new FileReader();
+                    reader.onloadend = () => setScreenshot(reader.result as string);
+                    reader.readAsDataURL(file);
+                  }} className="hidden" />
+                </label>
+              )}
+            </div>
+
+            <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-3 text-xs text-yellow-800">
+              <p className="font-black mb-1">⚠️ Important:</p>
+              <p>Galat UTR ya fake screenshot dene par ad delete ho jaayegi.</p>
+            </div>
+
+            <div className="flex gap-3">
+              <button onClick={() => setStep('payment')}
+                className="flex-1 py-3 rounded-xl border border-slate-200 text-sm font-bold text-slate-500 hover:bg-slate-50 cursor-pointer">← Back</button>
+              <button onClick={() => {
+                setUtrError('');
+                if (!utrNumber.trim() || utrNumber.trim().length < 6) { setUtrError('Valid UTR number daalo!'); return; }
+                if (paymentPhone.replace(/\D/g,'').length !== 10) { setUtrError('Valid phone number daalo!'); return; }
+                if (!paymentDate) { setUtrError('Payment date daalo!'); return; }
+                if (!paymentTime) { setUtrError('Payment time daalo!'); return; }
+                if (!screenshot) { setUtrError('Screenshot upload karo!'); return; }
+                // Save ad with UTR details - already saved in handlePaymentDone, just confirm
+                setStep('confirm');
+              }}
+                className="flex-1 py-3 rounded-xl bg-green-500 hover:bg-green-600 text-white font-black text-sm flex items-center justify-center gap-2 cursor-pointer">
+                ✅ Submit & Go Live!
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* ===================== STEP 4: CONFIRMATION ===================== */}
         {step === 'confirm' && (
           <div className="p-8 text-center space-y-5">
             <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto">

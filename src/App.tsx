@@ -9,6 +9,8 @@ import UnlockModal from './components/UnlockModal';
 import AdminDashboard from './components/AdminDashboard';
 import { supabase } from './supabaseClient';
 import StaticPage, { PageType } from './components/StaticPage';
+import FeaturedJobModal from './components/FeaturedJobModal';
+import ResumeBuilder from './components/ResumeBuilder';
 
 import { 
   Building, 
@@ -27,7 +29,8 @@ import {
   Info,
   X,
   Download,
-  Smartphone
+  Smartphone,
+  Star
 } from 'lucide-react';
 
 export default function App() {
@@ -62,7 +65,7 @@ export default function App() {
   const JOBS_PER_PAGE = 20;
 
   // --- UI Control States ---
-  const [activeModal, setActiveModal] = useState<'job' | 'ad' | 'login' | null>(null);
+  const [activeModal, setActiveModal] = useState<'job' | 'ad' | 'featured' | 'login' | null>(null);
   const [unlockTargetJob, setUnlockTargetJob] = useState<Job | null>(null);
   const [adminPasswordInput, setAdminPasswordInput] = useState('');
   const [loginError, setLoginError] = useState('');
@@ -70,6 +73,7 @@ export default function App() {
   const [installPrompt, setInstallPrompt] = useState<any>(null);
   const [showInstallBanner, setShowInstallBanner] = useState(false);
   const [staticPage, setStaticPage] = useState<PageType | null>(null);
+  const [showResume, setShowResume] = useState(false);
   const [installBannerDismissed, setInstallBannerDismissed] = useState(() => {
     return localStorage.getItem('sgn_install_dismissed') === 'true';
   });
@@ -195,7 +199,7 @@ export default function App() {
         finalAds = [];
       }
 
-      const now = new Date('2026-05-24T11:17:41Z').getTime();
+      const now = new Date().getTime(); // Real current time
       const validJobs = finalJobs.filter(j => new Date(j.expires_at).getTime() >= now);
 
       setJobs(validJobs);
@@ -280,13 +284,12 @@ export default function App() {
   };
 
   // 1. Post Instant Job Live
-  const handleCreateJob = async (jobData: Omit<Job, 'id' | 'created_at' | 'expires_at' | 'pinned'>) => {
-    // Calculate expiry based on admin configuration settings
+  const handleCreateJob = async (jobData: any) => {
+    const isFeatured = jobData.is_featured === true;
     const expiryDate = new Date();
-    expiryDate.setDate(expiryDate.getDate() + 30); // 30 din expiry
+    expiryDate.setDate(expiryDate.getDate() + (isFeatured ? 20 : 30));
 
     try {
-      // Ensure jobs table insert fields exactly match database columns requested
       const { error } = await supabase
         .from('jobs')
         .insert([{
@@ -294,21 +297,18 @@ export default function App() {
           job_description: jobData.job_description_en,
           phone: jobData.phone,
           poster_name: jobData.poster_name || null,
-          phone_hidden: jobData.phone_hidden,
+          phone_hidden: jobData.phone_hidden || false,
           expires_at: expiryDate.toISOString(),
+          pinned: isFeatured, // Featured jobs pinned at top
         }]);
 
-      if (error) {
-        console.error('Supabase jobs insert error details:', error);
-        throw error;
-      }
-
-      // Refresh data so the frontend is fully in sync with the database records
+      if (error) { console.error('Job insert error:', error); throw error; }
       await loadSupabaseData();
-      triggerToast(lang === 'en' ? 'Job posted successfully! Live immediately.' : 'नौकरी सफलतापूर्वक पोस्ट हो गई है! तुरंत लाइव है।');
+      triggerToast(isFeatured
+        ? (lang === 'en' ? '⭐ Featured job is LIVE at the top!' : '⭐ फीचर्ड जॉब लाइव!')
+        : (lang === 'en' ? '✅ Job posted! Live immediately.' : '✅ जॉब लाइव!'));
     } catch (err: any) {
-      console.error('Supabase job publication failed inside try-catch:', err);
-      triggerToast(lang === 'en' ? `⚠️ Supabase error: ${err.message || err}` : `⚠️ सिंक त्रुटि: ${err.message || err}`);
+      triggerToast(`⚠️ Error: ${err.message || err}`);
     }
   };
 
@@ -657,7 +657,7 @@ export default function App() {
                 <span>{lang === 'en' ? 'हिंदी' : 'English'}</span>
               </button>
 
-              {/* Desktop action buttons (Visible on sm/tablet and larger) */}
+              {/* Desktop action buttons */}
               <div className="hidden sm:flex items-center gap-2">
                 <button
                   id="header-post-job-btn"
@@ -665,7 +665,15 @@ export default function App() {
                   className="px-4 py-1.5 rounded-xl bg-[#25D366] hover:bg-[#20ba5a] text-slate-950 text-xs font-black shadow-sm flex items-center gap-1.5 transition-all cursor-pointer"
                 >
                   <Plus size={14} strokeWidth={3} />
-                  <span>{text.btnPost}</span>
+                  <span>{lang === 'en' ? 'Post Job (Free)' : 'जॉब पोस्ट (Free)'}</span>
+                </button>
+
+                <button
+                  onClick={() => setActiveModal('featured')}
+                  className="px-4 py-1.5 rounded-xl bg-yellow-400 hover:bg-yellow-500 text-slate-950 text-xs font-black shadow-sm flex items-center gap-1.5 transition-all cursor-pointer"
+                >
+                  <Star size={13} className="fill-slate-900" />
+                  <span>{lang === 'en' ? '⭐ Post Job (Featured)' : '⭐ फीचर्ड जॉब (Paid)'}</span>
                 </button>
 
                 <button
@@ -674,27 +682,25 @@ export default function App() {
                   className="px-4 py-1.5 rounded-xl bg-amber-400 hover:bg-amber-500 text-slate-950 text-xs font-black shadow-sm flex items-center gap-1.5 transition-all cursor-pointer"
                 >
                   <Megaphone size={14} className="fill-slate-950 stroke-[2.5]" />
-                  <span>{text.btnAd}</span>
+                  <span>{lang === 'en' ? '📢 Business Ad Lagao' : '📢 Business Ad लगाएं'}</span>
                 </button>
               </div>
             </div>
           </div>
 
-          {/* Mobile action buttons (Visible only under sm/tablet breakpoint) */}
-          <div className="mt-2.5 grid grid-cols-2 gap-2 sm:hidden w-full">
-            <button
-              onClick={() => setActiveModal('job')}
-              className="py-2.5 rounded-xl bg-[#25D366] hover:bg-[#20ba5a] text-slate-950 text-xs font-black shadow-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer active:scale-95"
-            >
-              <Plus size={14} strokeWidth={3} />
-              <span>{text.btnPost}</span>
+          {/* Mobile action buttons */}
+          <div className="mt-2.5 grid grid-cols-3 gap-1.5 sm:hidden w-full">
+            <button onClick={() => setActiveModal('job')}
+              className="py-2.5 rounded-xl bg-[#25D366] text-slate-950 text-[10px] font-black flex items-center justify-center gap-1 cursor-pointer">
+              <Plus size={12} strokeWidth={3} />Job (Free)
             </button>
-            <button
-              onClick={() => setActiveModal('ad')}
-              className="py-2.5 rounded-xl bg-amber-400 hover:bg-amber-500 text-slate-950 text-xs font-black shadow-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer active:scale-95"
-            >
-              <Megaphone size={14} className="fill-slate-950 stroke-[2.5]" />
-              <span>{text.btnAd}</span>
+            <button onClick={() => setActiveModal('featured')}
+              className="py-2.5 rounded-xl bg-yellow-400 text-slate-950 text-[10px] font-black flex items-center justify-center gap-1 cursor-pointer">
+              <Star size={11} className="fill-slate-900" />⭐ Featured
+            </button>
+            <button onClick={() => setActiveModal('ad')}
+              className="py-2.5 rounded-xl bg-amber-400 text-slate-950 text-[10px] font-black flex items-center justify-center gap-1 cursor-pointer">
+              <Megaphone size={11} />Business Ad
             </button>
           </div>
 
@@ -752,6 +758,72 @@ export default function App() {
           </div>
         </div>
       )}
+
+      {/* Hire Banner */}
+      <div className="bg-gradient-to-r from-[#075E54] to-[#0a8a75] py-6 px-4">
+        <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div>
+            <h2 className="text-xl sm:text-2xl font-black text-white leading-tight">
+              {lang === 'en' ? 'Looking to hire staff in your city?' : 'अपने शहर में स्टाफ ढूंढना है?'}
+            </h2>
+            <p className="text-[#25D366] text-sm mt-1 font-medium">
+              {lang === 'en' ? 'Post a job for FREE — Go live instantly!' : 'जॉब पोस्ट करो FREE में — तुरंत लाइव!'}
+            </p>
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="hidden sm:flex gap-2 text-2xl">
+              <span title="Call Center">🎧</span>
+              <span title="Technician">🔧</span>
+              <span title="Driver">🚗</span>
+              <span title="Teacher">👩‍🏫</span>
+              <span title="Delivery">📦</span>
+              <span title="Security">💂</span>
+            </div>
+            <button
+              onClick={() => setActiveModal('job')}
+              className="px-6 py-3 rounded-2xl bg-white text-[#075E54] font-black text-sm hover:bg-slate-50 transition-colors shadow-lg cursor-pointer whitespace-nowrap"
+            >
+              {lang === 'en' ? '+ Post a Job for FREE' : '+ जॉब पोस्ट करें FREE'}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Role Categories Grid */}
+      <div className="bg-white border-b border-slate-100 py-5 px-4">
+        <div className="max-w-6xl mx-auto">
+          <p className="text-xs font-black text-slate-400 uppercase tracking-wider mb-3 text-center">
+            {lang === 'en' ? 'Browse by Job Role' : 'जॉब रोल से ढूंढें'}
+          </p>
+          <div className="flex flex-wrap gap-2 justify-center">
+            {[
+              { emoji: '🚚', en: 'Delivery', hi: 'डिलीवरी' },
+              { emoji: '🚗', en: 'Driver', hi: 'ड्राइवर' },
+              { emoji: '🔧', en: 'Technician', hi: 'तकनीशियन' },
+              { emoji: '💂', en: 'Security Guard', hi: 'सिक्योरिटी गार्ड' },
+              { emoji: '👩‍🏫', en: 'Teacher / Tutor', hi: 'टीचर / ट्यूटर' },
+              { emoji: '🏭', en: 'Factory / Helper', hi: 'फैक्ट्री / हेल्पर' },
+              { emoji: '💊', en: 'Medical / Pharma', hi: 'मेडिकल / फार्मा' },
+              { emoji: '💻', en: 'Computer Operator', hi: 'कंप्यूटर ऑपरेटर' },
+              { emoji: '🏗️', en: 'Construction', hi: 'कंस्ट्रक्शन' },
+              { emoji: '🏪', en: 'Shop / Retail', hi: 'दुकान / रिटेल' },
+              { emoji: '🍽️', en: 'Hotel / Cook', hi: 'होटल / कुक' },
+              { emoji: '🧹', en: 'Housekeeping', hi: 'हाउसकीपिंग' },
+              { emoji: '💈', en: 'Beautician / Spa', hi: 'ब्यूटीशियन / स्पा' },
+              { emoji: '📦', en: 'Warehouse', hi: 'वेयरहाउस' },
+              { emoji: '🌾', en: 'Agriculture', hi: 'कृषि' },
+              { emoji: '🌀', en: 'Other', hi: 'अन्य' },
+            ].map((role, i) => (
+              <button key={i}
+                onClick={() => { setSearchQuery(role.en); setCurrentPage(1); }}
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-50 hover:bg-[#eefaf7] hover:text-[#075E54] border border-slate-200 hover:border-[#128C7E] rounded-xl text-xs font-semibold text-slate-600 transition-all cursor-pointer">
+                <span>{role.emoji}</span>
+                <span>{lang === 'en' ? role.en : role.hi}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
 
       {/* Main Container */}
       <main className="max-w-6xl mx-auto px-4 py-6 md:py-8 grid grid-cols-1 lg:grid-cols-12 gap-6">
@@ -1160,6 +1232,30 @@ export default function App() {
             </div>
           </div>
 
+          {/* Resume Builder Card */}
+          <div className="p-5 rounded-3xl bg-gradient-to-br from-[#075E54] to-[#0a8a75] border border-[#128C7E]/30 shadow-sm">
+            <div className="flex items-start gap-3 mb-3">
+              <div className="text-3xl">📄</div>
+              <div>
+                <h4 className="text-sm font-black text-white">
+                  {lang === 'en' ? 'Free Resume Builder' : 'मुफ्त Resume बनाएं'}
+                </h4>
+                <p className="text-[11px] text-white/70 mt-0.5">
+                  {lang === 'en' ? 'AI se 2 minute mein ready — Download & Share!' : 'AI से 2 मिनट में तैयार!'}
+                </p>
+              </div>
+            </div>
+            <ul className="space-y-1 mb-3">
+              {['✅ 15+ Job Roles', '✅ AI Generated', '✅ Download & Share', '✅ 100% Free'].map(f => (
+                <li key={f} className="text-[10px] text-white/80 font-medium">{f}</li>
+              ))}
+            </ul>
+            <button onClick={() => setShowResume(true)}
+              className="w-full py-2.5 bg-[#25D366] hover:bg-[#20ba5a] text-slate-900 font-black rounded-xl text-xs cursor-pointer transition-colors flex items-center justify-center gap-2">
+              📄 {lang === 'en' ? 'Build My Resume Free' : 'Resume बनाएं — Free'}
+            </button>
+          </div>
+
         </aside>
 
       </main>
@@ -1195,6 +1291,10 @@ export default function App() {
                   <span>{lang === 'en' ? 'Install App on Phone' : 'Phone पे App Install करें'}</span>
                 </button>
               )}
+              <button onClick={() => setShowResume(true)}
+                className="mt-1 px-3 py-1.5 bg-[#075E54] hover:bg-[#064a43] text-white text-xs font-black rounded-xl flex items-center gap-1.5 transition-colors cursor-pointer w-fit">
+                📄 {lang === 'en' ? 'Free Resume Builder' : 'मुफ्त Resume बनाएं'}
+              </button>
             </div>
 
             {/* Page Links */}
@@ -1220,6 +1320,30 @@ export default function App() {
               <button onClick={() => setStaticPage('report')} className="text-left text-red-400 hover:text-red-300 transition-colors cursor-pointer font-bold">
                 {lang === 'en' ? 'Report Scam Job' : 'फर्जी जॉब रिपोर्ट'}
               </button>
+              <button onClick={() => setShowResume(true)} className="text-left text-[#25D366] hover:text-green-300 transition-colors cursor-pointer font-bold">
+                {lang === 'en' ? '📄 Free Resume Builder' : '📄 मुफ्त Resume'}
+              </button>
+            </div>
+
+            {/* Contact/WhatsApp */}
+            <div className="space-y-2">
+              <p className="text-[11px] font-black text-slate-300 uppercase tracking-wider">Connect</p>
+              <a href="https://wa.me/919309352063" target="_blank" rel="noopener noreferrer"
+                className="flex items-center gap-2 text-[12px] text-slate-400 hover:text-white transition-colors">
+                <span className="w-6 h-6 bg-green-500 rounded flex items-center justify-center text-white text-[10px]">💬</span>
+                WhatsApp Us
+              </a>
+              {/* Install App */}
+              <div className="mt-3">
+                <div className="inline-flex items-center gap-2 bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 cursor-pointer hover:bg-slate-700 transition-colors"
+                  onClick={handleInstallApp}>
+                  <span className="text-lg">▶</span>
+                  <div>
+                    <p className="text-[9px] text-slate-400 leading-none">Get it on</p>
+                    <p className="text-[12px] font-bold text-white leading-tight">Install App</p>
+                  </div>
+                </div>
+              </div>
             </div>
 
             {/* Contact */}
@@ -1278,12 +1402,27 @@ export default function App() {
         onPostJob={handleCreateJob}
       />
 
-      {/* 2. Business Ad Posting Modal */}
+      {/* 2. Featured Job Modal */}
+      <FeaturedJobModal
+        isOpen={activeModal === 'featured'}
+        onClose={() => setActiveModal(null)}
+        lang={lang}
+        onPostFeaturedJob={handleCreateJob}
+      />
+
+      {/* 3. Business Ad Posting Modal */}
       <AdPostingModal
         isOpen={activeModal === 'ad'}
         onClose={() => setActiveModal(null)}
         lang={lang}
         onPostAd={handleCreateAd}
+      />
+
+      {/* Resume Builder */}
+      <ResumeBuilder
+        isOpen={showResume}
+        onClose={() => setShowResume(false)}
+        lang={lang}
       />
 
       {/* Static Pages Modal */}

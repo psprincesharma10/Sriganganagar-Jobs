@@ -1,3 +1,4 @@
+import React from 'react';
 import { X, Info, Phone, Shield, FileText, AlertTriangle, Megaphone, Flag } from 'lucide-react';
 import { Language } from '../types';
 
@@ -7,6 +8,82 @@ interface StaticPageProps {
   page: PageType;
   lang: Language;
   onClose: () => void;
+}
+
+function ContactForm() {
+  const [name, setName] = React.useState('');
+  const [phone, setPhone] = React.useState('');
+  const [message, setMessage] = React.useState('');
+  const [sent, setSent] = React.useState(false);
+
+  const handleSend = () => {
+    if (!name.trim() || !phone.trim() || !message.trim()) return;
+    const msg = encodeURIComponent(
+      `📩 *New Message from SGN Jobs Contact Form*\n\n` +
+      `👤 Name: ${name}\n` +
+      `📞 Phone: ${phone}\n` +
+      `💬 Message: ${message}`
+    );
+    window.open(`https://wa.me/919309352063?text=${msg}`, '_blank');
+    setSent(true);
+  };
+
+  if (sent) return (
+    <div className="text-center py-8 space-y-3">
+      <div className="text-4xl">✅</div>
+      <p className="font-black text-slate-800">Message Sent!</p>
+      <p className="text-sm text-slate-500">WhatsApp pe message chala gaya. Hum jald jawab denge.</p>
+    </div>
+  );
+
+  return (
+    <div className="space-y-4">
+      <div className="grid grid-cols-2 gap-3">
+        <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 flex items-center gap-2">
+          <span className="text-lg">📱</span>
+          <div>
+            <p className="text-[10px] font-bold text-slate-500">Phone/WhatsApp</p>
+            <a href="tel:+919309352063" className="text-xs font-black text-slate-800">+91-9309352063</a>
+          </div>
+        </div>
+        <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 flex items-center gap-2">
+          <span className="text-lg">📧</span>
+          <div>
+            <p className="text-[10px] font-bold text-slate-500">Email</p>
+            <a href="mailto:princeoffice2021@gmail.com" className="text-[10px] font-black text-slate-800 break-all">princeoffice2021@gmail.com</a>
+          </div>
+        </div>
+      </div>
+
+      <div className="space-y-3">
+        <p className="text-sm font-black text-slate-700">Message Us:</p>
+        <div>
+          <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-1">Your Name *</label>
+          <input type="text" value={name} onChange={e => setName(e.target.value)}
+            placeholder="Your Full Name"
+            className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#128C7E] text-sm" />
+        </div>
+        <div>
+          <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-1">Your Phone Number *</label>
+          <input type="tel" maxLength={10} value={phone} onChange={e => setPhone(e.target.value.replace(/\D/g,''))}
+            placeholder="Please enter your 10-digit mobile number"
+            className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#128C7E] text-sm font-mono" />
+        </div>
+        <div>
+          <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-1">Your Message *</label>
+          <textarea rows={4} value={message} onChange={e => setMessage(e.target.value)}
+            placeholder="Type your Message here"
+            className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#128C7E] text-sm resize-none" />
+        </div>
+        <button onClick={handleSend}
+          disabled={!name.trim() || !phone.trim() || !message.trim()}
+          className="w-full py-3 bg-[#25D366] hover:bg-[#20ba5a] disabled:bg-slate-200 disabled:text-slate-400 text-slate-900 font-black rounded-xl text-sm cursor-pointer transition-colors">
+          Send Message
+        </button>
+        <p className="text-[10px] text-slate-400 text-center">Message WhatsApp pe jayega — 2-4 ghante mein jawab milega</p>
+      </div>
+    </div>
+  );
 }
 
 export default function StaticPage({ page, lang, onClose }: StaticPageProps) {
@@ -53,46 +130,7 @@ export default function StaticPage({ page, lang, onClose }: StaticPageProps) {
       icon: <Phone size={20} className="text-blue-500" />,
       titleEn: 'Contact Us',
       titleHi: 'संपर्क करें',
-      content: (
-        <div className="space-y-4 text-sm text-slate-600">
-          <p className="leading-relaxed">
-            Koi bhi samasya ho, job post karne mein dikkat ho, ya kuch bhi poochna ho — seedha hamse sampark karen.
-          </p>
-          <div className="space-y-3">
-            <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 flex items-start gap-3">
-              <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                <Phone size={15} className="text-blue-600" />
-              </div>
-              <div>
-                <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-0.5">Phone / WhatsApp</p>
-                <a href="tel:+919309352063" className="font-black text-slate-800 text-base hover:text-blue-600 transition-colors">+91-9309352063</a>
-              </div>
-            </div>
-            <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 flex items-start gap-3">
-              <div className="w-8 h-8 bg-amber-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                <span className="text-amber-600 text-sm font-black">@</span>
-              </div>
-              <div>
-                <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-0.5">Email</p>
-                <a href="mailto:princeoffice2021@gmail.com" className="font-black text-slate-800 hover:text-amber-600 transition-colors break-all">princeoffice2021@gmail.com</a>
-              </div>
-            </div>
-            <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 flex items-start gap-3">
-              <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                <span className="text-green-600 text-sm font-black">📍</span>
-              </div>
-              <div>
-                <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-0.5">Location</p>
-                <p className="font-bold text-slate-800">Sri Ganganagar, Rajasthan — 335001</p>
-              </div>
-            </div>
-          </div>
-          <div className="bg-[#eefaf7] border border-[#128C7E]/20 rounded-xl p-3 text-xs text-[#075E54]">
-            <p className="font-bold mb-0.5">Response Time</p>
-            <p>Hum aam taur par 2-4 ghante mein jawab dete hain. WhatsApp pe jaldi jawab milta hai.</p>
-          </div>
-        </div>
-      ),
+      content: <ContactForm />,
     },
 
     privacy: {
