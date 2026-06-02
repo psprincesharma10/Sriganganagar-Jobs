@@ -24,6 +24,14 @@ const JOB_ROLES = [
   { emoji: '💈', en: 'Beautician', hi: 'ब्यूटीशियन' },
   { emoji: '📦', en: 'Warehouse / Store', hi: 'वेयरहाउस / स्टोर' },
   { emoji: '🌾', en: 'Agriculture Worker', hi: 'कृषि कामगार' },
+  { emoji: '🧾', en: 'Accountant', hi: 'अकाउंटेंट' },
+  { emoji: '📊', en: 'CA / Finance Assistant', hi: 'CA / फाइनेंस असिस्टेंट' },
+  { emoji: '🗂️', en: 'Personal Assistant', hi: 'पर्सनल असिस्टेंट' },
+  { emoji: '💼', en: 'Office Manager', hi: 'ऑफिस मैनेजर' },
+  { emoji: '📈', en: 'Sales Executive', hi: 'सेल्स एग्जीक्यूटिव' },
+  { emoji: '🏗️', en: 'Construction Worker', hi: 'कंस्ट्रक्शन वर्कर' },
+  { emoji: '🎯', en: 'Data Entry Operator', hi: 'डेटा एंट्री ऑपरेटर' },
+  { emoji: '🏋️', en: 'Gym Trainer', hi: 'जिम ट्रेनर' },
 ];
 
 export default function ResumeBuilder({ isOpen, onClose, lang }: ResumeBuilderProps) {
