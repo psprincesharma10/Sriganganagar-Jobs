@@ -760,70 +760,32 @@ export default function App() {
       )}
 
       {/* Hire Banner */}
-      <div className="bg-gradient-to-r from-[#075E54] to-[#0a8a75] py-6 px-4">
-        <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div>
-            <h2 className="text-xl sm:text-2xl font-black text-white leading-tight">
-              {lang === 'en' ? 'Looking to hire staff in your city?' : 'अपने शहर में स्टाफ ढूंढना है?'}
-            </h2>
-            <p className="text-[#25D366] text-sm mt-1 font-medium">
-              {lang === 'en' ? 'Post a job for FREE — Go live instantly!' : 'जॉब पोस्ट करो FREE में — तुरंत लाइव!'}
-            </p>
-          </div>
-          <div className="flex items-center gap-3">
-            <div className="hidden sm:flex gap-2 text-2xl">
-              <span title="Call Center">🎧</span>
-              <span title="Technician">🔧</span>
-              <span title="Driver">🚗</span>
-              <span title="Teacher">👩‍🏫</span>
-              <span title="Delivery">📦</span>
-              <span title="Security">💂</span>
-            </div>
-            <button
-              onClick={() => setActiveModal('job')}
-              className="px-6 py-3 rounded-2xl bg-white text-[#075E54] font-black text-sm hover:bg-slate-50 transition-colors shadow-lg cursor-pointer whitespace-nowrap"
-            >
-              {lang === 'en' ? '+ Post a Job for FREE' : '+ जॉब पोस्ट करें FREE'}
+      <div className="bg-gradient-to-r from-[#075E54] to-[#0a8a75] py-10 px-4">
+        <div className="max-w-3xl mx-auto text-center">
+          <h2 className="text-2xl sm:text-4xl font-black text-white leading-tight mb-2">
+            {lang === 'en' ? 'Looking to Hire Staff in Your City?' : 'अपने शहर में स्टाफ ढूंढना है?'}
+          </h2>
+          <p className="text-[#25D366] text-base sm:text-lg font-semibold mb-8">
+            {lang === 'en' ? 'Looking for a Job in Your City?' : 'अपने शहर में नौकरी ढूंढ रहे हैं?'}
+          </p>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+            <button onClick={() => setActiveModal('job')}
+              className="w-full sm:w-auto px-8 py-4 rounded-2xl bg-[#25D366] hover:bg-[#20ba5a] text-slate-900 font-black text-base shadow-lg cursor-pointer transition-colors whitespace-nowrap">
+              + Post Job (Free)
+            </button>
+            <button onClick={() => setActiveModal('featured')}
+              className="w-full sm:w-auto px-8 py-4 rounded-2xl bg-yellow-400 hover:bg-yellow-500 text-slate-900 font-black text-base shadow-lg cursor-pointer transition-colors whitespace-nowrap">
+              ⭐ Post Job (Featured)
+            </button>
+            <button onClick={() => setActiveModal('ad')}
+              className="w-full sm:w-auto px-8 py-4 rounded-2xl bg-white hover:bg-slate-50 text-[#075E54] font-black text-base shadow-lg cursor-pointer transition-colors whitespace-nowrap">
+              📢 Business Ad Lagao
             </button>
           </div>
         </div>
       </div>
 
-      {/* Role Categories Grid */}
-      <div className="bg-white border-b border-slate-100 py-5 px-4">
-        <div className="max-w-6xl mx-auto">
-          <p className="text-xs font-black text-slate-400 uppercase tracking-wider mb-3 text-center">
-            {lang === 'en' ? 'Browse by Job Role' : 'जॉब रोल से ढूंढें'}
-          </p>
-          <div className="flex flex-wrap gap-2 justify-center">
-            {[
-              { emoji: '🚚', en: 'Delivery', hi: 'डिलीवरी' },
-              { emoji: '🚗', en: 'Driver', hi: 'ड्राइवर' },
-              { emoji: '🔧', en: 'Technician', hi: 'तकनीशियन' },
-              { emoji: '💂', en: 'Security Guard', hi: 'सिक्योरिटी गार्ड' },
-              { emoji: '👩‍🏫', en: 'Teacher / Tutor', hi: 'टीचर / ट्यूटर' },
-              { emoji: '🏭', en: 'Factory / Helper', hi: 'फैक्ट्री / हेल्पर' },
-              { emoji: '💊', en: 'Medical / Pharma', hi: 'मेडिकल / फार्मा' },
-              { emoji: '💻', en: 'Computer Operator', hi: 'कंप्यूटर ऑपरेटर' },
-              { emoji: '🏗️', en: 'Construction', hi: 'कंस्ट्रक्शन' },
-              { emoji: '🏪', en: 'Shop / Retail', hi: 'दुकान / रिटेल' },
-              { emoji: '🍽️', en: 'Hotel / Cook', hi: 'होटल / कुक' },
-              { emoji: '🧹', en: 'Housekeeping', hi: 'हाउसकीपिंग' },
-              { emoji: '💈', en: 'Beautician / Spa', hi: 'ब्यूटीशियन / स्पा' },
-              { emoji: '📦', en: 'Warehouse', hi: 'वेयरहाउस' },
-              { emoji: '🌾', en: 'Agriculture', hi: 'कृषि' },
-              { emoji: '🌀', en: 'Other', hi: 'अन्य' },
-            ].map((role, i) => (
-              <button key={i}
-                onClick={() => { setSearchQuery(role.en); setCurrentPage(1); }}
-                className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-50 hover:bg-[#eefaf7] hover:text-[#075E54] border border-slate-200 hover:border-[#128C7E] rounded-xl text-xs font-semibold text-slate-600 transition-all cursor-pointer">
-                <span>{role.emoji}</span>
-                <span>{lang === 'en' ? role.en : role.hi}</span>
-              </button>
-            ))}
-          </div>
-        </div>
-      </div>
+
 
       {/* Main Container */}
       <main className="max-w-6xl mx-auto px-4 py-6 md:py-8 grid grid-cols-1 lg:grid-cols-12 gap-6">
