@@ -22,11 +22,20 @@ export default function JobCard({
 }: JobCardProps) {
 
   const getDaysAgoText = (dateStr: string) => {
-    const diffTime = new Date().getTime() - new Date(dateStr).getTime();
+    const date = new Date(dateStr);
+    const now = new Date();
+    const diffTime = now.getTime() - date.getTime();
     const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-    if (diffDays <= 0) return lang === 'en' ? 'Today' : 'आज';
-    if (diffDays === 1) return lang === 'en' ? '1 day ago' : '1 दिन पहले';
-    return lang === 'en' ? `${diffDays} days ago` : `${diffDays} दिनों पहले`;
+
+    // Show actual date always
+    const day = date.getDate().toString().padStart(2, '0');
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const year = date.getFullYear();
+    const actualDate = `${day}/${month}/${year}`;
+
+    if (diffDays <= 0) return lang === 'en' ? `Today (${actualDate})` : `आज (${actualDate})`;
+    if (diffDays === 1) return lang === 'en' ? `Yesterday (${actualDate})` : `कल (${actualDate})`;
+    return lang === 'en' ? `${actualDate}` : `${actualDate}`;
   };
 
   const title = lang === 'en' ? job.job_title_en : job.job_title_hi;

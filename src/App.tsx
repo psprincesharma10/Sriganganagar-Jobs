@@ -631,8 +631,16 @@ export default function App() {
         <div className="max-w-6xl mx-auto px-4 py-3">
           
           <div className="flex items-center justify-between">
-            {/* Logo Brand */}
-            <div className="flex items-center gap-2">
+            {/* Logo Brand — Click to go Home */}
+            <button
+              onClick={() => {
+                setSearchQuery('');
+                setSelectedCategory('All');
+                setCurrentPage(1);
+                window.scrollTo({top: 0, behavior: 'smooth'});
+              }}
+              className="flex items-center gap-2 cursor-pointer hover:opacity-90 transition-opacity bg-transparent border-none outline-none"
+            >
               <div className="p-2 bg-white/10 rounded-2xl">
                 <Building size={24} className="text-[#25D366] stroke-[2.5]" />
               </div>
@@ -644,7 +652,7 @@ export default function App() {
                   {text.pinLabel}
                 </p>
               </div>
-            </div>
+            </button>
 
             {/* Controls */}
             <div className="flex items-center gap-2">
@@ -1216,6 +1224,135 @@ export default function App() {
               className="w-full py-2.5 bg-[#25D366] hover:bg-[#20ba5a] text-slate-900 font-black rounded-xl text-xs cursor-pointer transition-colors flex items-center justify-center gap-2">
               📄 {lang === 'en' ? 'Build My Resume Free' : 'Resume बनाएं — Free'}
             </button>
+          </div>
+
+          {/* SEO Keyword Links - Top Ranking */}
+          <div className="p-4 rounded-3xl bg-white border border-slate-100 shadow-sm">
+            <h3 className="text-xs font-black text-slate-500 uppercase tracking-wider mb-1 flex items-center gap-1.5">
+              <span>🔍</span>
+              <span>{lang === 'en' ? 'Popular Job Searches' : 'लोकप्रिय जॉब खोज'}</span>
+            </h3>
+            <p className="text-[10px] text-slate-400 mb-3">
+              {lang === 'en' ? 'Click to search these jobs instantly' : 'इन जॉब्स को तुरंत खोजें'}
+            </p>
+            <div className="flex flex-wrap gap-1.5">
+              {[
+                /* High volume local keywords from search data */
+                'Driver Job Ganganagar',
+                'Teacher Job Sriganganagar',
+                'Helper Job Ganganagar',
+                'Computer Operator Ganganagar',
+                'Delivery Job Sriganganagar',
+                'Security Guard Ganganagar',
+                'Accountant Job Sriganganagar',
+                'Data Entry Ganganagar',
+                'Sales Job Sriganganagar',
+                'Part Time Job Ganganagar',
+                'Full Time Job Sriganganagar',
+                'Daily Worker Ganganagar',
+                'Fresher Job Sriganganagar',
+                'Shop Assistant Ganganagar',
+                'Medical Job Sriganganagar',
+                'Nurse Job Ganganagar',
+                'Lab Technician Sriganganagar',
+                'Pharmacist Job Ganganagar',
+                'Factory Job Sriganganagar',
+                'Warehouse Job Ganganagar',
+                'Tally Operator Sriganganagar',
+                'Office Job Ganganagar',
+                'Receptionist Job Sriganganagar',
+                'Cashier Job Ganganagar',
+                'Peon Job Sriganganagar',
+                'Electrician Job Ganganagar',
+                'Plumber Job Sriganganagar',
+                'Carpenter Job Ganganagar',
+                'AC Technician Sriganganagar',
+                'Mobile Repair Job Ganganagar',
+                'Bike Driver Sriganganagar',
+                'Bus Driver Job Ganganagar',
+                'Truck Driver Sriganganagar',
+                'Cook Job Ganganagar',
+                'Waiter Job Sriganganagar',
+                'Beautician Job Ganganagar',
+                'Gym Trainer Sriganganagar',
+                'Tutor Job Ganganagar',
+                'Work From Home Sriganganagar',
+                'Online Job Ganganagar',
+                'Freelance Job Sriganganagar',
+                'Digital Marketing Job Ganganagar',
+                'Graphic Designer Sriganganagar',
+                'Video Editor Job Ganganagar',
+                'Content Writer Sriganganagar',
+                'Typing Job Ganganagar',
+                'DTP Operator Sriganganagar',
+                'Back Office Job Ganganagar',
+                'Customer Support Sriganganagar',
+                'Telecaller Job Ganganagar',
+                'BPO Job Sriganganagar',
+                'Field Sales Ganganagar',
+                'Marketing Job Sriganganagar',
+                'MBA Job Ganganagar',
+                'Graduate Job Sriganganagar',
+                '12th Pass Job Ganganagar',
+                '10th Pass Job Sriganganagar',
+                'ITI Job Ganganagar',
+                'Diploma Job Sriganganagar',
+                'Engineering Job Ganganagar',
+                'Naukri Sriganganagar 2026',
+                'Job Vacancy Ganganagar 2026',
+                'Urgent Job Sriganganagar',
+                'Immediate Joining Ganganagar',
+                'Salary 10000 Job Ganganagar',
+                'Salary 15000 Job Sriganganagar',
+                'Salary 20000 Job Ganganagar',
+                'Private Job Sriganganagar',
+                'Hanumangarh Jobs',
+                'Suratgarh Jobs',
+                'Raisinghnagar Jobs',
+                'Padampur Jobs',
+                'Gharsana Jobs',
+                'Abohar Jobs',
+                'Sadulsahar Jobs',
+                'Sangaria Jobs',
+                'Karanpur Jobs',
+                'Anupgarh Jobs',
+                'Kinnow Packing Job Ganganagar',
+                'Grain Mandi Job Sriganganagar',
+                'Agriculture Job Ganganagar',
+                'Farm Worker Sriganganagar',
+                'RICCO Factory Job Ganganagar',
+                'Manufacturing Job Sriganganagar',
+                'Construction Job Ganganagar',
+                'Labour Job Sriganganagar',
+                'Painter Job Ganganagar',
+                'Welder Job Sriganganagar',
+                'Fitter Job Ganganagar',
+                'Helper Job Hanumangarh',
+                'Driver Job Suratgarh',
+                'Teacher Job Hanumangarh',
+                'Computer Job Suratgarh',
+                'Naukri Hanumangarh 2026',
+                'Naukri Suratgarh 2026',
+                'Job Raisinghnagar',
+                'Job Padampur',
+                'Rojgaar Sriganganagar',
+                'Kaam Dhundh Raha Hoon Ganganagar',
+                'Free Job Board Sriganganagar',
+                'Local Jobs Near Me Ganganagar',
+              ].map((kw, i) => (
+                <button key={i}
+                  onClick={() => {
+                    const q = kw.replace(/ (Job|Jobs|Naukri|Rojgaar) .*/i,'').replace(/(Job|Jobs|Naukri|Rojgaar) /i,'').trim();
+                    setSearchQuery(q);
+                    setCurrentPage(1);
+                    window.scrollTo({top: 0, behavior: 'smooth'});
+                  }}
+                  className="text-[10px] text-[#075E54] hover:text-white hover:bg-[#075E54] bg-[#eefaf7] border border-[#128C7E]/20 px-2 py-1 rounded-lg transition-all cursor-pointer font-medium leading-tight"
+                >
+                  {kw}
+                </button>
+              ))}
+            </div>
           </div>
 
         </aside>
