@@ -236,6 +236,59 @@ export default function App() {
     keepAlive();
   }, []);
 
+  // JobPosting Schema for Google for Jobs — auto inject when jobs load
+  useEffect(() => {
+    if (jobs.length === 0) return;
+    // Remove old schema if any
+    const old = document.getElementById('jobposting-schema');
+    if (old) old.remove();
+
+    const schemaData = jobs.slice(0, 20).map(job => ({
+      '@context': 'https://schema.org/',
+      '@type': 'JobPosting',
+      'title': job.job_title_en || job.job_title_hi,
+      'description': job.job_description_en || job.job_description_hi,
+      'datePosted': new Date(job.created_at).toISOString().split('T')[0],
+      'validThrough': new Date(job.expires_at).toISOString().split('T')[0],
+      'employmentType': (job as any).job_type === 'Part Time' ? 'PART_TIME' :
+                        (job as any).job_type === 'Freelance' ? 'CONTRACTOR' :
+                        (job as any).job_type === 'Daily Worker' ? 'PER_DIEM' : 'FULL_TIME',
+      'hiringOrganization': {
+        '@type': 'Organization',
+        'name': job.poster_name || 'Sriganganagar Jobs',
+        'sameAs': 'https://www.sriganganagarjobs.in'
+      },
+      'jobLocation': {
+        '@type': 'Place',
+        'address': {
+          '@type': 'PostalAddress',
+          'addressLocality': 'Sri Ganganagar',
+          'addressRegion': 'Rajasthan',
+          'postalCode': '335001',
+          'addressCountry': 'IN'
+        }
+      },
+      'baseSalary': (job as any).salary_range ? {
+        '@type': 'MonetaryAmount',
+        'currency': 'INR',
+        'value': {
+          '@type': 'QuantitativeValue',
+          'value': (job as any).salary_range,
+          'unitText': 'MONTH'
+        }
+      } : undefined,
+      'directApply': true,
+      'jobBenefits': 'Direct phone contact with employer',
+      'url': 'https://www.sriganganagarjobs.in',
+    }));
+
+    const script = document.createElement('script');
+    script.id = 'jobposting-schema';
+    script.type = 'application/ld+json';
+    script.textContent = JSON.stringify(schemaData);
+    document.head.appendChild(script);
+  }, [jobs]);
+
   // PWA Install Prompt
   useEffect(() => {
     const handler = (e: any) => {
