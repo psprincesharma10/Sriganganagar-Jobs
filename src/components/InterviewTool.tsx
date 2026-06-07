@@ -47,31 +47,58 @@ export default function InterviewTool({ isOpen, onClose, lang }: InterviewToolPr
     setError('');
 
     try {
-      const prompt = `Generate 15 realistic interview questions for a ${jobRole} job position in Sri Ganganagar, Rajasthan, India. Experience level: ${experience}. ${company ? `Company type: ${company}.` : ''}
+      const prompt = `You are an interview coach for local jobs in Sri Ganganagar, Rajasthan, India.
 
-Format: Return ONLY a numbered list of questions, nothing else. Mix of:
-- 3 personal/introduction questions
-- 5 technical/skill-based questions specific to ${jobRole}
-- 4 situational/behavioral questions
-- 3 salary/availability questions
+Generate exactly 15 interview questions for: ${jobRole}
+Experience level: ${experience}
+${company ? `Company type: ${company}` : ''}
 
-Write questions in simple Hindi-English mix (Hinglish) that local candidates can understand easily. Each question on a new line starting with number.`;
+Rules:
+- Write in simple Hinglish (Hindi+English mix)
+- Questions should be realistic for local Sri Ganganagar employers
+- Include: 3 intro questions, 5 job-specific questions, 4 situational questions, 3 salary/joining questions
+- Return ONLY numbered questions like: 1. Question here
+- No extra text, no headings, just 15 numbered questions`;
 
       const response = await fetch('https://api.anthropic.com/v1/messages', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'anthropic-dangerous-direct-browser-access': 'true',
+        },
         body: JSON.stringify({
           model: 'claude-sonnet-4-20250514',
           max_tokens: 1000,
           messages: [{ role: 'user', content: prompt }]
         })
       });
+
+      if (!response.ok) {
+        throw new Error(`API Error: ${response.status}`);
+      }
+
       const data = await response.json();
       const text = data.content?.map((c: any) => c.text || '').join('') || '';
-      const lines = text.split('\n').filter((l: string) => l.trim() && /^\d+\./.test(l.trim()));
-      setQuestions(lines.map((l: string) => l.replace(/^\d+\.\s*/, '').trim()));
-    } catch {
-      setError('Error aaya! Internet check karo aur dobara try karo.');
+
+      if (!text) throw new Error('Empty response');
+
+      const lines = text.split('
+').filter((l: string) => {
+        const trimmed = l.trim();
+        return trimmed && /^\d+[\.\)]/.test(trimmed);
+      });
+
+      if (lines.length === 0) {
+        // Try splitting differently
+        const allLines = text.split('
+').filter((l: string) => l.trim().length > 10);
+        setQuestions(allLines.slice(0, 15));
+      } else {
+        setQuestions(lines.map((l: string) => l.replace(/^\d+[\.\)]\s*/, '').trim()));
+      }
+    } catch (err: any) {
+      console.error('Interview Tool Error:', err);
+      setError('Questions generate nahi hue. Thodi der baad dobara try karein.');
     }
     setLoading(false);
   };

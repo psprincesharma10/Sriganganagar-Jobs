@@ -14,7 +14,6 @@ import ResumeBuilder from './components/ResumeBuilder';
 import BlogPage from './components/BlogPage';
 import InterviewTool from './components/InterviewTool';
 import ServicesPage from './components/ServicesPage';
-import CityInfoPage from './components/CityInfoPage';
 
 import { 
   Building, 
@@ -81,7 +80,6 @@ export default function App() {
   const [showBlog, setShowBlog] = useState(false);
   const [showInterview, setShowInterview] = useState(false);
   const [showServices, setShowServices] = useState(false);
-  const [showCityInfo, setShowCityInfo] = useState(false);
   const [installBannerDismissed, setInstallBannerDismissed] = useState(() => {
     return localStorage.getItem('sgn_install_dismissed') === 'true';
   });
@@ -1274,10 +1272,10 @@ export default function App() {
                 <span className="text-xl">🎯</span>
                 <span className="text-[10px] font-black text-purple-700 leading-tight">{lang === 'en' ? 'Interview Prep' : 'इंटरव्यू तैयारी'}</span>
               </button>
-              <button onClick={() => setShowCityInfo(true)}
+              <button onClick={() => setShowResume(true)}
                 className="flex flex-col items-center gap-1.5 p-3 bg-blue-50 hover:bg-blue-100 border border-blue-100 rounded-xl cursor-pointer transition-all text-center">
-                <span className="text-xl">🗺️</span>
-                <span className="text-[10px] font-black text-blue-700 leading-tight">{lang === 'en' ? 'City Info' : 'जिला जानकारी'}</span>
+                <span className="text-xl">📄</span>
+                <span className="text-[10px] font-black text-blue-700 leading-tight">{lang === 'en' ? 'Resume' : 'रेज़्यूमे'}</span>
               </button>
               <button onClick={() => setShowBlog(true)}
                 className="flex flex-col items-center gap-1.5 p-3 bg-green-50 hover:bg-green-100 border border-green-100 rounded-xl cursor-pointer transition-all text-center">
@@ -1315,6 +1313,38 @@ export default function App() {
               📄 {lang === 'en' ? 'Build My Resume Free' : 'Resume बनाएं — Free'}
             </button>
           </div>
+
+          {/* Latest Blog Preview */}
+          {(() => {
+            try {
+              const saved = localStorage.getItem('sgn_blog_posts');
+              const posts = saved ? JSON.parse(saved) : [];
+              if (posts.length === 0) return null;
+              const latest = posts[0];
+              return (
+                <div className="p-4 rounded-3xl bg-white border border-slate-100 shadow-sm">
+                  <h3 className="text-xs font-black text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                    <span>✍️</span>
+                    <span>{lang === 'en' ? 'Latest from Blog' : 'ब्लॉग से ताज़ा'}</span>
+                  </h3>
+                  <div
+                    onClick={() => setShowBlog(true)}
+                    className="cursor-pointer group"
+                  >
+                    <p className="text-xs font-black text-slate-800 group-hover:text-[#075E54] transition-colors leading-tight mb-1">
+                      {latest.title}
+                    </p>
+                    <p className="text-[10px] text-slate-500 line-clamp-2 leading-relaxed">
+                      {latest.content.substring(0, 100)}...
+                    </p>
+                    <span className="text-[10px] text-[#075E54] font-bold mt-1.5 inline-block">
+                      {lang === 'en' ? 'Read more →' : 'पढ़ें →'}
+                    </span>
+                  </div>
+                </div>
+              );
+            } catch { return null; }
+          })()}
 
           {/* SEO Keyword Links - Top Ranking */}
           <div className="p-4 rounded-3xl bg-white border border-slate-100 shadow-sm">
@@ -1521,9 +1551,7 @@ export default function App() {
               <button onClick={() => setShowInterview(true)} className="text-left text-slate-400 hover:text-white transition-colors cursor-pointer">
                 {lang === 'en' ? '🎯 Interview Prep' : '🎯 इंटरव्यू तैयारी'}
               </button>
-              <button onClick={() => setShowCityInfo(true)} className="text-left text-slate-400 hover:text-white transition-colors cursor-pointer">
-                {lang === 'en' ? '🗺️ City Information' : '🗺️ जिला जानकारी'}
-              </button>
+
             </div>
 
             {/* Contact/WhatsApp */}
@@ -1655,12 +1683,6 @@ export default function App() {
         }}
       />
 
-      {/* City Info Page */}
-      <CityInfoPage
-        isOpen={showCityInfo}
-        onClose={() => setShowCityInfo(false)}
-        lang={lang}
-      />
 
       {/* Static Pages Modal */}
       {staticPage && (
