@@ -11,6 +11,10 @@ import { supabase } from './supabaseClient';
 import StaticPage, { PageType } from './components/StaticPage';
 import FeaturedJobModal from './components/FeaturedJobModal';
 import ResumeBuilder from './components/ResumeBuilder';
+import BlogPage from './components/BlogPage';
+import InterviewTool from './components/InterviewTool';
+import ServicesPage from './components/ServicesPage';
+import CityInfoPage from './components/CityInfoPage';
 
 import { 
   Building, 
@@ -74,6 +78,10 @@ export default function App() {
   const [showInstallBanner, setShowInstallBanner] = useState(false);
   const [staticPage, setStaticPage] = useState<PageType | null>(null);
   const [showResume, setShowResume] = useState(false);
+  const [showBlog, setShowBlog] = useState(false);
+  const [showInterview, setShowInterview] = useState(false);
+  const [showServices, setShowServices] = useState(false);
+  const [showCityInfo, setShowCityInfo] = useState(false);
   const [installBannerDismissed, setInstallBannerDismissed] = useState(() => {
     return localStorage.getItem('sgn_install_dismissed') === 'true';
   });
@@ -1255,6 +1263,35 @@ export default function App() {
             </div>
           </div>
 
+          {/* Quick Tools Grid */}
+          <div className="p-4 rounded-3xl bg-white border border-slate-100 shadow-sm">
+            <h3 className="text-xs font-black text-slate-400 uppercase tracking-wider mb-3">
+              🛠️ {lang === 'en' ? 'Quick Tools' : 'क्विक टूल्स'}
+            </h3>
+            <div className="grid grid-cols-2 gap-2">
+              <button onClick={() => setShowInterview(true)}
+                className="flex flex-col items-center gap-1.5 p-3 bg-purple-50 hover:bg-purple-100 border border-purple-100 rounded-xl cursor-pointer transition-all text-center">
+                <span className="text-xl">🎯</span>
+                <span className="text-[10px] font-black text-purple-700 leading-tight">{lang === 'en' ? 'Interview Prep' : 'इंटरव्यू तैयारी'}</span>
+              </button>
+              <button onClick={() => setShowCityInfo(true)}
+                className="flex flex-col items-center gap-1.5 p-3 bg-blue-50 hover:bg-blue-100 border border-blue-100 rounded-xl cursor-pointer transition-all text-center">
+                <span className="text-xl">🗺️</span>
+                <span className="text-[10px] font-black text-blue-700 leading-tight">{lang === 'en' ? 'City Info' : 'जिला जानकारी'}</span>
+              </button>
+              <button onClick={() => setShowBlog(true)}
+                className="flex flex-col items-center gap-1.5 p-3 bg-green-50 hover:bg-green-100 border border-green-100 rounded-xl cursor-pointer transition-all text-center">
+                <span className="text-xl">✍️</span>
+                <span className="text-[10px] font-black text-green-700 leading-tight">{lang === 'en' ? 'Blog' : 'ब्लॉग'}</span>
+              </button>
+              <button onClick={() => setShowServices(true)}
+                className="flex flex-col items-center gap-1.5 p-3 bg-amber-50 hover:bg-amber-100 border border-amber-100 rounded-xl cursor-pointer transition-all text-center">
+                <span className="text-xl">🛠️</span>
+                <span className="text-[10px] font-black text-amber-700 leading-tight">{lang === 'en' ? 'Services' : 'सेवाएं'}</span>
+              </button>
+            </div>
+          </div>
+
           {/* Resume Builder Card */}
           <div className="p-5 rounded-3xl bg-gradient-to-br from-[#075E54] to-[#0a8a75] border border-[#128C7E]/30 shadow-sm">
             <div className="flex items-start gap-3 mb-3">
@@ -1475,6 +1512,18 @@ export default function App() {
               <button onClick={() => setShowResume(true)} className="text-left text-[#25D366] hover:text-green-300 transition-colors cursor-pointer font-bold">
                 {lang === 'en' ? '📄 Free Resume Builder' : '📄 मुफ्त Resume'}
               </button>
+              <button onClick={() => setShowBlog(true)} className="text-left text-slate-400 hover:text-white transition-colors cursor-pointer">
+                {lang === 'en' ? '✍️ Blog' : '✍️ ब्लॉग'}
+              </button>
+              <button onClick={() => setShowServices(true)} className="text-left text-slate-400 hover:text-white transition-colors cursor-pointer">
+                {lang === 'en' ? '🛠️ Our Services' : '🛠️ हमारी सेवाएं'}
+              </button>
+              <button onClick={() => setShowInterview(true)} className="text-left text-slate-400 hover:text-white transition-colors cursor-pointer">
+                {lang === 'en' ? '🎯 Interview Prep' : '🎯 इंटरव्यू तैयारी'}
+              </button>
+              <button onClick={() => setShowCityInfo(true)} className="text-left text-slate-400 hover:text-white transition-colors cursor-pointer">
+                {lang === 'en' ? '🗺️ City Information' : '🗺️ जिला जानकारी'}
+              </button>
             </div>
 
             {/* Contact/WhatsApp */}
@@ -1574,6 +1623,42 @@ export default function App() {
       <ResumeBuilder
         isOpen={showResume}
         onClose={() => setShowResume(false)}
+        lang={lang}
+      />
+
+      {/* Blog Page */}
+      <BlogPage
+        isOpen={showBlog}
+        onClose={() => setShowBlog(false)}
+        lang={lang}
+      />
+
+      {/* Interview Tool */}
+      <InterviewTool
+        isOpen={showInterview}
+        onClose={() => setShowInterview(false)}
+        lang={lang}
+      />
+
+      {/* Services Page */}
+      <ServicesPage
+        isOpen={showServices}
+        onClose={() => setShowServices(false)}
+        lang={lang}
+        onOpenModal={(type) => {
+          setShowServices(false);
+          if (type === 'job') setActiveModal('job');
+          else if (type === 'featured') setActiveModal('featured');
+          else if (type === 'ad') setActiveModal('ad');
+          else if (type === 'resume') setShowResume(true);
+          else if (type === 'interview') setShowInterview(true);
+        }}
+      />
+
+      {/* City Info Page */}
+      <CityInfoPage
+        isOpen={showCityInfo}
+        onClose={() => setShowCityInfo(false)}
         lang={lang}
       />
 
