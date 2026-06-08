@@ -343,7 +343,7 @@ function Section({ icon, title, color, children }: any) {
   );
 }
 
-function InfoCard({ name, phone, badge }: { name: string; phone: string; badge: string }) {
+function InfoCard({ name, phone, badge }: { name: string; phone: string; badge: string; key?: number }) {
   return (
     <div className="bg-white rounded-xl p-3 flex items-center justify-between gap-2 border border-white shadow-sm">
       <div className="flex-1">

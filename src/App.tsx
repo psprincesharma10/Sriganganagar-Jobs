@@ -12,7 +12,6 @@ import StaticPage, { PageType } from './components/StaticPage';
 import FeaturedJobModal from './components/FeaturedJobModal';
 import ResumeBuilder from './components/ResumeBuilder';
 import BlogPage from './components/BlogPage';
-import InterviewTool from './components/InterviewTool';
 import ServicesPage from './components/ServicesPage';
 
 import { 
@@ -78,7 +77,6 @@ export default function App() {
   const [staticPage, setStaticPage] = useState<PageType | null>(null);
   const [showResume, setShowResume] = useState(false);
   const [showBlog, setShowBlog] = useState(false);
-  const [showInterview, setShowInterview] = useState(false);
   const [showServices, setShowServices] = useState(false);
   const [installBannerDismissed, setInstallBannerDismissed] = useState(() => {
     return localStorage.getItem('sgn_install_dismissed') === 'true';
@@ -1267,11 +1265,7 @@ export default function App() {
               🛠️ {lang === 'en' ? 'Quick Tools' : 'क्विक टूल्स'}
             </h3>
             <div className="grid grid-cols-2 gap-2">
-              <button onClick={() => setShowInterview(true)}
-                className="flex flex-col items-center gap-1.5 p-3 bg-purple-50 hover:bg-purple-100 border border-purple-100 rounded-xl cursor-pointer transition-all text-center">
-                <span className="text-xl">🎯</span>
-                <span className="text-[10px] font-black text-purple-700 leading-tight">{lang === 'en' ? 'Interview Prep' : 'इंटरव्यू तैयारी'}</span>
-              </button>
+
               <button onClick={() => setShowResume(true)}
                 className="flex flex-col items-center gap-1.5 p-3 bg-blue-50 hover:bg-blue-100 border border-blue-100 rounded-xl cursor-pointer transition-all text-center">
                 <span className="text-xl">📄</span>
@@ -1548,9 +1542,7 @@ export default function App() {
               <button onClick={() => setShowServices(true)} className="text-left text-slate-400 hover:text-white transition-colors cursor-pointer">
                 {lang === 'en' ? '🛠️ Our Services' : '🛠️ हमारी सेवाएं'}
               </button>
-              <button onClick={() => setShowInterview(true)} className="text-left text-slate-400 hover:text-white transition-colors cursor-pointer">
-                {lang === 'en' ? '🎯 Interview Prep' : '🎯 इंटरव्यू तैयारी'}
-              </button>
+
 
             </div>
 
@@ -1661,12 +1653,6 @@ export default function App() {
         lang={lang}
       />
 
-      {/* Interview Tool */}
-      <InterviewTool
-        isOpen={showInterview}
-        onClose={() => setShowInterview(false)}
-        lang={lang}
-      />
 
       {/* Services Page */}
       <ServicesPage
@@ -1679,7 +1665,6 @@ export default function App() {
           else if (type === 'featured') setActiveModal('featured');
           else if (type === 'ad') setActiveModal('ad');
           else if (type === 'resume') setShowResume(true);
-          else if (type === 'interview') setShowInterview(true);
         }}
       />
 

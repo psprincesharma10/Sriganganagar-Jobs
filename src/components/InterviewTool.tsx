@@ -22,7 +22,7 @@ const JOB_ROLES = [
 ];
 
 const EXPERIENCE_LEVELS = [
-  { en: 'Fresher (0 experience)', hi: 'फ्रेशर (कोई अनुभव नहीं)' },
+  { en: 'Fresher (0 experience)', hi: 'फ्रेशर' },
   { en: '0-1 Year', hi: '0-1 साल' },
   { en: '1-3 Years', hi: '1-3 साल' },
   { en: '3-5 Years', hi: '3-5 साल' },
@@ -47,18 +47,8 @@ export default function InterviewTool({ isOpen, onClose, lang }: InterviewToolPr
     setError('');
 
     try {
-      const prompt = `You are an interview coach for local jobs in Sri Ganganagar, Rajasthan, India.
-
-Generate exactly 15 interview questions for: ${jobRole}
-Experience level: ${experience}
-${company ? `Company type: ${company}` : ''}
-
-Rules:
-- Write in simple Hinglish (Hindi+English mix)
-- Questions should be realistic for local Sri Ganganagar employers
-- Include: 3 intro questions, 5 job-specific questions, 4 situational questions, 3 salary/joining questions
-- Return ONLY numbered questions like: 1. Question here
-- No extra text, no headings, just 15 numbered questions`;
+      const companyPart = company ? 'Company type: ' + company + '.' : '';
+      const prompt = 'Generate exactly 15 interview questions for a ' + jobRole + ' job in Sri Ganganagar, Rajasthan. Experience: ' + experience + '. ' + companyPart + ' Write in simple Hinglish. Return ONLY 15 numbered questions like: 1. Question. No extra text.';
 
       const response = await fetch('https://api.anthropic.com/v1/messages', {
         method: 'POST',
@@ -73,28 +63,20 @@ Rules:
         })
       });
 
-      if (!response.ok) {
-        throw new Error(`API Error: ${response.status}`);
-      }
+      if (!response.ok) throw new Error('API Error: ' + response.status);
 
       const data = await response.json();
-      const text = data.content?.map((c: any) => c.text || '').join('') || '';
+      const text = (data.content || []).map((c: any) => c.text || '').join('');
 
       if (!text) throw new Error('Empty response');
 
-      const lines = text.split('
-').filter((l: string) => {
-        const trimmed = l.trim();
-        return trimmed && /^\d+[\.\)]/.test(trimmed);
-      });
+      const allLines = text.split('\n').filter((l: string) => l.trim().length > 5);
+      const numbered = allLines.filter((l: string) => /^\d+[.)]\s/.test(l.trim()));
 
-      if (lines.length === 0) {
-        // Try splitting differently
-        const allLines = text.split('
-').filter((l: string) => l.trim().length > 10);
-        setQuestions(allLines.slice(0, 15));
+      if (numbered.length >= 3) {
+        setQuestions(numbered.map((l: string) => l.replace(/^\d+[.)]\s*/, '').trim()));
       } else {
-        setQuestions(lines.map((l: string) => l.replace(/^\d+[\.\)]\s*/, '').trim()));
+        setQuestions(allLines.slice(0, 15).map((l: string) => l.trim()));
       }
     } catch (err: any) {
       console.error('Interview Tool Error:', err);
@@ -104,7 +86,7 @@ Rules:
   };
 
   const copyAll = () => {
-    const text = questions.map((q, i) => `${i + 1}. ${q}`).join('\n');
+    const text = questions.map((q, i) => (i + 1) + '. ' + q).join('\n');
     navigator.clipboard.writeText(text).then(() => {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
@@ -116,7 +98,6 @@ Rules:
       <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={onClose} />
       <div className="bg-white w-full sm:max-w-xl rounded-t-3xl sm:rounded-3xl shadow-2xl relative z-10 max-h-[92vh] flex flex-col">
 
-        {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 bg-gradient-to-r from-[#075E54] to-[#128C7E] rounded-t-3xl flex-shrink-0">
           <div className="flex items-center gap-2">
             <Briefcase size={20} className="text-[#25D366]" />
@@ -124,7 +105,7 @@ Rules:
               <h2 className="font-black text-white text-base">
                 {lang === 'en' ? '🎯 Interview Prep Tool' : '🎯 इंटरव्यू तैयारी'}
               </h2>
-              <p className="text-[10px] text-white/70">AI se interview questions generate karo</p>
+              <p className="text-[10px] text-white/70">AI se 15 interview questions generate karo</p>
             </div>
           </div>
           <button onClick={onClose} className="p-1.5 hover:bg-white/10 rounded-full cursor-pointer text-white">
@@ -134,7 +115,6 @@ Rules:
 
         <div className="overflow-y-auto flex-1 p-6 space-y-4">
 
-          {/* Form */}
           {questions.length === 0 && !loading && (
             <>
               <div className="bg-blue-50 border border-blue-200 rounded-xl p-3 text-xs text-blue-800">
@@ -168,11 +148,11 @@ Rules:
                   {EXPERIENCE_LEVELS.map(exp => (
                     <button key={exp.en} type="button"
                       onClick={() => setExperience(exp.en)}
-                      className={`py-2.5 px-3 rounded-xl border-2 text-xs font-bold cursor-pointer transition-all ${
+                      className={'py-2.5 px-3 rounded-xl border-2 text-xs font-bold cursor-pointer transition-all ' + (
                         experience === exp.en
                           ? 'border-[#075E54] bg-[#eefaf7] text-[#075E54]'
                           : 'border-slate-100 hover:border-slate-200 text-slate-600'
-                      }`}>
+                      )}>
                       {lang === 'en' ? exp.en : exp.hi}
                     </button>
                   ))}
@@ -181,7 +161,7 @@ Rules:
 
               <div>
                 <label className="text-xs font-bold text-slate-600 uppercase tracking-wider block mb-1">
-                  Company Type <span className="text-slate-400 font-normal normal-case">(optional — better questions ke liye)</span>
+                  Company Type <span className="text-slate-400 font-normal normal-case">(optional)</span>
                 </label>
                 <input type="text" value={company} onChange={e => setCompany(e.target.value)}
                   placeholder="e.g. Retail Shop, School, Hospital, Factory..."
@@ -195,7 +175,6 @@ Rules:
             </>
           )}
 
-          {/* Loading */}
           {loading && (
             <div className="text-center py-12 space-y-4">
               <div className="w-16 h-16 bg-[#eefaf7] rounded-full flex items-center justify-center mx-auto">
@@ -206,7 +185,6 @@ Rules:
             </div>
           )}
 
-          {/* Questions */}
           {questions.length > 0 && !loading && (
             <div className="space-y-4">
               <div className="flex items-center justify-between">
@@ -222,7 +200,7 @@ Rules:
 
               <div className="space-y-2">
                 {questions.map((q, i) => (
-                  <div key={i} className="flex gap-3 p-3 bg-slate-50 rounded-xl hover:bg-[#eefaf7] transition-colors group">
+                  <div key={i} className="flex gap-3 p-3 bg-slate-50 rounded-xl hover:bg-[#eefaf7] transition-colors">
                     <span className="min-w-7 h-7 bg-[#075E54] text-white text-xs font-black rounded-full flex items-center justify-center flex-shrink-0">
                       {i + 1}
                     </span>
@@ -237,7 +215,7 @@ Rules:
               </div>
 
               <div className="flex gap-3">
-                <button onClick={() => { setQuestions([]); setJobRole(''); }}
+                <button onClick={() => { setQuestions([]); setJobRole(''); setError(''); }}
                   className="flex-1 py-3 rounded-xl border border-slate-200 text-sm font-bold text-slate-500 hover:bg-slate-50 cursor-pointer">
                   ← New Search
                 </button>

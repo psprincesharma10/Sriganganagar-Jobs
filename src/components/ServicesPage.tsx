@@ -1,12 +1,12 @@
 import React from 'react';
-import { X, Briefcase, Star, Megaphone, FileText, Target, CheckCircle, Phone } from 'lucide-react';
+import { X, Briefcase, Star, Megaphone, FileText, CheckCircle, Phone } from 'lucide-react';
 import { Language } from '../types';
 
 interface ServicesPageProps {
   isOpen: boolean;
   onClose: () => void;
   lang: Language;
-  onOpenModal: (type: 'job' | 'featured' | 'ad' | 'resume' | 'interview') => void;
+  onOpenModal: (type: 'job' | 'featured' | 'ad' | 'resume') => void;
 }
 
 export default function ServicesPage({ isOpen, onClose, lang, onOpenModal }: ServicesPageProps) {
@@ -77,22 +77,7 @@ export default function ServicesPage({ isOpen, onClose, lang, onOpenModal }: Ser
       actionLabel: lang === 'en' ? 'Build Resume' : 'Resume बनाएं',
       actionClass: 'bg-blue-500 hover:bg-blue-600 text-white',
     },
-    {
-      icon: <Target size={24} className="text-purple-500" />,
-      bg: 'bg-purple-50',
-      border: 'border-purple-200',
-      badge: lang === 'en' ? 'FREE' : 'मुफ्त',
-      badgeColor: 'bg-purple-100 text-purple-700',
-      title: lang === 'en' ? '🎯 Interview Prep Tool' : '🎯 इंटरव्यू तैयारी',
-      desc: lang === 'en'
-        ? 'Get 15 AI-generated interview questions for any job role. Prepare confidently before your interview in Sri Ganganagar.'
-        : 'किसी भी job के लिए AI से 15 interview questions पाएं। interview से पहले confident बनें।',
-      features: ['15 questions', 'Job specific', 'Hindi+English', 'AI powered'],
-      price: 'FREE',
-      action: () => onOpenModal('interview'),
-      actionLabel: lang === 'en' ? 'Prepare Now' : 'तैयारी करें',
-      actionClass: 'bg-purple-500 hover:bg-purple-600 text-white',
-    },
+
   ];
 
   return (
