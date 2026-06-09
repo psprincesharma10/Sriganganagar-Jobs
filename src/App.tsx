@@ -1102,189 +1102,7 @@ export default function App() {
         {/* Right Desktop Sidebar Section (4 cols) */}
         <aside className="lg:col-span-4 space-y-6">
 
-          {/* Promo Animation Section */}
-          <div className="rounded-3xl overflow-hidden bg-slate-900 border border-slate-800 shadow-sm">
-            <div className="px-4 pt-3 pb-1 flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-[#25D366] animate-pulse inline-block"></span>
-              <span className="text-[10px] font-extrabold text-[#25D366] uppercase tracking-wider">Live Preview</span>
-            </div>
-            <div className="relative w-full" style={{height: '260px'}}>
-              <iframe
-                src="/promo.html"
-                className="absolute top-0 left-0 w-full h-full border-0"
-                title="SGN Jobs Promo"
-                scrolling="no"
-              />
-            </div>
-          </div>
-
-          {/* Quick info disclaimer card */}
-          <div className="p-5 rounded-3xl bg-white border border-slate-100 shadow-xs space-y-3">
-            <h4 className="text-xs uppercase font-extrabold tracking-wider text-slate-400 flex items-center gap-1.5">
-              <Info size={14} className="text-[#128C7E]" />
-              <span>{lang === 'en' ? 'How Sri Ganganagar Board Works' : 'यह बोर्ड कैसे कार्य करता है'}</span>
-            </h4>
-            <ul className="text-xs text-slate-600 space-y-2.5 leading-relaxed pl-1">
-              <li className="flex gap-2">
-                <span className="text-[#25D366] font-bold">✓</span>
-                <span>
-                  {lang === 'en' 
-                    ? 'Anyone can post work instantly. Visible to all visitors live immediately!' 
-                    : 'कोई भी तुरंत नया काम पोस्ट कर सकता है। सभी को तुरंत लाइव दिखाई देता है!'}
-                </span>
-              </li>
-              <li className="flex gap-2">
-                <span className="text-[#25D366] font-bold">✓</span>
-                <span>
-                  {lang === 'en' 
-                    ? 'No signups, profiles, emails, or password lists to remember.' 
-                    : 'याद रखने के लिए कोई पंजीकरण, प्रोफाइल, ईमेल या विज्ञापन पासवर्ड नहीं।'}
-                </span>
-              </li>
-              <li className="flex gap-2">
-                <span className="text-[#25D366] font-bold">✓</span>
-                <span>
-                  {lang === 'en' 
-                    ? 'Contact employers directly by clicking "Call Directly" or unlocking contact.' 
-                    : 'कॉल करके सीधा संपर्क करें! पूरी गोपनीयता के लिए कुछ नंबर आंशिक बंद होते हैं।'}
-                </span>
-              </li>
-            </ul>
-          </div>
-
-          {/* Business Ads Board Side panel */}
-          <div className="p-5 rounded-3xl bg-white border border-slate-100 shadow-xs space-y-4">
-            
-            <div className="flex items-center justify-between pb-2 border-b border-rose-50/50">
-              <div>
-                <h3 className="text-sm font-black text-slate-900 tracking-tight leading-none">
-                  {text.sideAdTitle}
-                </h3>
-                <span className="text-[10px] text-slate-400 font-bold block mt-1.5 uppercase tracking-wider">
-                  {text.sideAdSub}
-                </span>
-              </div>
-
-              <span className="px-2.5 py-1 bg-amber-50 text-amber-700 hover:text-amber-805 border border-amber-200 text-[10px] font-black tracking-wider rounded-lg uppercase">
-                {lang === 'en' ? 'Verified Ads' : 'सत्यापित'}
-              </span>
-            </div>
-
-            {/* Display Approved / Promoted Business templates */}
-            {sidebarAds.length === 0 ? (
-              <div className="py-8 text-center border border-dashed border-slate-200 rounded-3xl bg-slate-50 p-4">
-                <Megaphone size={20} className="mx-auto text-slate-300 mb-1.5" />
-                <p className="text-xs font-bold text-slate-500">
-                  {lang === 'en' ? 'No featured ads live.' : 'कोई प्रायोजित विज्ञापन उपलब्ध नहीं है।'}
-                </p>
-                <p className="text-[10px] text-slate-400 mt-1">
-                  {lang === 'en' ? 'Click "Post Sponsored Ad" in the header to submit yours!' : 'अपना पहला विज्ञापन लगाने के लिए ऊपर हैडर के बटन पर क्लिक करें!'}
-                </p>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                {sidebarAds.map(ad => (
-                  <AdBanner
-                    key={`side-ad-${ad.id}`}
-                    ad={ad}
-                    lang={lang}
-                    isAdmin={isAdmin}
-                    layout="sidebar"
-                    onApprove={handleApproveAd}
-                    onReject={handleRejectAd}
-                    onDelete={handleDeleteAd}
-                    onToggleFeature={handleToggleAdFeature}
-                  />
-                ))}
-              </div>
-            )}
-
-            {/* Advertising Contact Sticky Banner */}
-            <div className="mt-4 p-4 rounded-2xl bg-[#fffbf0] border border-amber-200/60 shadow-xs space-y-1.5 bh-amber-50">
-              <div className="flex items-center gap-1 text-[10px] font-extrabold uppercase text-amber-800 tracking-widest">
-                <Sparkles size={11} className="fill-amber-500 text-amber-500" />
-                <span>{lang === 'en' ? 'Advertise With Us' : 'यहाँ विज्ञापन लगाएं'}</span>
-              </div>
-              <p className="text-[11px] text-slate-605 leading-relaxed font-sans">
-                {lang === 'en' ? 'Promote your shop, coaching, or local business on Sriganganagar\'s #1 board.' : 'अपने स्थानीय व्यवसाय, कोचिंग या दुकान का श्रीगंगानगर की नंबर #1 वेबसाइट पर प्रचार करें।'}
-              </p>
-              <div className="pt-2 text-[11px] text-slate-700 border-t border-amber-200/50 flex flex-col gap-0.5 font-bold font-sans">
-                <span>
-                  {lang === 'en' ? 'For advertising contact:' : 'विज्ञापन हेतु संपर्क:'}{' '}
-                  <span className="font-black text-slate-900">Prince Sharma</span>
-                </span>
-                <span>
-                  {lang === 'en' ? 'Email:' : 'ईमेल:'}{' '}
-                  <a href="mailto:princeoffice2021@gmail.com" className="text-amber-600 underline font-black hover:text-amber-700">
-                    princeoffice2021@gmail.com
-                  </a>
-                </span>
-              </div>
-            </div>
-
-          </div>
-
-          {/* Sri Ganganagar Area Landmark Tags */}
-          <div className="p-5 rounded-3xl bg-white border border-slate-100 shadow-xs space-y-3">
-            <h4 className="text-[11px] font-extrabold text-slate-400 uppercase tracking-wider">
-              {lang === 'en' ? 'Popular Sri Ganganagar Sectors' : 'लोकप्रिय श्रीगंगानगर व्यापार क्षेत्र'}
-            </h4>
-            <div className="flex flex-wrap gap-1.5">
-              {[
-                '🌾 Grain Mandi (अनाज मंडी)',
-                '🍊 Kinnow Packers (किन्नू पैकिंग)',
-                '📚 Coaching Hubs (कोचिंग हब)',
-                '🏫 Schools & Colleges (स्कूल / कॉलेज)',
-                '🎓 University (यूनिवर्सिटी)',
-                '🏥 Hospitals & Labs (अस्पताल / लैब)',
-                '💊 Medical & Pharma (मेडिकल / फार्मा)',
-                '👚 Gol Bazar Showrooms (शोरूम)',
-                '🏭 RICCO Industrial Area (फैक्ट्री)',
-                '⚙️ Manufacturing Plants (मैन्युफैक्चरिंग)',
-                '🏗️ Construction Sites (कंस्ट्रक्शन)',
-                '🏋️ Gym & Fitness Trainers (जिम / ट्रेनर)',
-                '🧪 Diagnostic Labs (डायग्नोस्टिक लैब)',
-                '🏪 Retail Shops (दुकान / रिटेल)',
-                '🚗 Auto & Transport (ऑटो / ट्रांसपोर्ट)',
-                '🍽️ Hotels & Restaurants (होटल / रेस्टोरेंट)',
-                '💻 IT & Computer (आईटी / कंप्यूटर)',
-                '🏦 Banks & Finance (बैंक / फाइनेंस)',
-                '📦 Warehouse & Logistics (गोदाम / लॉजिस्टिक)',
-                '🌀 Other (अन्य)',
-              ].map((sector, i) => (
-                <span key={i} className="px-2.5 py-1 text-[11px] font-semibold bg-slate-50 hover:bg-[#eefaf7] hover:text-[#075E54] text-slate-600 rounded-lg border border-slate-100/50 cursor-default transition-colors">
-                  {sector}
-                </span>
-              ))}
-            </div>
-          </div>
-
-          {/* Quick Tools Grid */}
-          <div className="p-4 rounded-3xl bg-white border border-slate-100 shadow-sm">
-            <h3 className="text-xs font-black text-slate-400 uppercase tracking-wider mb-3">
-              🛠️ {lang === 'en' ? 'Quick Tools' : 'क्विक टूल्स'}
-            </h3>
-            <div className="grid grid-cols-2 gap-2">
-
-              <button onClick={() => setShowResume(true)}
-                className="flex flex-col items-center gap-1.5 p-3 bg-blue-50 hover:bg-blue-100 border border-blue-100 rounded-xl cursor-pointer transition-all text-center">
-                <span className="text-xl">📄</span>
-                <span className="text-[10px] font-black text-blue-700 leading-tight">{lang === 'en' ? 'Resume' : 'रेज़्यूमे'}</span>
-              </button>
-              <button onClick={() => setShowBlog(true)}
-                className="flex flex-col items-center gap-1.5 p-3 bg-green-50 hover:bg-green-100 border border-green-100 rounded-xl cursor-pointer transition-all text-center">
-                <span className="text-xl">✍️</span>
-                <span className="text-[10px] font-black text-green-700 leading-tight">{lang === 'en' ? 'Blog' : 'ब्लॉग'}</span>
-              </button>
-              <button onClick={() => setShowServices(true)}
-                className="flex flex-col items-center gap-1.5 p-3 bg-amber-50 hover:bg-amber-100 border border-amber-100 rounded-xl cursor-pointer transition-all text-center">
-                <span className="text-xl">🛠️</span>
-                <span className="text-[10px] font-black text-amber-700 leading-tight">{lang === 'en' ? 'Services' : 'सेवाएं'}</span>
-              </button>
-            </div>
-          </div>
-
-          {/* Resume Builder Card */}
+          {/* 1. RESUME BUILDER */}
           <div className="p-5 rounded-3xl bg-gradient-to-br from-[#075E54] to-[#0a8a75] border border-[#128C7E]/30 shadow-sm">
             <div className="flex items-start gap-3 mb-3">
               <div className="text-3xl">📄</div>
@@ -1298,7 +1116,7 @@ export default function App() {
               </div>
             </div>
             <ul className="space-y-1 mb-3">
-              {['✅ 15+ Job Roles', '✅ AI Generated', '✅ Download & Share', '✅ 100% Free'].map(f => (
+              {['✅ 23+ Job Roles', '✅ AI Generated', '✅ PDF Download', '✅ 100% Free'].map(f => (
                 <li key={f} className="text-[10px] text-white/80 font-medium">{f}</li>
               ))}
             </ul>
@@ -1308,161 +1126,209 @@ export default function App() {
             </button>
           </div>
 
-          {/* Latest Blog Preview */}
-          {(() => {
-            try {
-              const saved = localStorage.getItem('sgn_blog_posts');
-              const posts = saved ? JSON.parse(saved) : [];
-              if (posts.length === 0) return null;
-              const latest = posts[0];
-              return (
-                <div className="p-4 rounded-3xl bg-white border border-slate-100 shadow-sm">
-                  <h3 className="text-xs font-black text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
-                    <span>✍️</span>
-                    <span>{lang === 'en' ? 'Latest from Blog' : 'ब्लॉग से ताज़ा'}</span>
-                  </h3>
-                  <div
-                    onClick={() => setShowBlog(true)}
-                    className="cursor-pointer group"
-                  >
-                    <p className="text-xs font-black text-slate-800 group-hover:text-[#075E54] transition-colors leading-tight mb-1">
-                      {latest.title}
+          {/* 2. SERVICES */}
+          <div className="p-5 rounded-3xl bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-200 shadow-sm">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h3 className="text-sm font-black text-slate-900">
+                  {lang === 'en' ? '🛠️ Our Services' : '🛠️ हमारी सेवाएं'}
+                </h3>
+                <p className="text-[10px] text-slate-500 mt-0.5">
+                  {lang === 'en' ? 'Click to know more' : 'अधिक जानने के लिए क्लिक करें'}
+                </p>
+              </div>
+              <button onClick={() => setShowServices(true)}
+                className="text-[10px] text-amber-700 font-black border border-amber-300 bg-amber-100 px-2 py-1 rounded-lg cursor-pointer hover:bg-amber-200">
+                {lang === 'en' ? 'View All →' : 'सब देखें →'}
+              </button>
+            </div>
+            <div className="space-y-2">
+              {[
+                { icon: '💼', en: 'Post Job (Free)', hi: 'जॉब पोस्ट (मुफ्त)', desc_en: 'Post vacancy — live instantly, 30 days', desc_hi: 'वैकेंसी पोस्ट करें — तुरंत लाइव' },
+                { icon: '⭐', en: 'Featured Job — ₹199', hi: 'फीचर्ड जॉब — ₹199', desc_en: 'Top listing with ⭐ badge, 20 days', desc_hi: 'सबसे ऊपर दिखेगी, 20 दिन' },
+                { icon: '📢', en: 'Business Ad — ₹250+', hi: 'बिज़नेस Ad — ₹250+', desc_en: 'Promote shop/business to thousands', desc_hi: 'हज़ारों लोगों तक बिज़नेस पहुंचाएं' },
+                { icon: '🌐', en: 'Website Development', hi: 'वेबसाइट डिज़ाइन', desc_en: 'Professional website for your business', desc_hi: 'आपके बिज़नेस के लिए वेबसाइट' },
+                { icon: '📱', en: 'Mobile App Development', hi: 'Mobile App बनाएं', desc_en: 'Android & iOS apps', desc_hi: 'Android & iOS ऐप्स' },
+                { icon: '🧾', en: 'Accounting & Tally', hi: 'अकाउंटिंग & Tally', desc_en: 'GST filing, accounts, Tally entries', desc_hi: 'GST, अकाउंट्स, Tally एंट्री' },
+                { icon: '💻', en: 'Software Development', hi: 'सॉफ्टवेयर बनाएं', desc_en: 'Custom software for your business', desc_hi: 'आपके बिज़नेस के लिए सॉफ्टवेयर' },
+                { icon: '📄', en: 'Document & Form Work', hi: 'डॉक्यूमेंट & फॉर्म', desc_en: 'Govt forms, affidavits, certificates', desc_hi: 'सरकारी फॉर्म, दस्तावेज़ कार्य' },
+                { icon: '🎯', en: 'Freelance Work', hi: 'फ्रीलांस वर्क', desc_en: 'Data entry, typing, digital work', desc_hi: 'डेटा एंट्री, टाइपिंग, डिजिटल कार्य' },
+              ].map((svc, i) => (
+                <div key={i} onClick={() => setShowServices(true)}
+                  className="flex items-start gap-2.5 cursor-pointer hover:bg-amber-100 rounded-xl p-2 transition-colors group">
+                  <span className="text-base mt-0.5 flex-shrink-0">{svc.icon}</span>
+                  <div className="min-w-0">
+                    <p className="text-xs font-black text-slate-800 group-hover:text-amber-700 transition-colors">
+                      {lang === 'en' ? svc.en : svc.hi}
                     </p>
-                    <p className="text-[10px] text-slate-500 line-clamp-2 leading-relaxed">
-                      {latest.content.substring(0, 100)}...
+                    <p className="text-[10px] text-slate-400 leading-tight mt-0.5">
+                      {lang === 'en' ? svc.desc_en : svc.desc_hi}
                     </p>
-                    <span className="text-[10px] text-[#075E54] font-bold mt-1.5 inline-block">
-                      {lang === 'en' ? 'Read more →' : 'पढ़ें →'}
-                    </span>
                   </div>
                 </div>
-              );
-            } catch { return null; }
-          })()}
+              ))}
+            </div>
+            <button onClick={() => setShowServices(true)}
+              className="w-full mt-3 py-2.5 bg-amber-400 hover:bg-amber-500 text-slate-900 font-black rounded-xl text-xs cursor-pointer transition-colors">
+              {lang === 'en' ? '📞 Contact for Services' : '📞 सेवाओं के लिए संपर्क करें'}
+            </button>
+          </div>
 
-          {/* SEO Keyword Links - Top Ranking */}
+          {/* 3. BLOG */}
+          <div className="p-4 rounded-3xl bg-white border border-slate-100 shadow-sm">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-xs font-black text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
+                <span>✍️</span>
+                <span>{lang === 'en' ? 'Blog — Tips & News' : 'ब्लॉग — टिप्स & न्यूज़'}</span>
+              </h3>
+              <button onClick={() => setShowBlog(true)}
+                className="text-[10px] text-[#075E54] font-black border border-[#128C7E]/30 bg-[#eefaf7] px-2 py-1 rounded-lg cursor-pointer hover:bg-[#d4f5ec]">
+                {lang === 'en' ? 'View All →' : 'सब देखें →'}
+              </button>
+            </div>
+            {(() => {
+              try {
+                const saved = localStorage.getItem('sgn_blog_posts');
+                const posts = saved ? JSON.parse(saved) : [];
+                const latest = posts[0] || null;
+                if (latest) return (
+                  <div onClick={() => setShowBlog(true)} className="cursor-pointer group">
+                    <span className="text-[10px] bg-[#eefaf7] text-[#075E54] px-2 py-0.5 rounded-full font-bold">{latest.category}</span>
+                    <p className="text-xs font-black text-slate-800 group-hover:text-[#075E54] transition-colors leading-tight mt-2 mb-1">{latest.title}</p>
+                    <p className="text-[10px] text-slate-500 line-clamp-2 leading-relaxed">{latest.content.substring(0, 100)}...</p>
+                    <span className="text-[10px] text-[#075E54] font-bold mt-1.5 inline-block">{lang === 'en' ? 'Read more →' : 'पढ़ें →'}</span>
+                  </div>
+                );
+                return (
+                  <div onClick={() => setShowBlog(true)} className="cursor-pointer">
+                    <p className="text-xs text-slate-500 mb-1">{lang === 'en' ? 'Job tips, career advice & local updates' : 'जॉब टिप्स, करियर सलाह और लोकल अपडेट्स'}</p>
+                    <div className="flex flex-wrap gap-1.5 mt-2">
+                      {['Job Tips', 'Career Advice', 'Local News', 'Business'].map(tag => (
+                        <span key={tag} className="text-[10px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full">{tag}</span>
+                      ))}
+                    </div>
+                    <span className="text-[10px] text-[#075E54] font-bold mt-2 inline-block">{lang === 'en' ? 'Visit Blog →' : 'ब्लॉग देखें →'}</span>
+                  </div>
+                );
+              } catch { return null; }
+            })()}
+          </div>
+
+          {/* 4. BUSINESS SHOWCASE */}
+          <div className="p-5 rounded-3xl bg-white border border-slate-100 shadow-xs space-y-4">
+            <div className="flex items-center justify-between pb-2 border-b border-rose-50/50">
+              <div>
+                <h3 className="text-sm font-black text-slate-900 tracking-tight leading-none">
+                  {text.sideAdTitle}
+                </h3>
+                <span className="text-[10px] text-slate-400 font-bold block mt-1.5 uppercase tracking-wider">
+                  {text.sideAdSub}
+                </span>
+              </div>
+              <span className="px-2.5 py-1 bg-amber-50 text-amber-700 border border-amber-200 text-[10px] font-black tracking-wider rounded-lg uppercase">
+                {lang === 'en' ? 'Verified Ads' : 'सत्यापित'}
+              </span>
+            </div>
+            {sidebarAds.length === 0 ? (
+              <div className="py-8 text-center border border-dashed border-slate-200 rounded-3xl bg-slate-50 p-4">
+                <Megaphone size={20} className="mx-auto text-slate-300 mb-1.5" />
+                <p className="text-xs font-bold text-slate-500">
+                  {lang === 'en' ? 'No featured ads live.' : 'कोई प्रायोजित विज्ञापन नहीं।'}
+                </p>
+                <p className="text-[10px] text-slate-400 mt-1">
+                  {lang === 'en' ? 'Click "Business Ad Lagao" to submit yours!' : 'अपना Ad लगाने के लिए Business Ad Lagao बटन दबाएं!'}
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {sidebarAds.map(ad => (
+                  <AdBanner
+                    key={"side-ad-" + ad.id}
+                    ad={ad}
+                    lang={lang}
+                    isAdmin={isAdmin}
+                    layout="sidebar"
+                    onApprove={handleApproveAd}
+                    onReject={handleRejectAd}
+                    onDelete={handleDeleteAd}
+                    onToggleFeature={handleToggleAdFeature}
+                  />
+                ))}
+              </div>
+            )}
+            <div className="mt-4 p-4 rounded-2xl bg-[#fffbf0] border border-amber-200/60 shadow-xs space-y-1.5">
+              <div className="flex items-center gap-1 text-[10px] font-extrabold uppercase text-amber-800 tracking-widest">
+                <Sparkles size={11} className="fill-amber-500 text-amber-500" />
+                <span>{lang === 'en' ? 'Advertise With Us' : 'यहाँ विज्ञापन लगाएं'}</span>
+              </div>
+              <p className="text-[11px] text-slate-605 leading-relaxed font-sans">
+                {lang === 'en' ? "Promote your shop, coaching, or local business on Sriganganagar's #1 board." : 'अपने व्यवसाय का श्रीगंगानगर की नंबर #1 वेबसाइट पर प्रचार करें।'}
+              </p>
+              <div className="pt-2 text-[11px] text-slate-700 border-t border-amber-200/50 flex flex-col gap-0.5 font-bold font-sans">
+                <span>{lang === 'en' ? 'Contact:' : 'संपर्क:'}{' '}<span className="font-black text-slate-900">Prince Sharma</span></span>
+                <a href="mailto:princeoffice2021@gmail.com" className="text-amber-600 underline font-black hover:text-amber-700">princeoffice2021@gmail.com</a>
+              </div>
+            </div>
+          </div>
+
+          {/* 5. POPULAR SECTORS */}
+          <div className="p-5 rounded-3xl bg-white border border-slate-100 shadow-xs space-y-3">
+            <h4 className="text-[11px] font-extrabold text-slate-400 uppercase tracking-wider">
+              {lang === 'en' ? 'Popular Sri Ganganagar Sectors' : 'लोकप्रिय श्रीगंगानगर व्यापार क्षेत्र'}
+            </h4>
+            <div className="flex flex-wrap gap-1.5">
+              {[
+                '🌾 Grain Mandi (अनाज मंडी)', '🍊 Kinnow Packers (किन्नू पैकिंग)',
+                '📚 Coaching Hubs (कोचिंग हब)', '🏫 Schools & Colleges (स्कूल / कॉलेज)',
+                '🏥 Hospitals & Labs (अस्पताल / लैब)', '💊 Medical & Pharma (मेडिकल / फार्मा)',
+                '👚 Gol Bazar Showrooms (शोरूम)', '🏭 RICCO Industrial Area (फैक्ट्री)',
+                '⚙️ Manufacturing Plants (मैन्युफैक्चरिंग)', '🏗️ Construction Sites (कंस्ट्रक्शन)',
+                '🏋️ Gym & Fitness Trainers (जिम)', '🏪 Retail Shops (दुकान / रिटेल)',
+                '🚗 Auto & Transport (ऑटो)', '🍽️ Hotels & Restaurants (होटल)',
+                '💻 IT & Computer (आईटी)', '🏦 Banks & Finance (बैंक)',
+                '📦 Warehouse & Logistics (गोदाम)', '🌀 Other (अन्य)',
+              ].map((sector, i) => (
+                <span key={i} className="px-2.5 py-1 text-[11px] font-semibold bg-slate-50 hover:bg-[#eefaf7] hover:text-[#075E54] text-slate-600 rounded-lg border border-slate-100/50 cursor-default transition-colors">
+                  {sector}
+                </span>
+              ))}
+            </div>
+          </div>
+
+          {/* 6. POPULAR JOB SEARCHES */}
           <div className="p-4 rounded-3xl bg-white border border-slate-100 shadow-sm">
             <h3 className="text-xs font-black text-slate-500 uppercase tracking-wider mb-1 flex items-center gap-1.5">
               <span>🔍</span>
               <span>{lang === 'en' ? 'Popular Job Searches' : 'लोकप्रिय जॉब खोज'}</span>
             </h3>
             <p className="text-[10px] text-slate-400 mb-3">
-              {lang === 'en' ? 'Click to search these jobs instantly' : 'इन जॉब्स को तुरंत खोजें'}
+              {lang === 'en' ? 'Click to search instantly' : 'क्लिक करके तुरंत खोजें'}
             </p>
             <div className="flex flex-wrap gap-1.5">
               {[
-                /* High volume local keywords from search data */
-                'Driver Job Ganganagar',
-                'Teacher Job Sriganganagar',
-                'Helper Job Ganganagar',
-                'Computer Operator Ganganagar',
-                'Delivery Job Sriganganagar',
-                'Security Guard Ganganagar',
-                'Accountant Job Sriganganagar',
-                'Data Entry Ganganagar',
-                'Sales Job Sriganganagar',
-                'Part Time Job Ganganagar',
-                'Full Time Job Sriganganagar',
-                'Daily Worker Ganganagar',
-                'Fresher Job Sriganganagar',
-                'Shop Assistant Ganganagar',
-                'Medical Job Sriganganagar',
-                'Nurse Job Ganganagar',
-                'Lab Technician Sriganganagar',
-                'Pharmacist Job Ganganagar',
-                'Factory Job Sriganganagar',
-                'Warehouse Job Ganganagar',
-                'Tally Operator Sriganganagar',
-                'Office Job Ganganagar',
-                'Receptionist Job Sriganganagar',
-                'Cashier Job Ganganagar',
-                'Peon Job Sriganganagar',
-                'Electrician Job Ganganagar',
-                'Plumber Job Sriganganagar',
-                'Carpenter Job Ganganagar',
-                'AC Technician Sriganganagar',
-                'Mobile Repair Job Ganganagar',
-                'Bike Driver Sriganganagar',
-                'Bus Driver Job Ganganagar',
-                'Truck Driver Sriganganagar',
-                'Cook Job Ganganagar',
-                'Waiter Job Sriganganagar',
-                'Beautician Job Ganganagar',
-                'Gym Trainer Sriganganagar',
-                'Tutor Job Ganganagar',
-                'Work From Home Sriganganagar',
-                'Online Job Ganganagar',
-                'Freelance Job Sriganganagar',
-                'Digital Marketing Job Ganganagar',
-                'Graphic Designer Sriganganagar',
-                'Video Editor Job Ganganagar',
-                'Content Writer Sriganganagar',
-                'Typing Job Ganganagar',
-                'DTP Operator Sriganganagar',
-                'Back Office Job Ganganagar',
-                'Customer Support Sriganganagar',
-                'Telecaller Job Ganganagar',
-                'BPO Job Sriganganagar',
-                'Field Sales Ganganagar',
-                'Marketing Job Sriganganagar',
-                'MBA Job Ganganagar',
-                'Graduate Job Sriganganagar',
-                '12th Pass Job Ganganagar',
-                '10th Pass Job Sriganganagar',
-                'ITI Job Ganganagar',
-                'Diploma Job Sriganganagar',
-                'Engineering Job Ganganagar',
-                'Naukri Sriganganagar 2026',
-                'Job Vacancy Ganganagar 2026',
-                'Urgent Job Sriganganagar',
-                'Immediate Joining Ganganagar',
-                'Salary 10000 Job Ganganagar',
-                'Salary 15000 Job Sriganganagar',
-                'Salary 20000 Job Ganganagar',
-                'Private Job Sriganganagar',
-                'Hanumangarh Jobs',
-                'Suratgarh Jobs',
-                'Raisinghnagar Jobs',
-                'Padampur Jobs',
-                'Gharsana Jobs',
-                'Abohar Jobs',
-                'Sadulsahar Jobs',
-                'Sangaria Jobs',
-                'Karanpur Jobs',
-                'Anupgarh Jobs',
-                'Kinnow Packing Job Ganganagar',
-                'Grain Mandi Job Sriganganagar',
-                'Agriculture Job Ganganagar',
-                'Farm Worker Sriganganagar',
-                'RICCO Factory Job Ganganagar',
-                'Manufacturing Job Sriganganagar',
-                'Construction Job Ganganagar',
-                'Labour Job Sriganganagar',
-                'Painter Job Ganganagar',
-                'Welder Job Sriganganagar',
-                'Fitter Job Ganganagar',
-                'Helper Job Hanumangarh',
-                'Driver Job Suratgarh',
-                'Teacher Job Hanumangarh',
-                'Computer Job Suratgarh',
-                'Naukri Hanumangarh 2026',
-                'Naukri Suratgarh 2026',
-                'Job Raisinghnagar',
-                'Job Padampur',
-                'Rojgaar Sriganganagar',
-                'Kaam Dhundh Raha Hoon Ganganagar',
-                'Free Job Board Sriganganagar',
-                'Local Jobs Near Me Ganganagar',
+                'Driver Job Ganganagar', 'Teacher Job Sriganganagar', 'Helper Job Ganganagar',
+                'Computer Operator Ganganagar', 'Delivery Job Sriganganagar', 'Security Guard Ganganagar',
+                'Accountant Job Sriganganagar', 'Data Entry Ganganagar', 'Sales Job Sriganganagar',
+                'Part Time Job Ganganagar', 'Full Time Job Sriganganagar', 'Daily Worker Ganganagar',
+                'Fresher Job Sriganganagar', 'Shop Assistant Ganganagar', 'Medical Job Sriganganagar',
+                'Nurse Job Ganganagar', 'Lab Technician Sriganganagar', 'Factory Job Sriganganagar',
+                'Tally Operator Sriganganagar', 'Receptionist Job Sriganganagar', 'Electrician Job Ganganagar',
+                'Plumber Job Sriganganagar', 'Cook Job Ganganagar', 'Beautician Job Ganganagar',
+                'Work From Home Sriganganagar', 'Freelance Job Sriganganagar', 'Digital Marketing Ganganagar',
+                'Hanumangarh Jobs', 'Suratgarh Jobs', 'Raisinghnagar Jobs', 'Padampur Jobs',
+                'Naukri Sriganganagar 2026', 'Job Vacancy Ganganagar 2026', 'Urgent Job Sriganganagar',
+                'Salary 10000 Job Ganganagar', 'Salary 15000 Job Sriganganagar', 'Graduate Job Sriganganagar',
+                '12th Pass Job Ganganagar', 'ITI Job Ganganagar', 'Kinnow Packing Job Ganganagar',
+                'Agriculture Job Ganganagar', 'RICCO Factory Job Ganganagar', 'Warehouse Job Ganganagar',
               ].map((kw, i) => (
                 <button key={i}
                   onClick={() => {
-                    const q = kw.replace(/ (Job|Jobs|Naukri|Rojgaar) .*/i,'').replace(/(Job|Jobs|Naukri|Rojgaar) /i,'').trim();
+                    const q = kw.replace(/ (Job|Jobs|Naukri|Rojgaar) .*/i, '').replace(/(Job|Jobs|Naukri|Rojgaar) /i, '').trim();
                     setSearchQuery(q);
                     setCurrentPage(1);
-                    window.scrollTo({top: 0, behavior: 'smooth'});
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
                   }}
-                  className="text-[10px] text-[#075E54] hover:text-white hover:bg-[#075E54] bg-[#eefaf7] border border-[#128C7E]/20 px-2 py-1 rounded-lg transition-all cursor-pointer font-medium leading-tight"
-                >
+                  className="text-[10px] text-[#075E54] hover:text-white hover:bg-[#075E54] bg-[#eefaf7] border border-[#128C7E]/20 px-2 py-1 rounded-lg transition-all cursor-pointer font-medium leading-tight">
                   {kw}
                 </button>
               ))}
