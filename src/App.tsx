@@ -13,6 +13,7 @@ import FeaturedJobModal from './components/FeaturedJobModal';
 import ResumeBuilder from './components/ResumeBuilder';
 import BlogPage from './components/BlogPage';
 import ServicesPage from './components/ServicesPage';
+import ServiceDetailPage from './components/ServiceDetailPage';
 
 import { 
   Building, 
@@ -78,6 +79,7 @@ export default function App() {
   const [showResume, setShowResume] = useState(false);
   const [showBlog, setShowBlog] = useState(false);
   const [showServices, setShowServices] = useState(false);
+  const [activeServiceId, setActiveServiceId] = useState<string | null>(null);
   const [installBannerDismissed, setInstallBannerDismissed] = useState(() => {
     return localStorage.getItem('sgn_install_dismissed') === 'true';
   });
@@ -1160,17 +1162,17 @@ export default function App() {
             </div>
             <div className="space-y-2">
               {[
-                { icon: '💼', en: 'Post Job (Free)', hi: 'जॉब पोस्ट (मुफ्त)', desc_en: 'Post vacancy — live instantly, 30 days', desc_hi: 'वैकेंसी पोस्ट करें — तुरंत लाइव' },
-                { icon: '⭐', en: 'Featured Job — ₹199', hi: 'फीचर्ड जॉब — ₹199', desc_en: 'Top listing with ⭐ badge, 20 days', desc_hi: 'सबसे ऊपर दिखेगी, 20 दिन' },
-                { icon: '📢', en: 'Business Ad — ₹250+', hi: 'बिज़नेस Ad — ₹250+', desc_en: 'Promote shop/business to thousands', desc_hi: 'हज़ारों लोगों तक बिज़नेस पहुंचाएं' },
-                { icon: '🌐', en: 'Website Development', hi: 'वेबसाइट डिज़ाइन', desc_en: 'Professional website for your business', desc_hi: 'आपके बिज़नेस के लिए वेबसाइट' },
-                { icon: '📱', en: 'Mobile App Development', hi: 'Mobile App बनाएं', desc_en: 'Android & iOS apps', desc_hi: 'Android & iOS ऐप्स' },
-                { icon: '🧾', en: 'Accounting & Tally', hi: 'अकाउंटिंग & Tally', desc_en: 'GST filing, accounts, Tally entries', desc_hi: 'GST, अकाउंट्स, Tally एंट्री' },
-                { icon: '💻', en: 'Software Development', hi: 'सॉफ्टवेयर बनाएं', desc_en: 'Custom software for your business', desc_hi: 'आपके बिज़नेस के लिए सॉफ्टवेयर' },
-                { icon: '📄', en: 'Document & Form Work', hi: 'डॉक्यूमेंट & फॉर्म', desc_en: 'Govt forms, affidavits, certificates', desc_hi: 'सरकारी फॉर्म, दस्तावेज़ कार्य' },
-                { icon: '🎯', en: 'Freelance Work', hi: 'फ्रीलांस वर्क', desc_en: 'Data entry, typing, digital work', desc_hi: 'डेटा एंट्री, टाइपिंग, डिजिटल कार्य' },
+                { icon: '💼', en: 'Post Job (Free)', hi: 'जॉब पोस्ट (मुफ्त)', desc_en: 'Post vacancy — live instantly, 30 days', desc_hi: 'वैकेंसी पोस्ट करें — तुरंत लाइव', id: 'post-job' },
+                { icon: '⭐', en: 'Featured Job — ₹199', hi: 'फीचर्ड जॉब — ₹199', desc_en: 'Top listing with ⭐ badge, 20 days', desc_hi: 'सबसे ऊपर दिखेगी, 20 दिन', id: 'featured-job' },
+                { icon: '📢', en: 'Business Ad — ₹250+', hi: 'बिज़नेस Ad — ₹250+', desc_en: 'Promote shop/business to thousands', desc_hi: 'हज़ारों लोगों तक बिज़नेस पहुंचाएं', id: 'business-ad' },
+                { icon: '🌐', en: 'Website Development', hi: 'वेबसाइट डिज़ाइन', desc_en: 'Professional website for your business', desc_hi: 'आपके बिज़नेस के लिए वेबसाइट', id: 'website' },
+                { icon: '📱', en: 'Mobile App Development', hi: 'Mobile App बनाएं', desc_en: 'Android & iOS apps', desc_hi: 'Android & iOS ऐप्स', id: 'mobile-app' },
+                { icon: '🧾', en: 'Accounting & Tally', hi: 'अकाउंटिंग & Tally', desc_en: 'GST filing, accounts, Tally entries', desc_hi: 'GST, अकाउंट्स, Tally एंट्री', id: 'accounting' },
+                { icon: '💻', en: 'Software Development', hi: 'सॉफ्टवेयर बनाएं', desc_en: 'Custom software for your business', desc_hi: 'आपके बिज़नेस के लिए सॉफ्टवेयर', id: 'software' },
+                { icon: '📄', en: 'Document & Form Work', hi: 'डॉक्यूमेंट & फॉर्म', desc_en: 'Govt forms, affidavits, certificates', desc_hi: 'सरकारी फॉर्म, दस्तावेज़ कार्य', id: 'document' },
+                { icon: '🎯', en: 'Freelance Work', hi: 'फ्रीलांस वर्क', desc_en: 'Data entry, typing, digital work', desc_hi: 'डेटा एंट्री, टाइपिंग, डिजिटल कार्य', id: 'freelance' },
               ].map((svc, i) => (
-                <div key={i} onClick={() => setShowServices(true)}
+                <div key={i} onClick={() => setActiveServiceId(svc.id)}
                   className="flex items-start gap-2.5 cursor-pointer hover:bg-amber-100 rounded-xl p-2 transition-colors group">
                   <span className="text-base mt-0.5 flex-shrink-0">{svc.icon}</span>
                   <div className="min-w-0">
@@ -1547,6 +1549,10 @@ export default function App() {
           else if (type === 'featured') setActiveModal('featured');
           else if (type === 'ad') setActiveModal('ad');
           else if (type === 'resume') setShowResume(true);
+        }}
+        onOpenDetail={(id) => {
+          setShowServices(false);
+          setActiveServiceId(id);
         }}
       />
 

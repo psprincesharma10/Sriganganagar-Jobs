@@ -7,13 +7,15 @@ interface ServicesPageProps {
   onClose: () => void;
   lang: Language;
   onOpenModal: (type: 'job' | 'featured' | 'ad' | 'resume') => void;
+  onOpenDetail: (id: string) => void;
 }
 
-export default function ServicesPage({ isOpen, onClose, lang, onOpenModal }: ServicesPageProps) {
+export default function ServicesPage({ isOpen, onClose, lang, onOpenModal, onOpenDetail }: ServicesPageProps) {
   if (!isOpen) return null;
 
   const services = [
     {
+      id: 'post-job',
       icon: <Briefcase size={24} className="text-[#25D366]" />,
       bg: 'bg-[#eefaf7]',
       border: 'border-[#128C7E]/20',
@@ -30,6 +32,7 @@ export default function ServicesPage({ isOpen, onClose, lang, onOpenModal }: Ser
       actionClass: 'bg-[#25D366] hover:bg-[#20ba5a] text-slate-900',
     },
     {
+      id: 'featured-job',
       icon: <Star size={24} className="text-amber-500 fill-amber-400" />,
       bg: 'bg-amber-50',
       border: 'border-amber-200',
@@ -46,6 +49,7 @@ export default function ServicesPage({ isOpen, onClose, lang, onOpenModal }: Ser
       actionClass: 'bg-amber-400 hover:bg-amber-500 text-slate-900',
     },
     {
+      id: 'business-ad',
       icon: <Megaphone size={24} className="text-orange-500" />,
       bg: 'bg-orange-50',
       border: 'border-orange-200',
@@ -62,6 +66,7 @@ export default function ServicesPage({ isOpen, onClose, lang, onOpenModal }: Ser
       actionClass: 'bg-orange-400 hover:bg-orange-500 text-white',
     },
     {
+      id: 'resume',
       icon: <FileText size={24} className="text-blue-500" />,
       bg: 'bg-blue-50',
       border: 'border-blue-200',
@@ -131,10 +136,16 @@ export default function ServicesPage({ isOpen, onClose, lang, onOpenModal }: Ser
                 ))}
               </div>
 
-              <button onClick={svc.action}
-                className={`w-full py-2.5 rounded-xl font-black text-sm cursor-pointer transition-colors ${svc.actionClass}`}>
-                {svc.actionLabel}
-              </button>
+              <div className="flex gap-2">
+                <button onClick={() => onOpenDetail(svc.id || '')}
+                  className="flex-1 py-2.5 rounded-xl font-black text-sm cursor-pointer transition-colors border border-slate-200 bg-white hover:bg-slate-50 text-slate-600">
+                  {lang === 'en' ? 'Learn More →' : 'और जानें →'}
+                </button>
+                <button onClick={svc.action}
+                  className={`flex-1 py-2.5 rounded-xl font-black text-sm cursor-pointer transition-colors ${svc.actionClass}`}>
+                  {svc.actionLabel}
+                </button>
+              </div>
             </div>
           ))}
 
