@@ -1523,6 +1523,19 @@ export default function App() {
         onPostAd={handleCreateAd}
       />
 
+      {/* Service Detail Page */}
+      <ServiceDetailPage
+        serviceId={activeServiceId}
+        lang={lang}
+        onClose={() => setActiveServiceId(null)}
+        onAction={(type) => {
+          setActiveServiceId(null);
+          if (type === 'job') setActiveModal('job');
+          else if (type === 'featured') setActiveModal('featured');
+          else if (type === 'ad') setActiveModal('ad');
+        }}
+      />
+
       {/* Resume Builder */}
       <ResumeBuilder
         isOpen={showResume}
