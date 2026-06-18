@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Job, Ad, Language, BlogPost } from './types';
+import { Job, Ad, Language, BlogPost, NewsPost } from './types';
 import { INITIAL_JOBS, INITIAL_ADS } from './data';
 import JobCard from './components/JobCard';
 import AdBanner from './components/AdBanner';
@@ -12,6 +12,7 @@ import StaticPage, { PageType } from './components/StaticPage';
 import FeaturedJobModal from './components/FeaturedJobModal';
 import ResumeBuilder from './components/ResumeBuilder';
 import BlogPage from './components/BlogPage';
+import NewsPage from './components/NewsPage';
 import ServicesPage from './components/ServicesPage';
 import ServiceDetailPage from './components/ServiceDetailPage';
 
@@ -81,6 +82,9 @@ export default function App() {
   const [showBlog, setShowBlog] = useState(false);
   const [blogPosts, setBlogPosts] = useState<BlogPost[]>([]);
   const [blogReadPostId, setBlogReadPostId] = useState<string | null>(null);
+  const [showNews, setShowNews] = useState(false);
+  const [newsPosts, setNewsPosts] = useState<NewsPost[]>([]);
+  const [newsReadPostId, setNewsReadPostId] = useState<string | null>(null);
   const [showServices, setShowServices] = useState(false);
   const [activeServiceId, setActiveServiceId] = useState<string | null>(null);
   const [installBannerDismissed, setInstallBannerDismissed] = useState(() => {
@@ -244,9 +248,31 @@ export default function App() {
     }
   };
 
+  const loadNewsPosts = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('news_posts')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(7);
+      if (error) throw error;
+      const mapped: NewsPost[] = (data || []).map((row: any) => ({
+        id: String(row.id),
+        title: row.title,
+        content: row.content,
+        category: row.category || 'Local',
+        date: row.created_at
+      }));
+      setNewsPosts(mapped);
+    } catch (err: any) {
+      console.error('Failed to load news posts for sidebar:', err);
+    }
+  };
+
   useEffect(() => {
     loadSupabaseData();
     loadBlogPosts();
+    loadNewsPosts();
   }, []);
 
   // --- Synchronization & Expiry Effects ---
@@ -1267,8 +1293,44 @@ export default function App() {
             )}
           </div>
 
+          {/* 5. LOCAL NEWS */}
+          <div className="p-4 rounded-3xl bg-white border border-slate-100 shadow-sm">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-xs font-black text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
+                <span>📰</span>
+                <span>{lang === 'en' ? 'Local News' : 'लोकल न्यूज़'}</span>
+              </h3>
+              <button onClick={() => { setNewsReadPostId(null); setShowNews(true); }}
+                className="text-[10px] text-[#075E54] font-black border border-[#128C7E]/30 bg-[#eefaf7] px-2 py-1 rounded-lg cursor-pointer hover:bg-[#d4f5ec]">
+                {lang === 'en' ? 'View All →' : 'सब देखें →'}
+              </button>
+            </div>
+            {newsPosts.length > 0 ? (
+              <div className="space-y-3">
+                {newsPosts.map(post => (
+                  <div key={post.id}
+                    onClick={() => { setNewsReadPostId(post.id); setShowNews(true); }}
+                    className="cursor-pointer group pb-3 border-b border-slate-50 last:border-0 last:pb-0">
+                    <span className="text-[10px] bg-[#eefaf7] text-[#075E54] px-2 py-0.5 rounded-full font-bold">{post.category}</span>
+                    <p className="text-xs font-black text-slate-800 group-hover:text-[#075E54] transition-colors leading-tight mt-1.5 mb-1">{post.title}</p>
+                    <p className="text-[10px] text-slate-500 line-clamp-2 leading-relaxed">{post.content.substring(0, 90)}...</p>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div onClick={() => { setNewsReadPostId(null); setShowNews(true); }} className="cursor-pointer">
+                <p className="text-xs text-slate-500 mb-1">{lang === 'en' ? 'Sri Ganganagar & Rajasthan local news' : 'श्री गंगानगर और राजस्थान की ताज़ा खबरें'}</p>
+                <div className="flex flex-wrap gap-1.5 mt-2">
+                  {['Local', 'Rajasthan', 'National', 'Crime'].map(tag => (
+                    <span key={tag} className="text-[10px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full">{tag}</span>
+                  ))}
+                </div>
+                <span className="text-[10px] text-[#075E54] font-bold mt-2 inline-block">{lang === 'en' ? 'Visit News →' : 'न्यूज़ देखें →'}</span>
+              </div>
+            )}
+          </div>
 
-          {/* 5. BUSINESS SHOWCASE */}
+          {/* 6. BUSINESS SHOWCASE */}
           <div className="p-5 rounded-3xl bg-white border border-slate-100 shadow-xs space-y-4">
             <div className="flex items-center justify-between pb-2 border-b border-rose-50/50">
               <div>
@@ -1586,6 +1648,15 @@ export default function App() {
         lang={lang}
         initialPostId={blogReadPostId}
         onPostsChanged={loadBlogPosts}
+      />
+
+      {/* News Page */}
+      <NewsPage
+        isOpen={showNews}
+        onClose={() => { setShowNews(false); setNewsReadPostId(null); }}
+        lang={lang}
+        initialPostId={newsReadPostId}
+        onPostsChanged={loadNewsPosts}
       />
 
 

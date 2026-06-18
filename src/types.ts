@@ -60,4 +60,12 @@ export interface BlogPost {
   author: string;
 }
 
+export interface NewsPost {
+  id: string;
+  title: string;
+  content: string;
+  category: string;
+  date: string;
+}
+
 export type Language = 'en' | 'hi';
