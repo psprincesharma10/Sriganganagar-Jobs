@@ -51,4 +51,13 @@ export interface AdminSettings {
   adminPasswordHash: string;
 }
 
+export interface BlogPost {
+  id: string;
+  title: string;
+  content: string;
+  category: string;
+  date: string;
+  author: string;
+}
+
 export type Language = 'en' | 'hi';

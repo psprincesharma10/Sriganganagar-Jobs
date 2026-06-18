@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Job, Ad, Language } from './types';
+import { Job, Ad, Language, BlogPost } from './types';
 import { INITIAL_JOBS, INITIAL_ADS } from './data';
 import JobCard from './components/JobCard';
 import AdBanner from './components/AdBanner';
@@ -33,7 +33,8 @@ import {
   X,
   Download,
   Smartphone,
-  Star
+  Star,
+  PenLine
 } from 'lucide-react';
 
 export default function App() {
@@ -78,6 +79,8 @@ export default function App() {
   const [staticPage, setStaticPage] = useState<PageType | null>(null);
   const [showResume, setShowResume] = useState(false);
   const [showBlog, setShowBlog] = useState(false);
+  const [blogPosts, setBlogPosts] = useState<BlogPost[]>([]);
+  const [blogReadPostId, setBlogReadPostId] = useState<string | null>(null);
   const [showServices, setShowServices] = useState(false);
   const [activeServiceId, setActiveServiceId] = useState<string | null>(null);
   const [installBannerDismissed, setInstallBannerDismissed] = useState(() => {
@@ -219,8 +222,31 @@ export default function App() {
     }
   };
 
+  const loadBlogPosts = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('blog_posts')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(7);
+      if (error) throw error;
+      const mapped: BlogPost[] = (data || []).map((row: any) => ({
+        id: String(row.id),
+        title: row.title,
+        content: row.content,
+        category: row.category || 'Other',
+        date: row.created_at,
+        author: row.author || 'Prince Sharma'
+      }));
+      setBlogPosts(mapped);
+    } catch (err: any) {
+      console.error('Failed to load blog posts for sidebar:', err);
+    }
+  };
+
   useEffect(() => {
     loadSupabaseData();
+    loadBlogPosts();
   }, []);
 
   // --- Synchronization & Expiry Effects ---
@@ -751,12 +777,20 @@ export default function App() {
                   <Megaphone size={14} className="fill-slate-950 stroke-[2.5]" />
                   <span>{lang === 'en' ? '📢 Business Ad Lagao' : '📢 Business Ad लगाएं'}</span>
                 </button>
+                <button
+                  id="header-blog-btn"
+                  onClick={() => { setBlogReadPostId(null); setShowBlog(true); }}
+                  className="px-4 py-1.5 rounded-xl bg-white/10 hover:bg-white/15 text-white text-xs font-black border border-white/10 shadow-sm flex items-center gap-1.5 transition-all cursor-pointer"
+                >
+                  <PenLine size={14} className="text-[#25D366]" />
+                  <span>{lang === 'en' ? 'Blog' : 'ब्लॉग'}</span>
+                </button>
               </div>
             </div>
           </div>
 
           {/* Mobile action buttons */}
-          <div className="mt-2.5 grid grid-cols-3 gap-1.5 sm:hidden w-full">
+          <div className="mt-2.5 grid grid-cols-4 gap-1.5 sm:hidden w-full">
             <button onClick={() => setActiveModal('job')}
               className="py-2.5 rounded-xl bg-[#25D366] text-slate-950 text-[10px] font-black flex items-center justify-center gap-1 cursor-pointer">
               <Plus size={12} strokeWidth={3} />Job (Free)
@@ -768,6 +802,10 @@ export default function App() {
             <button onClick={() => setActiveModal('ad')}
               className="py-2.5 rounded-xl bg-amber-400 text-slate-950 text-[10px] font-black flex items-center justify-center gap-1 cursor-pointer">
               <Megaphone size={11} />Business Ad
+            </button>
+            <button onClick={() => { setBlogReadPostId(null); setShowBlog(true); }}
+              className="py-2.5 rounded-xl bg-white/10 text-white text-[10px] font-black flex items-center justify-center gap-1 cursor-pointer border border-white/10">
+              <PenLine size={11} className="text-[#25D366]" />Blog
             </button>
           </div>
 
@@ -1199,38 +1237,36 @@ export default function App() {
                 <span>✍️</span>
                 <span>{lang === 'en' ? 'Blog — Tips & News' : 'ब्लॉग — टिप्स & न्यूज़'}</span>
               </h3>
-              <button onClick={() => setShowBlog(true)}
+              <button onClick={() => { setBlogReadPostId(null); setShowBlog(true); }}
                 className="text-[10px] text-[#075E54] font-black border border-[#128C7E]/30 bg-[#eefaf7] px-2 py-1 rounded-lg cursor-pointer hover:bg-[#d4f5ec]">
                 {lang === 'en' ? 'View All →' : 'सब देखें →'}
               </button>
             </div>
-            {(() => {
-              try {
-                const saved = localStorage.getItem('sgn_blog_posts');
-                const posts = saved ? JSON.parse(saved) : [];
-                const latest = posts[0] || null;
-                if (latest) return (
-                  <div onClick={() => setShowBlog(true)} className="cursor-pointer group">
-                    <span className="text-[10px] bg-[#eefaf7] text-[#075E54] px-2 py-0.5 rounded-full font-bold">{latest.category}</span>
-                    <p className="text-xs font-black text-slate-800 group-hover:text-[#075E54] transition-colors leading-tight mt-2 mb-1">{latest.title}</p>
-                    <p className="text-[10px] text-slate-500 line-clamp-2 leading-relaxed">{latest.content.substring(0, 100)}...</p>
-                    <span className="text-[10px] text-[#075E54] font-bold mt-1.5 inline-block">{lang === 'en' ? 'Read more →' : 'पढ़ें →'}</span>
+            {blogPosts.length > 0 ? (
+              <div className="space-y-3">
+                {blogPosts.map(post => (
+                  <div key={post.id}
+                    onClick={() => { setBlogReadPostId(post.id); setShowBlog(true); }}
+                    className="cursor-pointer group pb-3 border-b border-slate-50 last:border-0 last:pb-0">
+                    <span className="text-[10px] bg-[#eefaf7] text-[#075E54] px-2 py-0.5 rounded-full font-bold">{post.category}</span>
+                    <p className="text-xs font-black text-slate-800 group-hover:text-[#075E54] transition-colors leading-tight mt-1.5 mb-1">{post.title}</p>
+                    <p className="text-[10px] text-slate-500 line-clamp-2 leading-relaxed">{post.content.substring(0, 90)}...</p>
                   </div>
-                );
-                return (
-                  <div onClick={() => setShowBlog(true)} className="cursor-pointer">
-                    <p className="text-xs text-slate-500 mb-1">{lang === 'en' ? 'Job tips, career advice & local updates' : 'जॉब टिप्स, करियर सलाह और लोकल अपडेट्स'}</p>
-                    <div className="flex flex-wrap gap-1.5 mt-2">
-                      {['Job Tips', 'Career Advice', 'Local News', 'Business'].map(tag => (
-                        <span key={tag} className="text-[10px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full">{tag}</span>
-                      ))}
-                    </div>
-                    <span className="text-[10px] text-[#075E54] font-bold mt-2 inline-block">{lang === 'en' ? 'Visit Blog →' : 'ब्लॉग देखें →'}</span>
-                  </div>
-                );
-              } catch { return null; }
-            })()}
+                ))}
+              </div>
+            ) : (
+              <div onClick={() => { setBlogReadPostId(null); setShowBlog(true); }} className="cursor-pointer">
+                <p className="text-xs text-slate-500 mb-1">{lang === 'en' ? 'Job tips, career advice & local updates' : 'जॉब टिप्स, करियर सलाह और लोकल अपडेट्स'}</p>
+                <div className="flex flex-wrap gap-1.5 mt-2">
+                  {['Job Tips', 'Career Advice', 'Local News', 'Business'].map(tag => (
+                    <span key={tag} className="text-[10px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full">{tag}</span>
+                  ))}
+                </div>
+                <span className="text-[10px] text-[#075E54] font-bold mt-2 inline-block">{lang === 'en' ? 'Visit Blog →' : 'ब्लॉग देखें →'}</span>
+              </div>
+            )}
           </div>
+
 
           {/* 5. BUSINESS SHOWCASE */}
           <div className="p-5 rounded-3xl bg-white border border-slate-100 shadow-xs space-y-4">
@@ -1420,7 +1456,7 @@ export default function App() {
               <button onClick={() => setShowResume(true)} className="text-left text-[#25D366] hover:text-green-300 transition-colors cursor-pointer font-bold">
                 {lang === 'en' ? '📄 Free Resume Builder' : '📄 मुफ्त Resume'}
               </button>
-              <button onClick={() => setShowBlog(true)} className="text-left text-slate-400 hover:text-white transition-colors cursor-pointer">
+              <button onClick={() => { setBlogReadPostId(null); setShowBlog(true); }} className="text-left text-slate-400 hover:text-white transition-colors cursor-pointer">
                 {lang === 'en' ? '✍️ Blog' : '✍️ ब्लॉग'}
               </button>
               <button onClick={() => setShowServices(true)} className="text-left text-slate-400 hover:text-white transition-colors cursor-pointer">
@@ -1546,8 +1582,10 @@ export default function App() {
       {/* Blog Page */}
       <BlogPage
         isOpen={showBlog}
-        onClose={() => setShowBlog(false)}
+        onClose={() => { setShowBlog(false); setBlogReadPostId(null); }}
         lang={lang}
+        initialPostId={blogReadPostId}
+        onPostsChanged={loadBlogPosts}
       />
 
 

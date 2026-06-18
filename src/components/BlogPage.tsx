@@ -1,28 +1,28 @@
 import React, { useState, useEffect } from 'react';
-import { X, PenLine, Lock, Eye, Trash2, Calendar, User, Plus, ChevronLeft } from 'lucide-react';
-import { Language } from '../types';
-
-interface BlogPost {
-  id: string;
-  title: string;
-  content: string;
-  category: string;
-  date: string;
-  author: string;
-}
+import { X, PenLine, Lock, Eye, Trash2, Calendar, User, Plus, ChevronLeft, Loader2 } from 'lucide-react';
+import { Language, BlogPost } from '../types';
+import { supabase } from '../supabaseClient';
 
 interface BlogPageProps {
   isOpen: boolean;
   onClose: () => void;
   lang: Language;
+  initialPostId?: string | null;
+  onPostsChanged?: () => void;
 }
 
 const BLOG_PASSWORD = 'SGN@Prince#2026';
-const STORAGE_KEY = 'sgn_blog_posts';
 
 const CATEGORIES = ['Job Tips', 'Local News', 'Career Advice', 'Business', 'Announcement', 'Other'];
 
-export default function BlogPage({ isOpen, onClose, lang }: BlogPageProps) {
+const DEFAULT_POST = {
+  title: 'Sriganganagar Jobs — Shuruat Ho Gayi!',
+  content: `Sri Ganganagar ke logon ke liye ek nayi shuruaat!\n\nHamari website sriganganagarjobs.in launch ho gayi hai. Ab aap:\n\n✅ Free mein job post kar sakte hain\n✅ Seedha employer ko call kar sakte hain\n✅ Koi login ya password yaad nahi rakhna\n✅ 28 cities mein jobs dhundh sakte hain\n\nAgar aapko naukri chahiye ya aap kisi ko naukri dena chahte hain — bas visit karein:\nwww.sriganganagarjobs.in\n\nHamara uddeshya hai Sri Ganganagar ke har ghar mein rozgaar pahunchana. Saath milkar ye sapna pura karenge!\n\n— Prince Sharma`,
+  category: 'Announcement',
+  author: 'Prince Sharma'
+};
+
+export default function BlogPage({ isOpen, onClose, lang, initialPostId, onPostsChanged }: BlogPageProps) {
   const [view, setView] = useState<'list' | 'read' | 'write' | 'login'>('list');
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [selectedPost, setSelectedPost] = useState<BlogPost | null>(null);
@@ -33,25 +33,73 @@ export default function BlogPage({ isOpen, onClose, lang }: BlogPageProps) {
   const [content, setContent] = useState('');
   const [category, setCategory] = useState('Job Tips');
   const [author, setAuthor] = useState('Prince Sharma');
+  const [loading, setLoading] = useState(false);
+  const [publishing, setPublishing] = useState(false);
+  const [loadError, setLoadError] = useState('');
+
+  const mapRow = (row: any): BlogPost => ({
+    id: String(row.id),
+    title: row.title,
+    content: row.content,
+    category: row.category || 'Other',
+    date: row.created_at,
+    author: row.author || 'Prince Sharma'
+  });
+
+  const loadPosts = async (jumpToId?: string | null) => {
+    setLoading(true);
+    setLoadError('');
+    try {
+      const { data, error } = await supabase
+        .from('blog_posts')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+
+      let mapped: BlogPost[] = (data || []).map(mapRow);
+
+      // Auto-seed the very first announcement post if the table is empty
+      if (mapped.length === 0) {
+        const { error: seedErr } = await supabase.from('blog_posts').insert(DEFAULT_POST);
+        if (!seedErr) {
+          const { data: freshData } = await supabase
+            .from('blog_posts')
+            .select('*')
+            .order('created_at', { ascending: false });
+          mapped = (freshData || []).map(mapRow);
+        }
+      }
+
+      setPosts(mapped);
+
+      if (jumpToId) {
+        const found = mapped.find(p => p.id === jumpToId);
+        if (found) {
+          setSelectedPost(found);
+          setView('read');
+          return;
+        }
+      }
+      setView('list');
+    } catch (err: any) {
+      console.error('Failed to load blog posts:', err);
+      setLoadError(
+        lang === 'en'
+          ? 'Could not load posts. Please check your internet connection.'
+          : 'Posts load nahi ho paaye. Internet connection check karein.'
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) {
-      try { setPosts(JSON.parse(saved)); } catch {}
-    } else {
-      // Default first post
-      const defaultPosts: BlogPost[] = [{
-        id: '1',
-        title: 'Sriganganagar Jobs — Shuruat Ho Gayi!',
-        content: `Sri Ganganagar ke logon ke liye ek nayi shuruaat!\n\nHamari website sriganganagarjobs.in launch ho gayi hai. Ab aap:\n\n✅ Free mein job post kar sakte hain\n✅ Seedha employer ko call kar sakte hain\n✅ Koi login ya password yaad nahi rakhna\n✅ 28 cities mein jobs dhundh sakte hain\n\nAgar aapko naukri chahiye ya aap kisi ko naukri dena chahte hain — bas visit karein:\nwww.sriganganagarjobs.in\n\nHamara uddeshya hai Sri Ganganagar ke har ghar mein rozgaar pahunchana. Saath milkar ye sapna pura karenge!\n\n— Prince Sharma`,
-        category: 'Announcement',
-        date: new Date().toISOString(),
-        author: 'Prince Sharma'
-      }];
-      setPosts(defaultPosts);
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(defaultPosts));
+    if (isOpen) {
+      loadPosts(initialPostId || null);
     }
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen, initialPostId]);
 
   if (!isOpen) return null;
 
@@ -60,33 +108,51 @@ export default function BlogPage({ isOpen, onClose, lang }: BlogPageProps) {
       setIsAdmin(true);
       setView('write');
       setPwError('');
+      setPassword('');
     } else {
       setPwError('Galat password! Dobara try karein.');
     }
   };
 
-  const handlePublish = () => {
+  const handlePublish = async () => {
     if (!title.trim() || !content.trim()) return;
-    const newPost: BlogPost = {
-      id: Date.now().toString(),
-      title: title.trim(),
-      content: content.trim(),
-      category,
-      date: new Date().toISOString(),
-      author: author.trim() || 'Prince Sharma'
-    };
-    const updated = [newPost, ...posts];
-    setPosts(updated);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
-    setTitle(''); setContent(''); setCategory('Job Tips');
-    setView('list');
+    setPublishing(true);
+    try {
+      const { error } = await supabase.from('blog_posts').insert({
+        title: title.trim(),
+        content: content.trim(),
+        category,
+        author: author.trim() || 'Prince Sharma'
+      });
+      if (error) throw error;
+      setTitle('');
+      setContent('');
+      setCategory('Job Tips');
+      await loadPosts();
+      onPostsChanged?.();
+    } catch (err: any) {
+      console.error('Failed to publish blog post:', err);
+      alert(
+        lang === 'en'
+          ? 'Could not publish the post. Please check your internet connection and try again.'
+          : 'Post publish nahi ho saka. Internet check karke dobara try karein.'
+      );
+    } finally {
+      setPublishing(false);
+    }
   };
 
-  const handleDelete = (id: string) => {
-    const updated = posts.filter(p => p.id !== id);
-    setPosts(updated);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
-    if (selectedPost?.id === id) setView('list');
+  const handleDelete = async (id: string) => {
+    try {
+      const { error } = await supabase.from('blog_posts').delete().eq('id', id);
+      if (error) throw error;
+      if (selectedPost?.id === id) setView('list');
+      await loadPosts();
+      onPostsChanged?.();
+    } catch (err: any) {
+      console.error('Failed to delete blog post:', err);
+      alert(lang === 'en' ? 'Could not delete the post.' : 'Post delete nahi ho saka.');
+    }
   };
 
   const formatDate = (dateStr: string) => {
@@ -94,47 +160,52 @@ export default function BlogPage({ isOpen, onClose, lang }: BlogPageProps) {
     return d.toLocaleDateString('hi-IN', { day: '2-digit', month: 'long', year: 'numeric' });
   };
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
-      <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={onClose} />
-      <div className="bg-white w-full sm:max-w-2xl rounded-t-3xl sm:rounded-3xl shadow-2xl relative z-10 max-h-[92vh] flex flex-col">
+  const handleClose = () => {
+    setView('list');
+    setSelectedPost(null);
+    onClose();
+  };
 
-        {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 flex-shrink-0">
-          <div className="flex items-center gap-2">
-            {view !== 'list' && (
-              <button onClick={() => setView('list')} className="p-1.5 hover:bg-slate-100 rounded-xl cursor-pointer mr-1">
-                <ChevronLeft size={18} className="text-slate-600" />
-              </button>
-            )}
-            <PenLine size={20} className="text-[#075E54]" />
-            <div>
-              <h2 className="font-black text-slate-900 text-base">
-                {lang === 'en' ? 'SGN Jobs Blog' : 'SGN जॉब्स ब्लॉग'}
-              </h2>
-              <p className="text-[10px] text-slate-400">Local news, tips & updates</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-2">
-            {!isAdmin && view === 'list' && (
-              <button onClick={() => setView('login')}
-                className="p-2 bg-slate-100 hover:bg-slate-200 rounded-xl cursor-pointer transition-colors">
-                <Lock size={15} className="text-slate-600" />
-              </button>
-            )}
-            {isAdmin && view === 'list' && (
-              <button onClick={() => setView('write')}
-                className="flex items-center gap-1.5 px-3 py-1.5 bg-[#075E54] text-white text-xs font-black rounded-xl cursor-pointer">
-                <Plus size={13} />New Post
-              </button>
-            )}
-            <button onClick={onClose} className="p-1.5 hover:bg-slate-100 rounded-xl cursor-pointer">
-              <X size={18} className="text-slate-600" />
+  return (
+    <div className="fixed inset-0 z-50 bg-white flex flex-col">
+      {/* Top bar */}
+      <div className="flex items-center justify-between px-4 sm:px-6 py-3.5 border-b border-slate-100 flex-shrink-0 bg-white sticky top-0 z-10">
+        <div className="flex items-center gap-2">
+          {view !== 'list' && (
+            <button onClick={() => setView('list')} className="p-1.5 hover:bg-slate-100 rounded-xl cursor-pointer mr-1">
+              <ChevronLeft size={18} className="text-slate-600" />
             </button>
+          )}
+          <PenLine size={20} className="text-[#075E54]" />
+          <div>
+            <h2 className="font-black text-slate-900 text-base leading-none">
+              {lang === 'en' ? 'SGN Jobs Blog' : 'SGN जॉब्स ब्लॉग'}
+            </h2>
+            <p className="text-[10px] text-slate-400 mt-0.5">Local news, tips & updates</p>
           </div>
         </div>
+        <div className="flex items-center gap-2">
+          {!isAdmin && view === 'list' && (
+            <button onClick={() => setView('login')}
+              className="p-2 bg-slate-100 hover:bg-slate-200 rounded-xl cursor-pointer transition-colors">
+              <Lock size={15} className="text-slate-600" />
+            </button>
+          )}
+          {isAdmin && view === 'list' && (
+            <button onClick={() => setView('write')}
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-[#075E54] text-white text-xs font-black rounded-xl cursor-pointer">
+              <Plus size={13} />New Post
+            </button>
+          )}
+          <button onClick={handleClose} className="p-1.5 hover:bg-slate-100 rounded-xl cursor-pointer">
+            <X size={18} className="text-slate-600" />
+          </button>
+        </div>
+      </div>
 
-        <div className="overflow-y-auto flex-1 p-6">
+      {/* Scrollable page body */}
+      <div className="overflow-y-auto flex-1">
+        <div className="max-w-2xl mx-auto px-4 sm:px-6 py-6">
 
           {/* LOGIN VIEW */}
           {view === 'login' && (
@@ -165,7 +236,7 @@ export default function BlogPage({ isOpen, onClose, lang }: BlogPageProps) {
             <div className="space-y-4">
               <div className="bg-[#eefaf7] border border-[#128C7E]/20 rounded-xl p-3 text-xs text-[#075E54]">
                 <p className="font-black">✍️ Naya Blog Post Likhein</p>
-                <p className="opacity-80 mt-0.5">Publish karte hi turant live ho jaayega!</p>
+                <p className="opacity-80 mt-0.5">Publish karte hi sabhi visitors ko turant dikhega!</p>
               </div>
               <div>
                 <label className="text-xs font-bold text-slate-600 uppercase tracking-wider block mb-1">Title *</label>
@@ -189,7 +260,7 @@ export default function BlogPage({ isOpen, onClose, lang }: BlogPageProps) {
               </div>
               <div>
                 <label className="text-xs font-bold text-slate-600 uppercase tracking-wider block mb-1">Content *</label>
-                <textarea rows={12} value={content} onChange={e => setContent(e.target.value)}
+                <textarea rows={14} value={content} onChange={e => setContent(e.target.value)}
                   placeholder="Yahan apna blog likho... (Hindi ya English dono mein likh sakte hain)"
                   className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#128C7E] text-sm resize-none leading-relaxed" />
               </div>
@@ -198,9 +269,10 @@ export default function BlogPage({ isOpen, onClose, lang }: BlogPageProps) {
                   className="flex-1 py-3 rounded-xl border border-slate-200 text-sm font-bold text-slate-500 hover:bg-slate-50 cursor-pointer">
                   Cancel
                 </button>
-                <button onClick={handlePublish} disabled={!title.trim() || !content.trim()}
+                <button onClick={handlePublish} disabled={!title.trim() || !content.trim() || publishing}
                   className="flex-1 py-3 rounded-xl bg-[#25D366] hover:bg-[#20ba5a] disabled:bg-slate-200 disabled:text-slate-400 text-slate-900 font-black text-sm cursor-pointer flex items-center justify-center gap-2">
-                  <PenLine size={15} />Publish Karein
+                  {publishing ? <Loader2 size={15} className="animate-spin" /> : <PenLine size={15} />}
+                  {publishing ? 'Publish ho raha hai...' : 'Publish Karein'}
                 </button>
               </div>
             </div>
@@ -214,13 +286,13 @@ export default function BlogPage({ isOpen, onClose, lang }: BlogPageProps) {
                   {selectedPost.category}
                 </span>
               </div>
-              <h2 className="text-xl font-black text-slate-900 leading-tight">{selectedPost.title}</h2>
+              <h2 className="text-2xl sm:text-3xl font-black text-slate-900 leading-tight">{selectedPost.title}</h2>
               <div className="flex items-center gap-3 text-xs text-slate-400">
                 <span className="flex items-center gap-1"><User size={11} />{selectedPost.author}</span>
                 <span className="flex items-center gap-1"><Calendar size={11} />{formatDate(selectedPost.date)}</span>
               </div>
               <div className="h-px bg-slate-100" />
-              <div className="text-sm text-slate-700 leading-relaxed whitespace-pre-wrap">{selectedPost.content}</div>
+              <div className="text-[15px] text-slate-700 leading-relaxed whitespace-pre-wrap">{selectedPost.content}</div>
               {isAdmin && (
                 <button onClick={() => handleDelete(selectedPost.id)}
                   className="flex items-center gap-1.5 text-xs text-red-500 hover:text-red-700 cursor-pointer mt-4">
@@ -233,7 +305,16 @@ export default function BlogPage({ isOpen, onClose, lang }: BlogPageProps) {
           {/* LIST VIEW */}
           {view === 'list' && (
             <div className="space-y-4">
-              {posts.length === 0 ? (
+              {loading ? (
+                <div className="text-center py-12 text-slate-400">
+                  <Loader2 size={28} className="mx-auto mb-3 animate-spin" />
+                  <p className="text-sm">{lang === 'en' ? 'Loading posts...' : 'Posts load ho rahe hain...'}</p>
+                </div>
+              ) : loadError ? (
+                <div className="text-center py-12 text-red-400">
+                  <p className="text-sm">{loadError}</p>
+                </div>
+              ) : posts.length === 0 ? (
                 <div className="text-center py-12 text-slate-400">
                   <PenLine size={32} className="mx-auto mb-3 opacity-30" />
                   <p className="text-sm">Abhi koi post nahi hai.</p>
