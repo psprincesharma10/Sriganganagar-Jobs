@@ -68,6 +68,7 @@ export default function BlogPage({ isOpen, onClose, lang, initialPostId, onPosts
             .select('*')
             .order('created_at', { ascending: false });
           mapped = (freshData || []).map(mapRow);
+          onPostsChanged?.();
         }
       }
 
@@ -167,9 +168,11 @@ export default function BlogPage({ isOpen, onClose, lang, initialPostId, onPosts
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-white flex flex-col">
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
+      <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={handleClose} />
+      <div className="bg-white w-full sm:max-w-3xl rounded-t-3xl sm:rounded-3xl shadow-2xl relative z-10 max-h-[94vh] flex flex-col">
       {/* Top bar */}
-      <div className="flex items-center justify-between px-4 sm:px-6 py-3.5 border-b border-slate-100 flex-shrink-0 bg-white sticky top-0 z-10">
+      <div className="flex items-center justify-between px-4 sm:px-6 py-3.5 border-b border-slate-100 flex-shrink-0 bg-white rounded-t-3xl">
         <div className="flex items-center gap-2">
           {view !== 'list' && (
             <button onClick={() => setView('list')} className="p-1.5 hover:bg-slate-100 rounded-xl cursor-pointer mr-1">
@@ -348,6 +351,7 @@ export default function BlogPage({ isOpen, onClose, lang, initialPostId, onPosts
             </div>
           )}
         </div>
+      </div>
       </div>
     </div>
   );
