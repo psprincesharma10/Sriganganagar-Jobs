@@ -35,7 +35,8 @@ import {
   Download,
   Smartphone,
   Star,
-  PenLine
+  PenLine,
+  Newspaper
 } from 'lucide-react';
 
 export default function App() {
@@ -811,12 +812,20 @@ export default function App() {
                   <PenLine size={14} className="text-[#25D366]" />
                   <span>{lang === 'en' ? 'Blog' : 'ब्लॉग'}</span>
                 </button>
+                <button
+                  id="header-news-btn"
+                  onClick={() => { setNewsReadPostId(null); setShowNews(true); }}
+                  className="px-4 py-1.5 rounded-xl bg-white/10 hover:bg-white/15 text-white text-xs font-black border border-white/10 shadow-sm flex items-center gap-1.5 transition-all cursor-pointer"
+                >
+                  <Newspaper size={14} className="text-amber-300" />
+                  <span>{lang === 'en' ? 'News' : 'न्यूज़'}</span>
+                </button>
               </div>
             </div>
           </div>
 
           {/* Mobile action buttons */}
-          <div className="mt-2.5 grid grid-cols-4 gap-1.5 sm:hidden w-full">
+          <div className="mt-2.5 grid grid-cols-5 gap-1.5 sm:hidden w-full">
             <button onClick={() => setActiveModal('job')}
               className="py-2.5 rounded-xl bg-[#25D366] text-slate-950 text-[10px] font-black flex items-center justify-center gap-1 cursor-pointer">
               <Plus size={12} strokeWidth={3} />Job (Free)
@@ -832,6 +841,10 @@ export default function App() {
             <button onClick={() => { setBlogReadPostId(null); setShowBlog(true); }}
               className="py-2.5 rounded-xl bg-white/10 text-white text-[10px] font-black flex items-center justify-center gap-1 cursor-pointer border border-white/10">
               <PenLine size={11} className="text-[#25D366]" />Blog
+            </button>
+            <button onClick={() => { setNewsReadPostId(null); setShowNews(true); }}
+              className="py-2.5 rounded-xl bg-white/10 text-white text-[10px] font-black flex items-center justify-center gap-1 cursor-pointer border border-white/10">
+              <Newspaper size={11} className="text-amber-300" />News
             </button>
           </div>
 
@@ -1520,6 +1533,9 @@ export default function App() {
               </button>
               <button onClick={() => { setBlogReadPostId(null); setShowBlog(true); }} className="text-left text-slate-400 hover:text-white transition-colors cursor-pointer">
                 {lang === 'en' ? '✍️ Blog' : '✍️ ब्लॉग'}
+              </button>
+              <button onClick={() => { setNewsReadPostId(null); setShowNews(true); }} className="text-left text-slate-400 hover:text-white transition-colors cursor-pointer">
+                {lang === 'en' ? '📰 Local News' : '📰 लोकल न्यूज़'}
               </button>
               <button onClick={() => setShowServices(true)} className="text-left text-slate-400 hover:text-white transition-colors cursor-pointer">
                 {lang === 'en' ? '🛠️ Our Services' : '🛠️ हमारी सेवाएं'}
