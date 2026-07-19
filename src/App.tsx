@@ -213,10 +213,8 @@ export default function App() {
         finalAds = [];
       }
 
-      const now = new Date().getTime(); // Real current time
-      const validJobs = finalJobs.filter(j => new Date(j.expires_at).getTime() >= now);
-
-      setJobs(validJobs);
+      // Expiry filter removed — sab jobs show hongi
+      setJobs(finalJobs);
       setAds(finalAds);
       setDbConnected(true);
     } catch (err: any) {
