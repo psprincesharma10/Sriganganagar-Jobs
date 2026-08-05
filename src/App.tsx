@@ -231,7 +231,7 @@ export default function App() {
         .from('blog_posts')
         .select('*')
         .order('created_at', { ascending: false })
-        .limit(7);
+        .limit(25);
       if (error) throw error;
       const mapped: BlogPost[] = (data || []).map((row: any) => ({
         id: String(row.id),
