@@ -268,6 +268,31 @@ export default function App() {
     }
   };
 
+  // --- Hash-based URL routing for AdSense crawlability ---
+  const handleHashChange = () => {
+    const hash = window.location.hash;
+    if (hash === '#/about') { setStaticPage('about'); }
+    else if (hash === '#/privacy-policy') { setStaticPage('privacy'); }
+    else if (hash === '#/terms') { setStaticPage('terms'); }
+    else if (hash === '#/contact') { setStaticPage('contact'); }
+    else if (hash === '#/disclaimer') { setStaticPage('disclaimer'); }
+    else if (hash === '#/advertise') { setStaticPage('advertise'); }
+    else if (hash.startsWith('#/blog')) {
+      const postId = hash.replace('#/blog/', '').replace('#/blog', '') || null;
+      setBlogReadPostId(postId || null);
+      setShowBlog(true);
+    }
+    else {
+      setStaticPage(null);
+    }
+  };
+
+  useEffect(() => {
+    handleHashChange();
+    window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
+  }, []);
+
   useEffect(() => {
     loadSupabaseData();
     loadBlogPosts();
@@ -1505,33 +1530,33 @@ export default function App() {
 
             {/* Page Links */}
             <div className="grid grid-cols-2 gap-x-8 gap-y-2 text-[12px]">
-              <button onClick={() => setStaticPage('about')} className="text-left text-slate-400 hover:text-white transition-colors cursor-pointer">
+              <a href="#/about" className="text-left text-slate-400 hover:text-white transition-colors cursor-pointer">
                 {lang === 'en' ? 'About Us' : 'हमारे बारे में'}
-              </button>
-              <button onClick={() => setStaticPage('contact')} className="text-left text-slate-400 hover:text-white transition-colors cursor-pointer">
+              </a>
+              <a href="#/contact" className="text-left text-slate-400 hover:text-white transition-colors cursor-pointer">
                 {lang === 'en' ? 'Contact Us' : 'संपर्क करें'}
-              </button>
-              <button onClick={() => setStaticPage('privacy')} className="text-left text-slate-400 hover:text-white transition-colors cursor-pointer">
+              </a>
+              <a href="#/privacy-policy" className="text-left text-slate-400 hover:text-white transition-colors cursor-pointer">
                 {lang === 'en' ? 'Privacy Policy' : 'गोपनीयता नीति'}
-              </button>
-              <button onClick={() => setStaticPage('terms')} className="text-left text-slate-400 hover:text-white transition-colors cursor-pointer">
+              </a>
+              <a href="#/terms" className="text-left text-slate-400 hover:text-white transition-colors cursor-pointer">
                 {lang === 'en' ? 'Terms & Conditions' : 'नियम और शर्तें'}
-              </button>
-              <button onClick={() => setStaticPage('disclaimer')} className="text-left text-slate-400 hover:text-white transition-colors cursor-pointer">
+              </a>
+              <a href="#/disclaimer" className="text-left text-slate-400 hover:text-white transition-colors cursor-pointer">
                 {lang === 'en' ? 'Disclaimer' : 'अस्वीकरण'}
-              </button>
-              <button onClick={() => setStaticPage('advertise')} className="text-left text-amber-400 hover:text-amber-300 transition-colors cursor-pointer font-bold">
+              </a>
+              <a href="#/advertise" className="text-left text-amber-400 hover:text-amber-300 transition-colors cursor-pointer font-bold">
                 {lang === 'en' ? 'Advertise With Us' : 'विज्ञापन दें'}
-              </button>
-              <button onClick={() => setStaticPage('report')} className="text-left text-red-400 hover:text-red-300 transition-colors cursor-pointer font-bold">
+              </a>
+              <a href="#/advertise" className="text-left text-red-400 hover:text-red-300 transition-colors cursor-pointer font-bold">
                 {lang === 'en' ? 'Report Scam Job' : 'फर्जी जॉब रिपोर्ट'}
-              </button>
+              </a>
               <button onClick={() => setShowResume(true)} className="text-left text-[#25D366] hover:text-green-300 transition-colors cursor-pointer font-bold">
                 {lang === 'en' ? '📄 Free Resume Builder' : '📄 मुफ्त Resume'}
               </button>
-              <button onClick={() => { setBlogReadPostId(null); setShowBlog(true); }} className="text-left text-slate-400 hover:text-white transition-colors cursor-pointer">
+              <a href="#/blog" className="text-left text-slate-400 hover:text-white transition-colors cursor-pointer">
                 {lang === 'en' ? '✍️ Blog' : '✍️ ब्लॉग'}
-              </button>
+              </a>
               <button onClick={() => { setNewsReadPostId(null); setShowNews(true); }} className="text-left text-slate-400 hover:text-white transition-colors cursor-pointer">
                 {lang === 'en' ? '📰 Local News' : '📰 लोकल न्यूज़'}
               </button>
@@ -1658,7 +1683,7 @@ export default function App() {
       {/* Blog Page */}
       <BlogPage
         isOpen={showBlog}
-        onClose={() => { setShowBlog(false); setBlogReadPostId(null); }}
+        onClose={() => { setShowBlog(false); setBlogReadPostId(null); window.history.pushState(null, '', window.location.pathname); }}
         lang={lang}
         initialPostId={blogReadPostId}
         onPostsChanged={loadBlogPosts}
@@ -1698,7 +1723,7 @@ export default function App() {
         <StaticPage
           page={staticPage}
           lang={lang}
-          onClose={() => setStaticPage(null)}
+          onClose={() => { setStaticPage(null); window.history.pushState(null, '', window.location.pathname); }}
         />
       )}
 

@@ -1,0 +1,3 @@
+# ads.txt for sriganganagarjobs.in
+# Google AdSense - Replace YOUR_PUBLISHER_ID with your actual pub-XXXXXXXXXXXXXXXX ID after AdSense approval
+# google.com, pub-XXXXXXXXXXXXXXXX, DIRECT, f08c47fec0942fa0
