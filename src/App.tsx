@@ -15,6 +15,7 @@ import BlogPage from './components/BlogPage';
 import NewsPage from './components/NewsPage';
 import ServicesPage from './components/ServicesPage';
 import ServiceDetailPage from './components/ServiceDetailPage';
+import CandidatePortal from './candidate/CandidatePortal';
 
 import { 
   Building, 
@@ -88,6 +89,7 @@ export default function App() {
   const [newsReadPostId, setNewsReadPostId] = useState<string | null>(null);
   const [showServices, setShowServices] = useState(false);
   const [activeServiceId, setActiveServiceId] = useState<string | null>(null);
+  const [showCandidatePortal, setShowCandidatePortal] = useState(false);
   const [installBannerDismissed, setInstallBannerDismissed] = useState(() => {
     return localStorage.getItem('sgn_install_dismissed') === 'true';
   });
@@ -282,8 +284,12 @@ export default function App() {
       setBlogReadPostId(postId || null);
       setShowBlog(true);
     }
+    else if (hash.startsWith('#/candidates')) {
+      setShowCandidatePortal(true);
+    }
     else {
       setStaticPage(null);
+      setShowCandidatePortal(false);
     }
   };
 
@@ -748,6 +754,18 @@ export default function App() {
     adminPassDesc: lang === 'en' ? 'Enter your secret admin password' : 'अपना सीक्रेट एडमिन पासवर्ड डालें'
   };
 
+  // Show Candidate Portal as full-page overlay
+  if (showCandidatePortal) {
+    return (
+      <CandidatePortal
+        onBackToMain={() => {
+          setShowCandidatePortal(false);
+          window.history.pushState(null, '', window.location.pathname);
+        }}
+      />
+    );
+  }
+
   return (
     <div id="app-root-wrapper" className="min-h-screen bg-[#F0F2F5] text-slate-900 font-sans selection:bg-[#25D366]/30">
       
@@ -836,6 +854,13 @@ export default function App() {
                   <span>{lang === 'en' ? 'Blog' : 'ब्लॉग'}</span>
                 </button>
                 <button
+                  id="header-candidates-btn"
+                  onClick={() => { setShowCandidatePortal(true); window.location.hash = '/candidates'; }}
+                  className="px-4 py-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-white text-xs font-black border border-emerald-400/50 shadow-sm flex items-center gap-1.5 transition-all cursor-pointer"
+                >
+                  <span>👷 {lang === 'en' ? 'Candidates' : 'कैंडिडेट्स'}</span>
+                </button>
+                <button
                   id="header-news-btn"
                   onClick={() => { setNewsReadPostId(null); setShowNews(true); }}
                   className="px-4 py-1.5 rounded-xl bg-white/10 hover:bg-white/15 text-white text-xs font-black border border-white/10 shadow-sm flex items-center gap-1.5 transition-all cursor-pointer"
@@ -868,6 +893,10 @@ export default function App() {
             <button onClick={() => { setNewsReadPostId(null); setShowNews(true); }}
               className="py-2.5 rounded-xl bg-white/10 text-white text-[10px] font-black flex items-center justify-center gap-1 cursor-pointer border border-white/10">
               <Newspaper size={11} className="text-amber-300" />News
+            </button>
+            <button onClick={() => { setShowCandidatePortal(true); window.location.hash = '/candidates'; }}
+              className="py-2.5 rounded-xl bg-emerald-500 text-white text-[10px] font-black flex items-center justify-center gap-1 cursor-pointer">
+              👷 Candidates
             </button>
           </div>
 
@@ -1557,6 +1586,9 @@ export default function App() {
               <a href="#/blog" className="text-left text-slate-400 hover:text-white transition-colors cursor-pointer">
                 {lang === 'en' ? '✍️ Blog' : '✍️ ब्लॉग'}
               </a>
+              <button onClick={() => { setShowCandidatePortal(true); window.location.hash = '/candidates'; }} className="text-left text-emerald-400 hover:text-emerald-300 transition-colors cursor-pointer font-bold">
+                {lang === 'en' ? '👷 Candidates' : '👷 कैंडिडेट्स'}
+              </button>
               <button onClick={() => { setNewsReadPostId(null); setShowNews(true); }} className="text-left text-slate-400 hover:text-white transition-colors cursor-pointer">
                 {lang === 'en' ? '📰 Local News' : '📰 लोकल न्यूज़'}
               </button>
