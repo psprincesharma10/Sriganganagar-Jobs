@@ -28,9 +28,9 @@ import {
   generateCandidateDescription,
   generatePersonSchema,
   generateCanonicalUrl
-} from '../lib/seo';
+} from './seo';
 import { TranslateBar } from './TranslateBar';
-import { SchemaMarkup } from '../components/SchemaMarkup';
+import { SchemaMarkup } from './SchemaMarkup';
 import { CandidateCard } from './CandidateCard';
 import { translateText, getSavedTargetLanguage, saveTargetLanguage } from './translateService';
 
