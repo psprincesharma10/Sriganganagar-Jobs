@@ -82,17 +82,60 @@ Keep it simple, honest, and suitable for a local job in Sri Ganganagar. Write in
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          model: 'claude-sonnet-4-20250514',
+          model: 'claude-sonnet-4-6',
           max_tokens: 1000,
           messages: [{ role: 'user', content: prompt }]
         })
       });
       const data = await response.json();
+      if (data.error) {
+        throw new Error(data.error.message || 'API error');
+      }
       const text = data.content?.map((c: any) => c.text || '').join('') || '';
+      if (!text) throw new Error('Empty response');
       setResumeText(text);
       setStep('preview');
-    } catch (e) {
-      setResumeText(`ERROR: Resume generate nahi hua. Please check internet connection.`);
+    } catch (e: any) {
+      // Fallback: Generate a basic resume locally if API fails
+      const fallbackResume = `
+RESUME
+======
+
+PERSONAL INFORMATION
+--------------------
+Name    : ${name}
+Phone   : ${phone}
+Email   : ${email || 'Not provided'}
+City    : ${city || 'Sri Ganganagar, Rajasthan'}
+
+OBJECTIVE
+---------
+Seeking a ${selectedRole} position in Sri Ganganagar where I can utilize my skills and experience to contribute effectively to the organization.
+
+SKILLS
+------
+${skills.split(',').map((s: string) => `• ${s.trim()}`).join('\n')}
+
+EXPERIENCE
+----------
+${experience ? experience : 'Fresher — Ready to Learn and Work Hard'}
+
+EDUCATION
+---------
+${education}
+
+LANGUAGES KNOWN
+---------------
+${languages}
+
+REFERENCES
+----------
+Available on request.
+
+---
+Resume generated on sriganganagarjobs.in
+`.trim();
+      setResumeText(fallbackResume);
       setStep('preview');
     }
     setLoading(false);

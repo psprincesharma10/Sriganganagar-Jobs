@@ -991,17 +991,17 @@ export default function App() {
           </div>
 
           {/* RIGHT — Resume Builder */}
-          <div className="hidden lg:flex flex-col justify-center p-5 rounded-2xl bg-white/10 border border-white/20 flex-shrink-0" style={{width: '260px', height: '240px'}}>
+          <div className="hidden lg:flex flex-col justify-center p-5 rounded-2xl bg-white flex-shrink-0" style={{width: '260px', height: '240px'}}>
             <div className="flex items-start gap-2 mb-3">
               <div className="text-2xl">📄</div>
               <div>
-                <h4 className="text-sm font-black text-white leading-tight">Free Resume Builder</h4>
-                <p className="text-[10px] text-white/70 mt-0.5">AI se 2 minute mein ready!</p>
+                <h4 className="text-sm font-black text-[#075E54] leading-tight">Free Resume Builder</h4>
+                <p className="text-[10px] text-[#128C7E] mt-0.5 font-medium">AI se 2 minute mein ready!</p>
               </div>
             </div>
             <ul className="space-y-1.5 mb-4">
               {['✅ 23+ Job Roles', '✅ AI Generated', '✅ PDF Download', '✅ 100% Free'].map(f => (
-                <li key={f} className="text-[11px] text-white/80 font-medium">{f}</li>
+                <li key={f} className="text-[11px] text-[#075E54] font-semibold">{f}</li>
               ))}
             </ul>
             <button onClick={() => setShowResume(true)}
