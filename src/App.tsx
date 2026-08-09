@@ -16,6 +16,8 @@ import NewsPage from './components/NewsPage';
 import ServicesPage from './components/ServicesPage';
 import ServiceDetailPage from './components/ServiceDetailPage';
 import CandidatePortal from './candidate/CandidatePortal';
+import { fetchAllCandidates } from './candidate/candidateSupabase';
+import { Candidate } from './candidate/candidateTypes';
 
 import { 
   Building, 
@@ -90,6 +92,7 @@ export default function App() {
   const [showServices, setShowServices] = useState(false);
   const [activeServiceId, setActiveServiceId] = useState<string | null>(null);
   const [showCandidatePortal, setShowCandidatePortal] = useState(false);
+  const [sidebarCandidates, setSidebarCandidates] = useState<Candidate[]>([]);
   const [installBannerDismissed, setInstallBannerDismissed] = useState(() => {
     return localStorage.getItem('sgn_install_dismissed') === 'true';
   });
@@ -303,6 +306,7 @@ export default function App() {
     loadSupabaseData();
     loadBlogPosts();
     loadNewsPosts();
+    fetchAllCandidates().then(data => setSidebarCandidates(data.slice(0, 5)));
   }, []);
 
   // --- Synchronization & Expiry Effects ---
@@ -779,125 +783,111 @@ export default function App() {
         </div>
       )}
 
-      {/* Primary Header */}
+      {/* Primary Header — Image 1 Design */}
       <header className="bg-[#075E54] text-[#ECE5DD] shadow-md sticky top-0 z-40 transition-colors">
-        <div className="max-w-6xl mx-auto px-4 py-3">
-          
-          <div className="flex items-center justify-between">
-            {/* Logo Brand — Click to go Home */}
-            <button
-              onClick={() => {
-                setSearchQuery('');
-                setSelectedCategory('All');
-                setCurrentPage(1);
-                window.scrollTo({top: 0, behavior: 'smooth'});
-              }}
-              className="flex items-center gap-2 cursor-pointer hover:opacity-90 transition-opacity bg-transparent border-none outline-none"
-            >
-              <div className="p-2 bg-white/10 rounded-2xl">
-                <Building size={24} className="text-[#25D366] stroke-[2.5]" />
-              </div>
-              <div>
-                <h1 className="text-xl font-black tracking-tight leading-none text-white sm:text-2xl">
-                  {text.title}
-                </h1>
-                <p className="text-[10px] text-[#25D366] font-bold tracking-wider uppercase mt-1">
-                  {text.pinLabel}
-                </p>
-              </div>
+        <div className="max-w-7xl mx-auto px-3 py-2.5">
+
+          {/* Desktop Header */}
+          <div className="hidden sm:flex items-center justify-between gap-2">
+
+            {/* LEFT — Action Buttons */}
+            <div className="flex items-center gap-1.5">
+              <button id="header-post-job-btn" onClick={() => setActiveModal('job')}
+                className="px-3 py-1.5 rounded-xl bg-[#25D366] hover:bg-[#20ba5a] text-slate-950 text-[11px] font-black flex items-center gap-1 cursor-pointer">
+                <Plus size={12} strokeWidth={3} />Post Job (Free)
+              </button>
+              <button onClick={() => setActiveModal('featured')}
+                className="px-3 py-1.5 rounded-xl bg-yellow-400 hover:bg-yellow-500 text-slate-950 text-[11px] font-black flex items-center gap-1 cursor-pointer">
+                <Star size={11} className="fill-slate-900" />Post Job (Featured)
+              </button>
+              <button id="header-post-ad-btn" onClick={() => setActiveModal('ad')}
+                className="px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-[11px] font-black flex items-center gap-1 cursor-pointer">
+                <Megaphone size={11} />Business Ad Lagao
+              </button>
+            </div>
+
+            {/* CENTER — Logo */}
+            <button onClick={() => { setSearchQuery(''); setSelectedCategory('All'); setCurrentPage(1); window.scrollTo({top:0,behavior:'smooth'}); }}
+              className="flex flex-col items-center cursor-pointer hover:opacity-90 transition-opacity bg-transparent border-none outline-none">
+              <h1 className="text-lg font-black tracking-tight leading-none text-white">
+                www.sriganganagarjobs.in
+              </h1>
+              <p className="text-[10px] text-[#25D366] font-bold tracking-wider uppercase mt-0.5">
+                PINCODE: 335001 • RAJASTHAN
+              </p>
             </button>
 
-            {/* Controls */}
-            <div className="flex items-center gap-2">
-              {/* Language Switcher Button */}
-              <button
-                onClick={handleToggleLang}
-                className="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/15 text-white text-xs font-bold border border-white/10 flex items-center gap-1.5 transition-all cursor-pointer"
-              >
-                <Languages size={14} className="text-[#25D366]" />
-                <span>{lang === 'en' ? 'हिंदी' : 'English'}</span>
+            {/* RIGHT — Nav Links + Login */}
+            <div className="flex items-center gap-1.5">
+              <button onClick={() => { setBlogReadPostId(null); setShowBlog(true); }}
+                className="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-white text-[11px] font-black flex items-center gap-1 cursor-pointer">
+                Blog
               </button>
-
-              {/* Desktop action buttons */}
-              <div className="hidden sm:flex items-center gap-2">
-                <button
-                  id="header-post-job-btn"
-                  onClick={() => setActiveModal('job')}
-                  className="px-4 py-1.5 rounded-xl bg-[#25D366] hover:bg-[#20ba5a] text-slate-950 text-xs font-black shadow-sm flex items-center gap-1.5 transition-all cursor-pointer"
-                >
-                  <Plus size={14} strokeWidth={3} />
-                  <span>{lang === 'en' ? 'Post Job (Free)' : 'जॉब पोस्ट (Free)'}</span>
-                </button>
-
-                <button
-                  onClick={() => setActiveModal('featured')}
-                  className="px-4 py-1.5 rounded-xl bg-yellow-400 hover:bg-yellow-500 text-slate-950 text-xs font-black shadow-sm flex items-center gap-1.5 transition-all cursor-pointer"
-                >
-                  <Star size={13} className="fill-slate-900" />
-                  <span>{lang === 'en' ? '⭐ Post Job (Featured)' : '⭐ फीचर्ड जॉब (Paid)'}</span>
-                </button>
-
-                <button
-                  id="header-post-ad-btn"
-                  onClick={() => setActiveModal('ad')}
-                  className="px-4 py-1.5 rounded-xl bg-amber-400 hover:bg-amber-500 text-slate-950 text-xs font-black shadow-sm flex items-center gap-1.5 transition-all cursor-pointer"
-                >
-                  <Megaphone size={14} className="fill-slate-950 stroke-[2.5]" />
-                  <span>{lang === 'en' ? '📢 Business Ad Lagao' : '📢 Business Ad लगाएं'}</span>
-                </button>
-                <button
-                  id="header-blog-btn"
-                  onClick={() => { setBlogReadPostId(null); setShowBlog(true); }}
-                  className="px-4 py-1.5 rounded-xl bg-white/10 hover:bg-white/15 text-white text-xs font-black border border-white/10 shadow-sm flex items-center gap-1.5 transition-all cursor-pointer"
-                >
-                  <PenLine size={14} className="text-[#25D366]" />
-                  <span>{lang === 'en' ? 'Blog' : 'ब्लॉग'}</span>
-                </button>
-                <button
-                  id="header-candidates-btn"
-                  onClick={() => { setShowCandidatePortal(true); window.location.hash = '/candidates'; }}
-                  className="px-4 py-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-white text-xs font-black border border-emerald-400/50 shadow-sm flex items-center gap-1.5 transition-all cursor-pointer"
-                >
-                  <span>👷 {lang === 'en' ? 'Candidates' : 'कैंडिडेट्स'}</span>
-                </button>
-                <button
-                  id="header-news-btn"
-                  onClick={() => { setNewsReadPostId(null); setShowNews(true); }}
-                  className="px-4 py-1.5 rounded-xl bg-white/10 hover:bg-white/15 text-white text-xs font-black border border-white/10 shadow-sm flex items-center gap-1.5 transition-all cursor-pointer"
-                >
-                  <Newspaper size={14} className="text-amber-300" />
-                  <span>{lang === 'en' ? 'News' : 'न्यूज़'}</span>
-                </button>
-              </div>
+              <button onClick={() => { setNewsReadPostId(null); setShowNews(true); }}
+                className="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-white text-[11px] font-black flex items-center gap-1 cursor-pointer">
+                News
+              </button>
+              <button onClick={handleToggleLang}
+                className="px-2 py-1.5 rounded-xl bg-white/10 hover:bg-white/15 text-white text-[11px] font-bold border border-white/10 flex items-center gap-1 cursor-pointer">
+                <Languages size={12} />{lang === 'en' ? 'हिंदी' : 'EN'}
+              </button>
+              <button id="header-candidates-btn"
+                onClick={() => { setShowCandidatePortal(true); window.location.hash = '/candidates'; }}
+                className="px-3 py-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-white text-[11px] font-black flex items-center gap-1.5 cursor-pointer">
+                👷 Candidates
+              </button>
+              <button onClick={() => setActiveModal('ad')}
+                className="px-3 py-1.5 rounded-xl bg-slate-700 hover:bg-slate-600 text-white text-[11px] font-black flex items-center gap-1 cursor-pointer">
+                👔 Employer Login
+              </button>
             </div>
           </div>
 
-          {/* Mobile action buttons */}
-          <div className="mt-2.5 grid grid-cols-5 gap-1.5 sm:hidden w-full">
-            <button onClick={() => setActiveModal('job')}
-              className="py-2.5 rounded-xl bg-[#25D366] text-slate-950 text-[10px] font-black flex items-center justify-center gap-1 cursor-pointer">
-              <Plus size={12} strokeWidth={3} />Job (Free)
-            </button>
-            <button onClick={() => setActiveModal('featured')}
-              className="py-2.5 rounded-xl bg-yellow-400 text-slate-950 text-[10px] font-black flex items-center justify-center gap-1 cursor-pointer">
-              <Star size={11} className="fill-slate-900" />⭐ Featured
-            </button>
-            <button onClick={() => setActiveModal('ad')}
-              className="py-2.5 rounded-xl bg-amber-400 text-slate-950 text-[10px] font-black flex items-center justify-center gap-1 cursor-pointer">
-              <Megaphone size={11} />Business Ad
-            </button>
-            <button onClick={() => { setBlogReadPostId(null); setShowBlog(true); }}
-              className="py-2.5 rounded-xl bg-white/10 text-white text-[10px] font-black flex items-center justify-center gap-1 cursor-pointer border border-white/10">
-              <PenLine size={11} className="text-[#25D366]" />Blog
-            </button>
-            <button onClick={() => { setNewsReadPostId(null); setShowNews(true); }}
-              className="py-2.5 rounded-xl bg-white/10 text-white text-[10px] font-black flex items-center justify-center gap-1 cursor-pointer border border-white/10">
-              <Newspaper size={11} className="text-amber-300" />News
-            </button>
-            <button onClick={() => { setShowCandidatePortal(true); window.location.hash = '/candidates'; }}
-              className="py-2.5 rounded-xl bg-emerald-500 text-white text-[10px] font-black flex items-center justify-center gap-1 cursor-pointer">
-              👷 Candidates
-            </button>
+          {/* Mobile Header */}
+          <div className="sm:hidden">
+            {/* Top row — Logo */}
+            <div className="flex items-center justify-between mb-2">
+              <button onClick={() => { setSearchQuery(''); setSelectedCategory('All'); setCurrentPage(1); window.scrollTo({top:0,behavior:'smooth'}); }}
+                className="flex items-center gap-2 cursor-pointer bg-transparent border-none outline-none">
+                <div className="p-1.5 bg-white/10 rounded-xl">
+                  <Building size={20} className="text-[#25D366]" />
+                </div>
+                <div>
+                  <h1 className="text-base font-black text-white leading-none">Sriganganagar Jobs</h1>
+                  <p className="text-[9px] text-[#25D366] font-bold">PINCODE: 335001 • RAJASTHAN</p>
+                </div>
+              </button>
+              <div className="flex items-center gap-1">
+                <button onClick={handleToggleLang} className="px-2 py-1 rounded-lg bg-white/10 text-white text-[10px] font-bold cursor-pointer">
+                  {lang === 'en' ? 'हिंदी' : 'EN'}
+                </button>
+                <button onClick={() => { setShowCandidatePortal(true); window.location.hash = '/candidates'; }}
+                  className="px-2 py-1 rounded-lg bg-emerald-500 text-white text-[10px] font-black cursor-pointer">
+                  👷
+                </button>
+              </div>
+            </div>
+            {/* Bottom row — Action buttons */}
+            <div className="grid grid-cols-3 gap-1">
+              <button onClick={() => setActiveModal('job')} className="py-2 rounded-xl bg-[#25D366] text-slate-950 text-[10px] font-black flex items-center justify-center gap-1 cursor-pointer">
+                <Plus size={11} strokeWidth={3} />Post Job
+              </button>
+              <button onClick={() => setActiveModal('featured')} className="py-2 rounded-xl bg-yellow-400 text-slate-950 text-[10px] font-black flex items-center justify-center gap-1 cursor-pointer">
+                <Star size={10} className="fill-slate-900" />Featured
+              </button>
+              <button onClick={() => setActiveModal('ad')} className="py-2 rounded-xl bg-amber-500 text-white text-[10px] font-black flex items-center justify-center gap-1 cursor-pointer">
+                <Megaphone size={10} />Business Ad
+              </button>
+              <button onClick={() => { setBlogReadPostId(null); setShowBlog(true); }} className="py-2 rounded-xl bg-white/10 text-white text-[10px] font-black flex items-center justify-center gap-1 cursor-pointer">
+                Blog
+              </button>
+              <button onClick={() => { setNewsReadPostId(null); setShowNews(true); }} className="py-2 rounded-xl bg-white/10 text-white text-[10px] font-black flex items-center justify-center gap-1 cursor-pointer">
+                News
+              </button>
+              <button onClick={() => { setShowCandidatePortal(true); window.location.hash = '/candidates'; }} className="py-2 rounded-xl bg-emerald-500 text-white text-[10px] font-black flex items-center justify-center gap-1 cursor-pointer">
+                👷 Candidates
+              </button>
+            </div>
           </div>
 
         </div>
@@ -1249,7 +1239,62 @@ export default function App() {
             </div>
           </div>
 
-          {/* 2. RESUME BUILDER */}
+          {/* 2. FEATURED CANDIDATES */}
+          <div className="p-4 rounded-3xl bg-white border border-slate-100 shadow-sm">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-xs font-black text-slate-700 uppercase tracking-wider">
+                ⭐ Featured Candidates
+              </h3>
+              <button onClick={() => { setShowCandidatePortal(true); window.location.hash = '/candidates'; }}
+                className="text-[10px] text-emerald-700 font-black border border-emerald-200 bg-emerald-50 px-2 py-1 rounded-lg cursor-pointer hover:bg-emerald-100">
+                View All →
+              </button>
+            </div>
+            {sidebarCandidates.length === 0 ? (
+              <div className="text-center py-4 text-xs text-slate-400">
+                <p>Koi candidate nahi mila</p>
+                <button onClick={() => { setShowCandidatePortal(true); window.location.hash = '/candidates'; }}
+                  className="mt-2 text-emerald-600 font-bold underline cursor-pointer">
+                  Candidate Portal Open Karein
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-2.5">
+                {sidebarCandidates.map(c => (
+                  <div key={c.id}
+                    onClick={() => { setShowCandidatePortal(true); window.location.hash = '/candidates'; }}
+                    className="flex items-center gap-2.5 cursor-pointer hover:bg-slate-50 rounded-xl p-1.5 transition-colors group">
+                    <img
+                      src={c.photo_url || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=60&q=80'}
+                      alt={c.full_name}
+                      className="w-10 h-10 rounded-xl object-cover bg-slate-100 flex-shrink-0"
+                    />
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-1">
+                        <p className="text-xs font-black text-slate-900 truncate">{c.full_name}</p>
+                        {c.is_verified && <span className="text-blue-500 text-[10px]">✓</span>}
+                      </div>
+                      <p className="text-[10px] text-emerald-700 font-bold truncate">{c.skill_category}</p>
+                      <p className="text-[10px] text-slate-400 truncate">{c.experience_years}Y Exp • {c.district}</p>
+                    </div>
+                    <div className="flex-shrink-0 text-right">
+                      <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full ${c.is_available ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-500'}`}>
+                        {c.is_available ? 'Available' : 'Busy'}
+                      </span>
+                      <p className="text-[9px] text-slate-400 mt-0.5">
+                        {c.phone_number.slice(0,5)}XXXXX
+                      </p>
+                      <p className="text-[9px] text-amber-600 font-black mt-0.5">
+                        Unlock ₹15
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* 3. RESUME BUILDER */}
           <div className="p-5 rounded-3xl bg-gradient-to-br from-[#075E54] to-[#0a8a75] border border-[#128C7E]/30 shadow-sm">
             <div className="flex items-start gap-3 mb-3">
               <div className="text-3xl">📄</div>
@@ -1273,7 +1318,7 @@ export default function App() {
             </button>
           </div>
 
-          {/* 3. SERVICES */}
+          {/* 4. SERVICES */}
           <div className="p-5 rounded-3xl bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-200 shadow-sm">
             <div className="flex items-center justify-between mb-4">
               <div>
@@ -1321,7 +1366,7 @@ export default function App() {
             </button>
           </div>
 
-          {/* 4. BLOG */}
+          {/* 5. BLOG */}
           <div className="p-4 rounded-3xl bg-white border border-slate-100 shadow-sm">
             <div className="flex items-center justify-between mb-3">
               <h3 className="text-xs font-black text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
@@ -1520,143 +1565,94 @@ export default function App() {
 
       </main>
 
-      {/* Footer */}
+      {/* Footer — Image 1 Design — 4 Column */}
       <footer className="bg-slate-900 text-slate-400 text-xs pt-8 pb-4 mt-12 border-t border-slate-800">
-        <div className="max-w-6xl mx-auto px-4 space-y-6">
+        <div className="max-w-7xl mx-auto px-4">
 
-          {/* Top Row */}
-          <div className="flex flex-col md:flex-row items-start justify-between gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 pb-6">
 
-            {/* Brand */}
-            <div className="space-y-2">
-              <p className="font-black text-slate-200 text-sm">
-                <span className="flex items-center gap-2">
-              <span className="p-1.5 bg-[#128C7E] rounded-xl inline-flex">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#25D366" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect width="16" height="20" x="4" y="2" rx="2" ry="2"/><path d="M9 22v-4h6v4"/><path d="M8 6h.01"/><path d="M16 6h.01"/><path d="M12 6h.01"/><path d="M12 10h.01"/><path d="M12 14h.01"/><path d="M16 10h.01"/><path d="M16 14h.01"/><path d="M8 10h.01"/><path d="M8 14h.01"/></svg>
-              </span>
-              {lang === 'en' ? 'Sriganganagar Jobs' : 'श्रीगंगानगर जॉब्स'}
-            </span>
-              </p>
-              <p className="text-[11px] text-slate-500 max-w-xs leading-relaxed">
-                {lang === 'en'
-                  ? 'Sri Ganganagar ka #1 local job board. Direct phone calls, no login required.'
-                  : 'श्रीगंगानगर का #1 लोकल जॉब बोर्ड। सीधा फोन, कोई लॉगिन नहीं।'}
+            {/* Col 1 — Brand */}
+            <div className="space-y-3">
+              <div className="flex items-center gap-2">
+                <span className="p-1.5 bg-[#128C7E] rounded-xl inline-flex">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#25D366" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect width="16" height="20" x="4" y="2" rx="2" ry="2"/><path d="M9 22v-4h6v4"/><path d="M8 6h.01"/><path d="M16 6h.01"/><path d="M12 6h.01"/><path d="M12 10h.01"/><path d="M12 14h.01"/><path d="M16 10h.01"/><path d="M16 14h.01"/><path d="M8 10h.01"/><path d="M8 14h.01"/></svg>
+                </span>
+                <p className="font-black text-slate-200 text-sm">Sriganganagar Jobs</p>
+              </div>
+              <p className="text-[11px] text-slate-500 leading-relaxed">
+                Sri Ganganagar ka #1 local job board. Direct phone calls, no login required.
               </p>
               {installPrompt && (
-                <button
-                  onClick={handleInstallApp}
-                  className="mt-1 px-3 py-1.5 bg-[#25D366] hover:bg-[#20ba5a] text-slate-950 text-xs font-black rounded-xl flex items-center gap-1.5 transition-colors cursor-pointer w-fit"
-                >
-                  <Download size={13} />
-                  <span>{lang === 'en' ? 'Install App on Phone' : 'Phone पे App Install करें'}</span>
+                <button onClick={handleInstallApp}
+                  className="px-3 py-2 bg-[#25D366] hover:bg-[#20ba5a] text-slate-950 text-xs font-black rounded-xl flex items-center gap-1.5 cursor-pointer w-fit">
+                  <Download size={12} />Install App on Phone
                 </button>
               )}
               <button onClick={() => setShowResume(true)}
-                className="mt-1 px-3 py-1.5 bg-[#075E54] hover:bg-[#064a43] text-white text-xs font-black rounded-xl flex items-center gap-1.5 transition-colors cursor-pointer w-fit">
-                📄 {lang === 'en' ? 'Free Resume Builder' : 'मुफ्त Resume बनाएं'}
+                className="px-3 py-2 bg-[#075E54] hover:bg-[#064a43] text-white text-xs font-black rounded-xl flex items-center gap-1.5 cursor-pointer w-fit">
+                📄 Free Resume Builder
               </button>
             </div>
 
-            {/* Page Links */}
-            <div className="grid grid-cols-2 gap-x-8 gap-y-2 text-[12px]">
-              <a href="#/about" className="text-left text-slate-400 hover:text-white transition-colors cursor-pointer">
-                {lang === 'en' ? 'About Us' : 'हमारे बारे में'}
-              </a>
-              <a href="#/contact" className="text-left text-slate-400 hover:text-white transition-colors cursor-pointer">
-                {lang === 'en' ? 'Contact Us' : 'संपर्क करें'}
-              </a>
-              <a href="#/privacy-policy" className="text-left text-slate-400 hover:text-white transition-colors cursor-pointer">
-                {lang === 'en' ? 'Privacy Policy' : 'गोपनीयता नीति'}
-              </a>
-              <a href="#/terms" className="text-left text-slate-400 hover:text-white transition-colors cursor-pointer">
-                {lang === 'en' ? 'Terms & Conditions' : 'नियम और शर्तें'}
-              </a>
-              <a href="#/disclaimer" className="text-left text-slate-400 hover:text-white transition-colors cursor-pointer">
-                {lang === 'en' ? 'Disclaimer' : 'अस्वीकरण'}
-              </a>
-              <a href="#/advertise" className="text-left text-amber-400 hover:text-amber-300 transition-colors cursor-pointer font-bold">
-                {lang === 'en' ? 'Advertise With Us' : 'विज्ञापन दें'}
-              </a>
-              <a href="#/advertise" className="text-left text-red-400 hover:text-red-300 transition-colors cursor-pointer font-bold">
-                {lang === 'en' ? 'Report Scam Job' : 'फर्जी जॉब रिपोर्ट'}
-              </a>
-              <button onClick={() => setShowResume(true)} className="text-left text-[#25D366] hover:text-green-300 transition-colors cursor-pointer font-bold">
-                {lang === 'en' ? '📄 Free Resume Builder' : '📄 मुफ्त Resume'}
-              </button>
-              <a href="#/blog" className="text-left text-slate-400 hover:text-white transition-colors cursor-pointer">
-                {lang === 'en' ? '✍️ Blog' : '✍️ ब्लॉग'}
-              </a>
-              <button onClick={() => { setShowCandidatePortal(true); window.location.hash = '/candidates'; }} className="text-left text-emerald-400 hover:text-emerald-300 transition-colors cursor-pointer font-bold">
-                {lang === 'en' ? '👷 Candidates' : '👷 कैंडिडेट्स'}
-              </button>
-              <button onClick={() => { setNewsReadPostId(null); setShowNews(true); }} className="text-left text-slate-400 hover:text-white transition-colors cursor-pointer">
-                {lang === 'en' ? '📰 Local News' : '📰 लोकल न्यूज़'}
-              </button>
-              <button onClick={() => setShowServices(true)} className="text-left text-slate-400 hover:text-white transition-colors cursor-pointer">
-                {lang === 'en' ? '🛠️ Our Services' : '🛠️ हमारी सेवाएं'}
-              </button>
-
-
-            </div>
-
-            {/* Contact/WhatsApp */}
+            {/* Col 2 — Quick Links */}
             <div className="space-y-2">
+              <p className="text-[11px] font-black text-slate-300 uppercase tracking-wider mb-3">Quick Links</p>
+              <a href="#/about" className="block text-slate-400 hover:text-white transition-colors py-0.5">About Us (हमारे बारे में)</a>
+              <a href="#/privacy-policy" className="block text-slate-400 hover:text-white transition-colors py-0.5">Privacy Policy</a>
+              <a href="#/disclaimer" className="block text-slate-400 hover:text-white transition-colors py-0.5">Disclaimer</a>
+              <a href="#/advertise" className="block text-red-400 hover:text-red-300 transition-colors font-bold py-0.5">Report Scam Job</a>
+              <a href="#/blog" className="block text-slate-400 hover:text-white transition-colors py-0.5">✍️ Blog</a>
+              <button onClick={() => { setNewsReadPostId(null); setShowNews(true); }} className="block text-left text-slate-400 hover:text-white transition-colors py-0.5 w-full cursor-pointer">📰 Local News</button>
+            </div>
+
+            {/* Col 3 — Information */}
+            <div className="space-y-2">
+              <p className="text-[11px] font-black text-slate-300 uppercase tracking-wider mb-3">Information</p>
+              <a href="#/contact" className="block text-slate-400 hover:text-white transition-colors py-0.5">Contact Us</a>
+              <a href="#/terms" className="block text-slate-400 hover:text-white transition-colors py-0.5">Terms & Conditions</a>
+              <a href="#/advertise" className="block text-amber-400 hover:text-amber-300 font-bold transition-colors py-0.5">Advertise With Us (विज्ञापन)</a>
+              <button onClick={() => setShowResume(true)} className="block text-left text-[#25D366] hover:text-green-300 font-bold transition-colors py-0.5 w-full cursor-pointer">📄 Free Resume Builder</button>
+              <button onClick={() => { setShowCandidatePortal(true); window.location.hash = '/candidates'; }} className="block text-left text-emerald-400 hover:text-emerald-300 font-bold transition-colors py-0.5 w-full cursor-pointer">👷 Candidates</button>
+              <button onClick={() => setShowServices(true)} className="block text-left text-slate-400 hover:text-white transition-colors py-0.5 w-full cursor-pointer">🛠️ Our Services</button>
+            </div>
+
+            {/* Col 4 — Connect */}
+            <div className="space-y-3">
               <p className="text-[11px] font-black text-slate-300 uppercase tracking-wider">Connect</p>
               <a href="https://wa.me/919309352063" target="_blank" rel="noopener noreferrer"
-                className="flex items-center gap-2 text-[12px] text-slate-400 hover:text-white transition-colors">
-                <span className="w-6 h-6 bg-green-500 rounded flex items-center justify-center text-white text-[10px]">💬</span>
-                WhatsApp Us
+                className="flex items-center gap-2 bg-[#25D366] hover:bg-[#20ba5a] text-slate-900 font-black px-3 py-2 rounded-xl transition-colors w-fit">
+                <span className="text-sm">💬</span>
+                <span className="text-xs">WhatsApp Us</span>
               </a>
-              {/* Install App */}
-              <div className="mt-3">
-                <div className="inline-flex items-center gap-2 bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 cursor-pointer hover:bg-slate-700 transition-colors"
-                  onClick={handleInstallApp}>
-                  <span className="text-lg">▶</span>
-                  <div>
-                    <p className="text-[9px] text-slate-400 leading-none">Get it on</p>
-                    <p className="text-[12px] font-bold text-white leading-tight">Install App</p>
-                  </div>
+              <div className="inline-flex items-center gap-2 bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 cursor-pointer hover:bg-slate-700 transition-colors"
+                onClick={handleInstallApp}>
+                <span className="text-lg">▶</span>
+                <div>
+                  <p className="text-[9px] text-slate-400 leading-none">Get it on</p>
+                  <p className="text-[12px] font-bold text-white leading-tight">Install Web App</p>
                 </div>
+              </div>
+              <div className="py-2.5 px-3 rounded-2xl bg-slate-800/60 border border-slate-700 text-[11px] space-y-1 mt-2">
+                <p className="font-bold text-slate-200">Need Direct Help?</p>
+                <p className="text-slate-400">Contact: <span className="text-slate-200 font-medium">Prince Sharma</span></p>
+                <a href="mailto:princeoffice2021@gmail.com" className="block text-amber-400 hover:underline">princeoffice2021@gmail.com</a>
+                <a href="tel:+919309352063" className="block text-[#25D366] hover:underline font-bold">+91-93093 52063</a>
               </div>
             </div>
 
-            {/* Contact */}
-            <div className="py-2.5 px-4 rounded-2xl bg-slate-800/40 border border-slate-800 text-[11px] space-y-0.5">
-              <p className="font-bold text-slate-300">
-                {lang === 'en' ? 'Need help?' : 'मदद चाहिए?'}
-              </p>
-              <p className="text-slate-400">
-                {lang === 'en' ? 'Contact:' : 'संपर्क:'} <span className="text-slate-200 font-medium">Prince Sharma</span>
-              </p>
-              <p className="text-slate-400">
-                <a href="mailto:princeoffice2021@gmail.com" className="text-amber-400 hover:underline">princeoffice2021@gmail.com</a>
-              </p>
-              <p className="text-slate-400">
-                <a href="tel:+919309352063" className="text-[#25D366] hover:underline">+91-9309352063</a>
-              </p>
-            </div>
           </div>
 
-          {/* Bottom Row */}
+          {/* Bottom Bar */}
           <div className="border-t border-slate-800 pt-4 flex flex-col sm:flex-row items-center justify-between gap-2">
-            <p className="text-[11px] text-slate-600">
-              © 2026 Sriganganagar Jobs. Made in Rajasthan 🇮🇳
-            </p>
+            <p className="text-[11px] text-slate-600">© 2026 Sriganganagar Jobs. Made in Rajasthan 🇮🇳</p>
             <div className="flex items-center gap-3">
-              <span className="text-[11px] text-slate-500">Made for local community</span>
-              {/* Admin trigger - hidden secret dot */}
+              <span className="text-[11px] text-slate-500">Made for local community ❤️</span>
               {!isAdmin ? (
-                <span
-                  id="footer-admin-secret"
-                  onClick={() => setActiveModal('login')}
-                  title=""
-                  className="w-2 h-2 rounded-full bg-slate-800 hover:bg-slate-600 cursor-pointer transition-colors inline-block"
-                />
+                <span id="footer-admin-secret" onClick={() => setActiveModal('login')} title=""
+                  className="w-2 h-2 rounded-full bg-slate-800 hover:bg-slate-600 cursor-pointer transition-colors inline-block" />
               ) : (
-                <button
-                  onClick={handleAdminLogout}
-                  className="text-[11.5px] text-red-400 hover:text-red-300 font-bold cursor-pointer bg-transparent border-none outline-hidden"
-                >
+                <button onClick={handleAdminLogout}
+                  className="text-[11.5px] text-red-400 hover:text-red-300 font-bold cursor-pointer bg-transparent border-none">
                   Logout Admin
                 </button>
               )}
