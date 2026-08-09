@@ -964,28 +964,28 @@ export default function App() {
 
           {/* CENTER — Text + Buttons */}
           <div className="flex-1 text-center py-2">
-            <p className="text-[#25D366] text-lg sm:text-xl font-black mb-5">
+            <p className="text-white text-2xl sm:text-3xl font-black mb-4">
               {lang === 'en' ? 'Looking for a Job in Your City?' : 'अपने शहर में नौकरी ढूंढ रहे हैं?'}
             </p>
-            <div className="flex flex-wrap items-center justify-center gap-3 mb-5">
+            <div className="flex items-center justify-center gap-2 mb-4 flex-nowrap">
               <button onClick={() => setActiveModal('job')}
-                className="px-6 py-3.5 rounded-2xl bg-[#25D366] hover:bg-[#20ba5a] text-slate-900 font-black text-sm shadow-lg cursor-pointer transition-colors whitespace-nowrap">
+                className="px-4 py-2.5 rounded-xl bg-[#25D366] hover:bg-[#20ba5a] text-slate-900 font-black text-xs shadow-lg cursor-pointer transition-colors whitespace-nowrap">
                 + Post Job (Free)
               </button>
               <button onClick={() => setActiveModal('featured')}
-                className="px-6 py-3.5 rounded-2xl bg-yellow-400 hover:bg-yellow-500 text-slate-900 font-black text-sm shadow-lg cursor-pointer transition-colors whitespace-nowrap">
+                className="px-4 py-2.5 rounded-xl bg-yellow-400 hover:bg-yellow-500 text-slate-900 font-black text-xs shadow-lg cursor-pointer transition-colors whitespace-nowrap">
                 ⭐ Post Job (Featured)
               </button>
               <button onClick={() => setActiveModal('ad')}
-                className="px-6 py-3.5 rounded-2xl bg-white hover:bg-slate-50 text-[#075E54] font-black text-sm shadow-lg cursor-pointer transition-colors whitespace-nowrap">
+                className="px-4 py-2.5 rounded-xl bg-white hover:bg-slate-50 text-[#075E54] font-black text-xs shadow-lg cursor-pointer transition-colors whitespace-nowrap">
                 📢 Business Ad Lagao
               </button>
               <button onClick={() => { setShowCandidatePortal(true); window.location.hash = '/candidates'; }}
-                className="px-6 py-3.5 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-sm shadow-lg cursor-pointer transition-colors whitespace-nowrap">
+                className="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs shadow-lg cursor-pointer transition-colors whitespace-nowrap">
                 👷 Candidates
               </button>
             </div>
-            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white leading-tight">
+            <h2 className="text-white text-2xl sm:text-3xl font-black leading-tight">
               {lang === 'en' ? 'Looking to Hire Staff in Your City?' : 'अपने शहर में स्टाफ ढूंढना है?'}
             </h2>
           </div>
