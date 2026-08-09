@@ -836,10 +836,7 @@ export default function App() {
                 className="px-3 py-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-white text-[11px] font-black flex items-center gap-1.5 cursor-pointer">
                 👷 Candidates
               </button>
-              <button onClick={() => setActiveModal('ad')}
-                className="px-3 py-1.5 rounded-xl bg-slate-700 hover:bg-slate-600 text-white text-[11px] font-black flex items-center gap-1 cursor-pointer">
-                👔 Employer Login
-              </button>
+
             </div>
           </div>
 
@@ -945,29 +942,74 @@ export default function App() {
         </div>
       )}
 
-      {/* Hire Banner */}
-      <div className="bg-gradient-to-r from-[#075E54] to-[#0a8a75] py-10 px-4">
-        <div className="max-w-3xl mx-auto text-center">
-          <h2 className="text-2xl sm:text-4xl font-black text-white leading-tight mb-2">
-            {lang === 'en' ? 'Looking to Hire Staff in Your City?' : 'अपने शहर में स्टाफ ढूंढना है?'}
-          </h2>
-          <p className="text-[#25D366] text-base sm:text-lg font-semibold mb-8">
-            {lang === 'en' ? 'Looking for a Job in Your City?' : 'अपने शहर में नौकरी ढूंढ रहे हैं?'}
-          </p>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-            <button onClick={() => setActiveModal('job')}
-              className="w-full sm:w-auto px-8 py-4 rounded-2xl bg-[#25D366] hover:bg-[#20ba5a] text-slate-900 font-black text-base shadow-lg cursor-pointer transition-colors whitespace-nowrap">
-              + Post Job (Free)
-            </button>
-            <button onClick={() => setActiveModal('featured')}
-              className="w-full sm:w-auto px-8 py-4 rounded-2xl bg-yellow-400 hover:bg-yellow-500 text-slate-900 font-black text-base shadow-lg cursor-pointer transition-colors whitespace-nowrap">
-              ⭐ Post Job (Featured)
-            </button>
-            <button onClick={() => setActiveModal('ad')}
-              className="w-full sm:w-auto px-8 py-4 rounded-2xl bg-white hover:bg-slate-50 text-[#075E54] font-black text-base shadow-lg cursor-pointer transition-colors whitespace-nowrap">
-              📢 Business Ad Lagao
+      {/* Hero Banner — 3 Column Layout */}
+      <div className="bg-gradient-to-r from-[#075E54] to-[#0a8a75] py-6 px-4">
+        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-4 items-center">
+
+          {/* LEFT — Video / Live Preview */}
+          <div className="hidden lg:block rounded-2xl overflow-hidden bg-slate-900 border border-white/10 shadow-lg" style={{height: '220px'}}>
+            <div className="px-3 pt-2 pb-1 flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-[#25D366] animate-pulse inline-block"></span>
+              <span className="text-[10px] font-extrabold text-[#25D366] uppercase tracking-wider">Sri Ganganagar - Jobs, People & Opportunities</span>
+            </div>
+            <div className="relative w-full" style={{height: '185px'}}>
+              <iframe
+                src="/promo.html"
+                className="absolute top-0 left-0 w-full h-full border-0"
+                title="SGN Jobs Promo"
+                scrolling="no"
+              />
+            </div>
+          </div>
+
+          {/* CENTER — Text + Buttons */}
+          <div className="text-center">
+            <h2 className="text-2xl sm:text-3xl font-black text-white leading-tight mb-1">
+              {lang === 'en' ? 'Looking to Hire Staff in Your City?' : 'अपने शहर में स्टाफ ढूंढना है?'}
+            </h2>
+            <p className="text-[#25D366] text-sm sm:text-base font-semibold mb-5">
+              {lang === 'en' ? 'Looking for a Job in Your City?' : 'अपने शहर में नौकरी ढूंढ रहे हैं?'}
+            </p>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+              <button onClick={() => setActiveModal('job')}
+                className="w-full sm:w-auto px-6 py-3.5 rounded-2xl bg-[#25D366] hover:bg-[#20ba5a] text-slate-900 font-black text-sm shadow-lg cursor-pointer transition-colors whitespace-nowrap">
+                + Post Job (Free)
+              </button>
+              <button onClick={() => setActiveModal('featured')}
+                className="w-full sm:w-auto px-6 py-3.5 rounded-2xl bg-yellow-400 hover:bg-yellow-500 text-slate-900 font-black text-sm shadow-lg cursor-pointer transition-colors whitespace-nowrap">
+                ⭐ Post Job (Featured)
+              </button>
+              <button onClick={() => setActiveModal('ad')}
+                className="w-full sm:w-auto px-6 py-3.5 rounded-2xl bg-white hover:bg-slate-50 text-[#075E54] font-black text-sm shadow-lg cursor-pointer transition-colors whitespace-nowrap">
+                📢 Business Ad Lagao
+              </button>
+            </div>
+          </div>
+
+          {/* RIGHT — Resume Builder */}
+          <div className="hidden lg:block p-4 rounded-2xl bg-white/10 border border-white/20 backdrop-blur-sm">
+            <div className="flex items-start gap-3 mb-3">
+              <div className="text-3xl">📄</div>
+              <div>
+                <h4 className="text-sm font-black text-white">
+                  {lang === 'en' ? 'Free Resume Builder' : 'मुफ्त Resume बनाएं'}
+                </h4>
+                <p className="text-[11px] text-white/70 mt-0.5">
+                  {lang === 'en' ? 'AI se 2 minute mein ready — Download & Share!' : 'AI से 2 मिनट में तैयार!'}
+                </p>
+              </div>
+            </div>
+            <ul className="space-y-1.5 mb-4">
+              {['✅ 23+ Job Roles', '✅ AI Generated', '✅ PDF Download', '✅ 100% Free'].map(f => (
+                <li key={f} className="text-[11px] text-white/80 font-medium">{f}</li>
+              ))}
+            </ul>
+            <button onClick={() => setShowResume(true)}
+              className="w-full py-2.5 bg-[#25D366] hover:bg-[#20ba5a] text-slate-900 font-black rounded-xl text-xs cursor-pointer transition-colors flex items-center justify-center gap-2">
+              📄 {lang === 'en' ? 'Build My Resume Free' : 'Resume बनाएं — Free'}
             </button>
           </div>
+
         </div>
       </div>
 
@@ -1223,23 +1265,7 @@ export default function App() {
         {/* Right Desktop Sidebar Section (4 cols) */}
         <aside className="lg:col-span-4 space-y-6">
 
-          {/* 1. LIVE PREVIEW / PROMO ANIMATION */}
-          <div className="rounded-3xl overflow-hidden bg-slate-900 border border-slate-800 shadow-sm">
-            <div className="px-4 pt-3 pb-1 flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-[#25D366] animate-pulse inline-block"></span>
-              <span className="text-[10px] font-extrabold text-[#25D366] uppercase tracking-wider">Live Preview</span>
-            </div>
-            <div className="relative w-full" style={{height: '260px'}}>
-              <iframe
-                src="/promo.html"
-                className="absolute top-0 left-0 w-full h-full border-0"
-                title="SGN Jobs Promo"
-                scrolling="no"
-              />
-            </div>
-          </div>
-
-          {/* 2. FEATURED CANDIDATES */}
+          {/* 1. FEATURED CANDIDATES */}
           <div className="p-4 rounded-3xl bg-white border border-slate-100 shadow-sm">
             <div className="flex items-center justify-between mb-3">
               <h3 className="text-xs font-black text-slate-700 uppercase tracking-wider">
@@ -1294,7 +1320,7 @@ export default function App() {
             )}
           </div>
 
-          {/* 3. RESUME BUILDER */}
+          {/* 2. RESUME BUILDER */}
           <div className="p-5 rounded-3xl bg-gradient-to-br from-[#075E54] to-[#0a8a75] border border-[#128C7E]/30 shadow-sm">
             <div className="flex items-start gap-3 mb-3">
               <div className="text-3xl">📄</div>
@@ -1318,7 +1344,7 @@ export default function App() {
             </button>
           </div>
 
-          {/* 4. SERVICES */}
+          {/* 3. SERVICES */}
           <div className="p-5 rounded-3xl bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-200 shadow-sm">
             <div className="flex items-center justify-between mb-4">
               <div>
@@ -1366,7 +1392,7 @@ export default function App() {
             </button>
           </div>
 
-          {/* 5. BLOG */}
+          {/* 4. BLOG */}
           <div className="p-4 rounded-3xl bg-white border border-slate-100 shadow-sm">
             <div className="flex items-center justify-between mb-3">
               <h3 className="text-xs font-black text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
