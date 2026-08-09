@@ -790,35 +790,24 @@ export default function App() {
           {/* Desktop Header */}
           <div className="hidden sm:flex items-center justify-between gap-2">
 
-            {/* LEFT — Action Buttons */}
-            <div className="flex items-center gap-1.5">
-              <button id="header-post-job-btn" onClick={() => setActiveModal('job')}
-                className="px-3 py-1.5 rounded-xl bg-[#25D366] hover:bg-[#20ba5a] text-slate-950 text-[11px] font-black flex items-center gap-1 cursor-pointer">
-                <Plus size={12} strokeWidth={3} />Post Job (Free)
-              </button>
-              <button onClick={() => setActiveModal('featured')}
-                className="px-3 py-1.5 rounded-xl bg-yellow-400 hover:bg-yellow-500 text-slate-950 text-[11px] font-black flex items-center gap-1 cursor-pointer">
-                <Star size={11} className="fill-slate-900" />Post Job (Featured)
-              </button>
-              <button id="header-post-ad-btn" onClick={() => setActiveModal('ad')}
-                className="px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-[11px] font-black flex items-center gap-1 cursor-pointer">
-                <Megaphone size={11} />Business Ad Lagao
-              </button>
-            </div>
-
-            {/* CENTER — Logo */}
+            {/* LEFT — Logo */}
             <button onClick={() => { setSearchQuery(''); setSelectedCategory('All'); setCurrentPage(1); window.scrollTo({top:0,behavior:'smooth'}); }}
-              className="flex flex-col items-center cursor-pointer hover:opacity-90 transition-opacity bg-transparent border-none outline-none">
-              <h1 className="text-lg font-black tracking-tight leading-none text-white">
-                www.sriganganagarjobs.in
-              </h1>
-              <p className="text-[10px] text-[#25D366] font-bold tracking-wider uppercase mt-0.5">
-                PINCODE: 335001 • RAJASTHAN
-              </p>
+              className="flex items-center gap-2 cursor-pointer hover:opacity-90 transition-opacity bg-transparent border-none outline-none flex-shrink-0">
+              <div className="p-2 bg-white/10 rounded-xl">
+                <Building size={22} className="text-[#25D366] stroke-[2.5]" />
+              </div>
+              <div>
+                <h1 className="text-base font-black tracking-tight leading-none text-white">
+                  www.sriganganagarjobs.in
+                </h1>
+                <p className="text-[10px] text-[#25D366] font-bold tracking-wider uppercase mt-0.5">
+                  PINCODE: 335001 • RAJASTHAN
+                </p>
+              </div>
             </button>
 
-            {/* RIGHT — Nav Links + Login */}
-            <div className="flex items-center gap-1.5">
+            {/* RIGHT — All Buttons */}
+            <div className="flex items-center gap-1.5 flex-wrap justify-end">
               <button onClick={() => { setBlogReadPostId(null); setShowBlog(true); }}
                 className="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-white text-[11px] font-black flex items-center gap-1 cursor-pointer">
                 Blog
@@ -831,12 +820,23 @@ export default function App() {
                 className="px-2 py-1.5 rounded-xl bg-white/10 hover:bg-white/15 text-white text-[11px] font-bold border border-white/10 flex items-center gap-1 cursor-pointer">
                 <Languages size={12} />{lang === 'en' ? 'हिंदी' : 'EN'}
               </button>
+              <button id="header-post-job-btn" onClick={() => setActiveModal('job')}
+                className="px-3 py-1.5 rounded-xl bg-[#25D366] hover:bg-[#20ba5a] text-slate-950 text-[11px] font-black flex items-center gap-1 cursor-pointer">
+                <Plus size={12} strokeWidth={3} />Post Job (Free)
+              </button>
+              <button onClick={() => setActiveModal('featured')}
+                className="px-3 py-1.5 rounded-xl bg-yellow-400 hover:bg-yellow-500 text-slate-950 text-[11px] font-black flex items-center gap-1 cursor-pointer">
+                <Star size={11} className="fill-slate-900" />Post Job (Featured)
+              </button>
+              <button id="header-post-ad-btn" onClick={() => setActiveModal('ad')}
+                className="px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-[11px] font-black flex items-center gap-1 cursor-pointer">
+                <Megaphone size={11} />Business Ad Lagao
+              </button>
               <button id="header-candidates-btn"
                 onClick={() => { setShowCandidatePortal(true); window.location.hash = '/candidates'; }}
                 className="px-3 py-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-white text-[11px] font-black flex items-center gap-1.5 cursor-pointer">
                 👷 Candidates
               </button>
-
             </div>
           </div>
 
@@ -1340,55 +1340,7 @@ export default function App() {
             </button>
           </div>
 
-          {/* 3. SERVICES */}
-          <div className="p-5 rounded-3xl bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-200 shadow-sm">
-            <div className="flex items-center justify-between mb-4">
-              <div>
-                <h3 className="text-sm font-black text-slate-900">
-                  {lang === 'en' ? '🛠️ Our Services' : '🛠️ हमारी सेवाएं'}
-                </h3>
-                <p className="text-[10px] text-slate-500 mt-0.5">
-                  {lang === 'en' ? 'Click to know more' : 'अधिक जानने के लिए क्लिक करें'}
-                </p>
-              </div>
-              <button onClick={() => setShowServices(true)}
-                className="text-[10px] text-amber-700 font-black border border-amber-300 bg-amber-100 px-2 py-1 rounded-lg cursor-pointer hover:bg-amber-200">
-                {lang === 'en' ? 'View All →' : 'सब देखें →'}
-              </button>
-            </div>
-            <div className="space-y-2">
-              {[
-                { icon: '💼', en: 'Post Job (Free)', hi: 'जॉब पोस्ट (मुफ्त)', desc_en: 'Post vacancy — live instantly, 30 days', desc_hi: 'वैकेंसी पोस्ट करें — तुरंत लाइव', id: 'post-job' },
-                { icon: '⭐', en: 'Featured Job — ₹199', hi: 'फीचर्ड जॉब — ₹199', desc_en: 'Top listing with ⭐ badge, 20 days', desc_hi: 'सबसे ऊपर दिखेगी, 20 दिन', id: 'featured-job' },
-                { icon: '📢', en: 'Business Ad — ₹250+', hi: 'बिज़नेस Ad — ₹250+', desc_en: 'Promote shop/business to thousands', desc_hi: 'हज़ारों लोगों तक बिज़नेस पहुंचाएं', id: 'business-ad' },
-                { icon: '🌐', en: 'Website Development', hi: 'वेबसाइट डिज़ाइन', desc_en: 'Professional website for your business', desc_hi: 'आपके बिज़नेस के लिए वेबसाइट', id: 'website' },
-                { icon: '📱', en: 'Mobile App Development', hi: 'Mobile App बनाएं', desc_en: 'Android & iOS apps', desc_hi: 'Android & iOS ऐप्स', id: 'mobile-app' },
-                { icon: '🧾', en: 'Accounting & Tally', hi: 'अकाउंटिंग & Tally', desc_en: 'GST filing, accounts, Tally entries', desc_hi: 'GST, अकाउंट्स, Tally एंट्री', id: 'accounting' },
-                { icon: '💻', en: 'Software Development', hi: 'सॉफ्टवेयर बनाएं', desc_en: 'Custom software for your business', desc_hi: 'आपके बिज़नेस के लिए सॉफ्टवेयर', id: 'software' },
-                { icon: '📄', en: 'Document & Form Work', hi: 'डॉक्यूमेंट & फॉर्म', desc_en: 'Govt forms, affidavits, certificates', desc_hi: 'सरकारी फॉर्म, दस्तावेज़ कार्य', id: 'document' },
-                { icon: '🎯', en: 'Freelance Work', hi: 'फ्रीलांस वर्क', desc_en: 'Data entry, typing, digital work', desc_hi: 'डेटा एंट्री, टाइपिंग, डिजिटल कार्य', id: 'freelance' },
-              ].map((svc, i) => (
-                <div key={i} onClick={() => setActiveServiceId(svc.id)}
-                  className="flex items-start gap-2.5 cursor-pointer hover:bg-amber-100 rounded-xl p-2 transition-colors group">
-                  <span className="text-base mt-0.5 flex-shrink-0">{svc.icon}</span>
-                  <div className="min-w-0">
-                    <p className="text-xs font-black text-slate-800 group-hover:text-amber-700 transition-colors">
-                      {lang === 'en' ? svc.en : svc.hi}
-                    </p>
-                    <p className="text-[10px] text-slate-400 leading-tight mt-0.5">
-                      {lang === 'en' ? svc.desc_en : svc.desc_hi}
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
-            <button onClick={() => setShowServices(true)}
-              className="w-full mt-3 py-2.5 bg-amber-400 hover:bg-amber-500 text-slate-900 font-black rounded-xl text-xs cursor-pointer transition-colors">
-              {lang === 'en' ? '📞 Contact for Services' : '📞 सेवाओं के लिए संपर्क करें'}
-            </button>
-          </div>
-
-          {/* 4. BLOG */}
+          {/* 3. BLOG */}
           <div className="p-4 rounded-3xl bg-white border border-slate-100 shadow-sm">
             <div className="flex items-center justify-between mb-3">
               <h3 className="text-xs font-black text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
@@ -1519,11 +1471,50 @@ export default function App() {
             </div>
           </div>
 
-          {/* 6. POPULAR SECTORS */}
-          <div className="p-5 rounded-3xl bg-white border border-slate-100 shadow-xs space-y-3">
-            <h4 className="text-[11px] font-extrabold text-slate-400 uppercase tracking-wider">
-              {lang === 'en' ? 'Popular Sri Ganganagar Sectors' : 'लोकप्रिय श्रीगंगानगर व्यापार क्षेत्र'}
-            </h4>
+        </aside>
+
+      </main>
+
+      {/* Pre-Footer — 3 Column: Popular Job Searches | Popular Sectors | Our Services */}
+      <div className="bg-white border-t border-slate-100 py-10 px-4 mt-8">
+        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
+
+          {/* COL 1 — Popular Job Searches */}
+          <div>
+            <h3 className="text-sm font-black text-slate-800 mb-1 flex items-center gap-2">
+              <span>🔍</span>
+              <span>{lang === 'en' ? 'Popular Job Searches' : 'लोकप्रिय जॉब खोज'}</span>
+            </h3>
+            <p className="text-[10px] text-slate-400 mb-3">{lang === 'en' ? 'Click to search instantly' : 'क्लिक करके तुरंत खोजें'}</p>
+            <div className="flex flex-wrap gap-1.5">
+              {[
+                'Driver Job Ganganagar', 'Teacher Job Sriganganagar', 'Helper Job Ganganagar',
+                'Computer Operator Ganganagar', 'Delivery Job Sriganganagar', 'Security Guard Ganganagar',
+                'Accountant Job Sriganganagar', 'Data Entry Ganganagar', 'Sales Job Sriganganagar',
+                'Part Time Job Ganganagar', 'Full Time Job Sriganganagar', 'Daily Worker Ganganagar',
+                'Fresher Job Sriganganagar', 'Shop Assistant Ganganagar', 'Medical Job Sriganganagar',
+                'Nurse Job Ganganagar', 'Factory Job Sriganganagar', 'Electrician Job Ganganagar',
+                'Plumber Job Sriganganagar', 'Cook Job Ganganagar', 'Work From Home Sriganganagar',
+                'Hanumangarh Jobs', 'Suratgarh Jobs', 'Raisinghnagar Jobs', 'Padampur Jobs',
+                'Urgent Job Sriganganagar', '12th Pass Job Ganganagar', 'Graduate Job Sriganganagar',
+                'Kinnow Packing Job Ganganagar', 'RICCO Factory Job Ganganagar',
+              ].map((kw, i) => (
+                <button key={i}
+                  onClick={() => { const q = kw.replace(/ (Job|Jobs|Naukri|Rojgaar) .*/i, '').replace(/(Job|Jobs|Naukri|Rojgaar) /i, '').trim(); setSearchQuery(q); setCurrentPage(1); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+                  className="text-[10px] text-[#075E54] hover:text-white hover:bg-[#075E54] bg-[#eefaf7] border border-[#128C7E]/20 px-2 py-1 rounded-lg transition-all cursor-pointer font-medium">
+                  {kw}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* COL 2 — Popular Sri Ganganagar Sectors */}
+          <div>
+            <h3 className="text-sm font-black text-slate-800 mb-1 flex items-center gap-2">
+              <span>🏙️</span>
+              <span>{lang === 'en' ? 'Popular Sriganganagar Sectors' : 'लोकप्रिय व्यापार क्षेत्र'}</span>
+            </h3>
+            <p className="text-[10px] text-slate-400 mb-3">{lang === 'en' ? 'Major employment sectors' : 'मुख्य रोजगार क्षेत्र'}</p>
             <div className="flex flex-wrap gap-1.5">
               {[
                 '🌾 Grain Mandi (अनाज मंडी)', '🍊 Kinnow Packers (किन्नू पैकिंग)',
@@ -1536,56 +1527,56 @@ export default function App() {
                 '💻 IT & Computer (आईटी)', '🏦 Banks & Finance (बैंक)',
                 '📦 Warehouse & Logistics (गोदाम)', '🌀 Other (अन्य)',
               ].map((sector, i) => (
-                <span key={i} className="px-2.5 py-1 text-[11px] font-semibold bg-slate-50 hover:bg-[#eefaf7] hover:text-[#075E54] text-slate-600 rounded-lg border border-slate-100/50 cursor-default transition-colors">
+                <span key={i} className="px-2.5 py-1 text-[11px] font-semibold bg-slate-50 hover:bg-[#eefaf7] hover:text-[#075E54] text-slate-600 rounded-lg border border-slate-100 cursor-default transition-colors">
                   {sector}
                 </span>
               ))}
             </div>
           </div>
 
-          {/* 7. POPULAR JOB SEARCHES */}
-          <div className="p-4 rounded-3xl bg-white border border-slate-100 shadow-sm">
-            <h3 className="text-xs font-black text-slate-500 uppercase tracking-wider mb-1 flex items-center gap-1.5">
-              <span>🔍</span>
-              <span>{lang === 'en' ? 'Popular Job Searches' : 'लोकप्रिय जॉब खोज'}</span>
-            </h3>
-            <p className="text-[10px] text-slate-400 mb-3">
-              {lang === 'en' ? 'Click to search instantly' : 'क्लिक करके तुरंत खोजें'}
-            </p>
-            <div className="flex flex-wrap gap-1.5">
+          {/* COL 3 — Our Services */}
+          <div>
+            <div className="flex items-center justify-between mb-1">
+              <h3 className="text-sm font-black text-slate-800 flex items-center gap-2">
+                <span>🛠️</span>
+                <span>{lang === 'en' ? 'Our Services' : 'हमारी सेवाएं'}</span>
+              </h3>
+              <button onClick={() => setShowServices(true)}
+                className="text-[10px] text-amber-700 font-black border border-amber-300 bg-amber-100 px-2 py-1 rounded-lg cursor-pointer hover:bg-amber-200">
+                View All →
+              </button>
+            </div>
+            <p className="text-[10px] text-slate-400 mb-3">{lang === 'en' ? 'Click to know more' : 'अधिक जानने के लिए क्लिक करें'}</p>
+            <div className="space-y-1.5">
               {[
-                'Driver Job Ganganagar', 'Teacher Job Sriganganagar', 'Helper Job Ganganagar',
-                'Computer Operator Ganganagar', 'Delivery Job Sriganganagar', 'Security Guard Ganganagar',
-                'Accountant Job Sriganganagar', 'Data Entry Ganganagar', 'Sales Job Sriganganagar',
-                'Part Time Job Ganganagar', 'Full Time Job Sriganganagar', 'Daily Worker Ganganagar',
-                'Fresher Job Sriganganagar', 'Shop Assistant Ganganagar', 'Medical Job Sriganganagar',
-                'Nurse Job Ganganagar', 'Lab Technician Sriganganagar', 'Factory Job Sriganganagar',
-                'Tally Operator Sriganganagar', 'Receptionist Job Sriganganagar', 'Electrician Job Ganganagar',
-                'Plumber Job Sriganganagar', 'Cook Job Ganganagar', 'Beautician Job Ganganagar',
-                'Work From Home Sriganganagar', 'Freelance Job Sriganganagar', 'Digital Marketing Ganganagar',
-                'Hanumangarh Jobs', 'Suratgarh Jobs', 'Raisinghnagar Jobs', 'Padampur Jobs',
-                'Naukri Sriganganagar 2026', 'Job Vacancy Ganganagar 2026', 'Urgent Job Sriganganagar',
-                'Salary 10000 Job Ganganagar', 'Salary 15000 Job Sriganganagar', 'Graduate Job Sriganganagar',
-                '12th Pass Job Ganganagar', 'ITI Job Ganganagar', 'Kinnow Packing Job Ganganagar',
-                'Agriculture Job Ganganagar', 'RICCO Factory Job Ganganagar', 'Warehouse Job Ganganagar',
-              ].map((kw, i) => (
-                <button key={i}
-                  onClick={() => {
-                    const q = kw.replace(/ (Job|Jobs|Naukri|Rojgaar) .*/i, '').replace(/(Job|Jobs|Naukri|Rojgaar) /i, '').trim();
-                    setSearchQuery(q);
-                    setCurrentPage(1);
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                  }}
-                  className="text-[10px] text-[#075E54] hover:text-white hover:bg-[#075E54] bg-[#eefaf7] border border-[#128C7E]/20 px-2 py-1 rounded-lg transition-all cursor-pointer font-medium leading-tight">
-                  {kw}
-                </button>
+                { icon: '💼', en: 'Post Job (Free)', hi: 'जॉब पोस्ट (मुफ्त)', desc_en: 'Post vacancy — live instantly, 30 days', desc_hi: 'वैकेंसी पोस्ट करें — तुरंत लाइव', id: 'post-job' },
+                { icon: '⭐', en: 'Featured Job — ₹199', hi: 'फीचर्ड जॉब — ₹199', desc_en: 'Top listing with ⭐ badge, 20 days', desc_hi: 'सबसे ऊपर दिखेगी, 20 दिन', id: 'featured-job' },
+                { icon: '📢', en: 'Business Ad — ₹250+', hi: 'बिज़नेस Ad — ₹250+', desc_en: 'Promote shop/business to thousands', desc_hi: 'हज़ारों लोगों तक बिज़नेस पहुंचाएं', id: 'business-ad' },
+                { icon: '📄', en: 'Resume Making', hi: 'Resume बनाएं', desc_en: 'Professional resume for your career', desc_hi: 'आपके करियर के लिए रिज्यूमे', id: 'resume' },
+                { icon: '👷', en: 'Candidate Profile Promotion', hi: 'कैंडिडेट प्रमोशन', desc_en: 'Get more visibility & job offers', desc_hi: 'ज्यादा visibility पाएं', id: 'candidate-promotion' },
+                { icon: '🤝', en: 'Recruitment Assistance', hi: 'भर्ती सहायता', desc_en: 'Find right candidate for your company', desc_hi: 'सही उम्मीदवार ढूंढें', id: 'recruitment' },
+                { icon: '🌐', en: 'Website Development', hi: 'वेबसाइट डिज़ाइन', desc_en: 'Professional website for your business', desc_hi: 'आपके बिज़नेस के लिए वेबसाइट', id: 'website' },
+                { icon: '💻', en: 'Software Development', hi: 'सॉफ्टवेयर बनाएं', desc_en: 'Custom software for your business', desc_hi: 'आपके बिज़नेस के लिए सॉफ्टवेयर', id: 'software' },
+                { icon: '🧾', en: 'Accounting & Tally', hi: 'अकाउंटिंग & Tally', desc_en: 'GST filing, accounts, Tally entries', desc_hi: 'GST, अकाउंट्स, Tally एंट्री', id: 'accounting' },
+              ].map((svc, i) => (
+                <div key={i} onClick={() => setActiveServiceId(svc.id)}
+                  className="flex items-start gap-2 cursor-pointer hover:bg-amber-50 rounded-xl p-1.5 transition-colors group">
+                  <span className="text-sm flex-shrink-0">{svc.icon}</span>
+                  <div>
+                    <p className="text-xs font-black text-slate-800 group-hover:text-amber-700">{lang === 'en' ? svc.en : svc.hi}</p>
+                    <p className="text-[10px] text-slate-400">{lang === 'en' ? svc.desc_en : svc.desc_hi}</p>
+                  </div>
+                </div>
               ))}
             </div>
+            <button onClick={() => setShowServices(true)}
+              className="w-full mt-3 py-2 bg-amber-400 hover:bg-amber-500 text-slate-900 font-black rounded-xl text-xs cursor-pointer transition-colors">
+              📞 Contact for Services
+            </button>
           </div>
 
-        </aside>
-
-      </main>
+        </div>
+      </div>
 
       {/* Footer — Image 1 Design — 4 Column */}
       <footer className="bg-slate-900 text-slate-400 text-xs pt-8 pb-4 mt-12 border-t border-slate-800">
