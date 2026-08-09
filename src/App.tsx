@@ -943,19 +943,19 @@ export default function App() {
       )}
 
       {/* Hero Banner — 3 Column Layout */}
-      <div className="bg-gradient-to-r from-[#075E54] to-[#0a8a75] py-6 px-4">
-        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-4 items-center">
+      <div className="bg-gradient-to-r from-[#075E54] to-[#0a8a75] py-8 px-4">
+        <div className="max-w-7xl mx-auto flex flex-col lg:flex-row gap-5 items-center min-h-[240px]">
 
           {/* LEFT — Video / Live Preview */}
-          <div className="hidden lg:block rounded-2xl overflow-hidden bg-slate-900 border border-white/10 shadow-lg" style={{height: '220px'}}>
-            <div className="px-3 pt-2 pb-1 flex items-center gap-2">
+          <div className="hidden lg:flex flex-col rounded-2xl overflow-hidden bg-slate-900 border border-white/10 shadow-lg flex-shrink-0" style={{width: '300px', height: '240px'}}>
+            <div className="px-3 py-2 flex items-center gap-2 flex-shrink-0">
               <span className="w-2 h-2 rounded-full bg-[#25D366] animate-pulse inline-block"></span>
-              <span className="text-[10px] font-extrabold text-[#25D366] uppercase tracking-wider">Sri Ganganagar - Jobs, People & Opportunities</span>
+              <span className="text-[9px] font-extrabold text-[#25D366] uppercase tracking-wider">Sri Ganganagar - Jobs, People & Opportunities</span>
             </div>
-            <div className="relative w-full" style={{height: '185px'}}>
+            <div className="flex-1 relative">
               <iframe
                 src="/promo.html"
-                className="absolute top-0 left-0 w-full h-full border-0"
+                className="absolute inset-0 w-full h-full border-0"
                 title="SGN Jobs Promo"
                 scrolling="no"
               />
@@ -963,40 +963,36 @@ export default function App() {
           </div>
 
           {/* CENTER — Text + Buttons */}
-          <div className="text-center">
-            <h2 className="text-2xl sm:text-3xl font-black text-white leading-tight mb-1">
+          <div className="flex-1 text-center py-2">
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white leading-tight mb-2">
               {lang === 'en' ? 'Looking to Hire Staff in Your City?' : 'अपने शहर में स्टाफ ढूंढना है?'}
             </h2>
-            <p className="text-[#25D366] text-sm sm:text-base font-semibold mb-5">
+            <p className="text-[#25D366] text-sm sm:text-lg font-semibold mb-6">
               {lang === 'en' ? 'Looking for a Job in Your City?' : 'अपने शहर में नौकरी ढूंढ रहे हैं?'}
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
               <button onClick={() => setActiveModal('job')}
-                className="w-full sm:w-auto px-6 py-3.5 rounded-2xl bg-[#25D366] hover:bg-[#20ba5a] text-slate-900 font-black text-sm shadow-lg cursor-pointer transition-colors whitespace-nowrap">
+                className="w-full sm:w-auto px-7 py-3.5 rounded-2xl bg-[#25D366] hover:bg-[#20ba5a] text-slate-900 font-black text-sm shadow-lg cursor-pointer transition-colors whitespace-nowrap">
                 + Post Job (Free)
               </button>
               <button onClick={() => setActiveModal('featured')}
-                className="w-full sm:w-auto px-6 py-3.5 rounded-2xl bg-yellow-400 hover:bg-yellow-500 text-slate-900 font-black text-sm shadow-lg cursor-pointer transition-colors whitespace-nowrap">
+                className="w-full sm:w-auto px-7 py-3.5 rounded-2xl bg-yellow-400 hover:bg-yellow-500 text-slate-900 font-black text-sm shadow-lg cursor-pointer transition-colors whitespace-nowrap">
                 ⭐ Post Job (Featured)
               </button>
               <button onClick={() => setActiveModal('ad')}
-                className="w-full sm:w-auto px-6 py-3.5 rounded-2xl bg-white hover:bg-slate-50 text-[#075E54] font-black text-sm shadow-lg cursor-pointer transition-colors whitespace-nowrap">
+                className="w-full sm:w-auto px-7 py-3.5 rounded-2xl bg-white hover:bg-slate-50 text-[#075E54] font-black text-sm shadow-lg cursor-pointer transition-colors whitespace-nowrap">
                 📢 Business Ad Lagao
               </button>
             </div>
           </div>
 
           {/* RIGHT — Resume Builder */}
-          <div className="hidden lg:block p-4 rounded-2xl bg-white/10 border border-white/20 backdrop-blur-sm">
-            <div className="flex items-start gap-3 mb-3">
-              <div className="text-3xl">📄</div>
+          <div className="hidden lg:flex flex-col justify-center p-5 rounded-2xl bg-white/10 border border-white/20 flex-shrink-0" style={{width: '260px', height: '240px'}}>
+            <div className="flex items-start gap-2 mb-3">
+              <div className="text-2xl">📄</div>
               <div>
-                <h4 className="text-sm font-black text-white">
-                  {lang === 'en' ? 'Free Resume Builder' : 'मुफ्त Resume बनाएं'}
-                </h4>
-                <p className="text-[11px] text-white/70 mt-0.5">
-                  {lang === 'en' ? 'AI se 2 minute mein ready — Download & Share!' : 'AI से 2 मिनट में तैयार!'}
-                </p>
+                <h4 className="text-sm font-black text-white leading-tight">Free Resume Builder</h4>
+                <p className="text-[10px] text-white/70 mt-0.5">AI se 2 minute mein ready!</p>
               </div>
             </div>
             <ul className="space-y-1.5 mb-4">
@@ -1006,7 +1002,7 @@ export default function App() {
             </ul>
             <button onClick={() => setShowResume(true)}
               className="w-full py-2.5 bg-[#25D366] hover:bg-[#20ba5a] text-slate-900 font-black rounded-xl text-xs cursor-pointer transition-colors flex items-center justify-center gap-2">
-              📄 {lang === 'en' ? 'Build My Resume Free' : 'Resume बनाएं — Free'}
+              📄 Build My Resume Free
             </button>
           </div>
 
