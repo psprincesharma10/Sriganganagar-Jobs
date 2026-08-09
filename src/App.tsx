@@ -837,6 +837,14 @@ export default function App() {
                 className="px-3 py-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-white text-[11px] font-black flex items-center gap-1.5 cursor-pointer">
                 👷 Candidates
               </button>
+              <button onClick={() => setShowResume(true)}
+                className="px-3 py-1.5 rounded-xl bg-white hover:bg-slate-100 text-[#075E54] text-[11px] font-black flex items-center gap-1 cursor-pointer">
+                📄 Resume
+              </button>
+              <a href="tel:+919309352063"
+                className="px-3 py-1.5 rounded-xl bg-slate-700 hover:bg-slate-600 text-white text-[11px] font-black flex items-center gap-1 cursor-pointer">
+                📞 Contact
+              </a>
             </div>
           </div>
 
@@ -1320,31 +1328,7 @@ export default function App() {
             )}
           </div>
 
-          {/* 2. RESUME BUILDER */}
-          <div className="p-5 rounded-3xl bg-gradient-to-br from-[#075E54] to-[#0a8a75] border border-[#128C7E]/30 shadow-sm">
-            <div className="flex items-start gap-3 mb-3">
-              <div className="text-3xl">📄</div>
-              <div>
-                <h4 className="text-sm font-black text-white">
-                  {lang === 'en' ? 'Free Resume Builder' : 'मुफ्त Resume बनाएं'}
-                </h4>
-                <p className="text-[11px] text-white/70 mt-0.5">
-                  {lang === 'en' ? 'AI se 2 minute mein ready — Download & Share!' : 'AI से 2 मिनट में तैयार!'}
-                </p>
-              </div>
-            </div>
-            <ul className="space-y-1 mb-3">
-              {['✅ 23+ Job Roles', '✅ AI Generated', '✅ PDF Download', '✅ 100% Free'].map(f => (
-                <li key={f} className="text-[10px] text-white/80 font-medium">{f}</li>
-              ))}
-            </ul>
-            <button onClick={() => setShowResume(true)}
-              className="w-full py-2.5 bg-[#25D366] hover:bg-[#20ba5a] text-slate-900 font-black rounded-xl text-xs cursor-pointer transition-colors flex items-center justify-center gap-2">
-              📄 {lang === 'en' ? 'Build My Resume Free' : 'Resume बनाएं — Free'}
-            </button>
-          </div>
-
-          {/* 3. BLOG */}
+          {/* 2. BLOG */}
           <div className="p-4 rounded-3xl bg-white border border-slate-100 shadow-sm">
             <div className="flex items-center justify-between mb-3">
               <h3 className="text-xs font-black text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
