@@ -841,10 +841,10 @@ export default function App() {
                 className="px-3 py-1.5 rounded-xl bg-white hover:bg-slate-100 text-[#075E54] text-[11px] font-black flex items-center gap-1 cursor-pointer">
                 📄 Resume
               </button>
-              <a href="tel:+919309352063"
+              <button onClick={() => { setStaticPage('contact'); window.location.hash = '/contact'; }}
                 className="px-3 py-1.5 rounded-xl bg-slate-700 hover:bg-slate-600 text-white text-[11px] font-black flex items-center gap-1 cursor-pointer">
                 📞 Contact
-              </a>
+              </button>
             </div>
           </div>
 

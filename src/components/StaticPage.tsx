@@ -15,24 +15,41 @@ function ContactForm() {
   const [phone, setPhone] = React.useState('');
   const [message, setMessage] = React.useState('');
   const [sent, setSent] = React.useState(false);
+  const [sending, setSending] = React.useState(false);
+  const [error, setError] = React.useState('');
 
-  const handleSend = () => {
+  const handleSend = async () => {
     if (!name.trim() || !phone.trim() || !message.trim()) return;
-    const msg = encodeURIComponent(
-      `📩 *New Message from SGN Jobs Contact Form*\n\n` +
-      `👤 Name: ${name}\n` +
-      `📞 Phone: ${phone}\n` +
-      `💬 Message: ${message}`
-    );
-    window.open(`https://wa.me/919309352063?text=${msg}`, '_blank');
-    setSent(true);
+    setSending(true);
+    setError('');
+    try {
+      const res = await fetch('https://formsubmit.co/ajax/princeoffice2021@gmail.com', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify({
+          Name: name,
+          Phone: phone,
+          Message: message,
+          _subject: '📩 New Enquiry - Sriganganagar Jobs Contact Form',
+        }),
+      });
+      if (!res.ok) throw new Error('Failed');
+      setSent(true);
+    } catch (e) {
+      // Fallback: open the user's email app pre-filled, in case the API call fails
+      const body = encodeURIComponent(`Name: ${name}\nPhone: ${phone}\n\nMessage:\n${message}`);
+      window.location.href = `mailto:princeoffice2021@gmail.com?subject=New Enquiry - Sriganganagar Jobs&body=${body}`;
+      setSent(true);
+    } finally {
+      setSending(false);
+    }
   };
 
   if (sent) return (
     <div className="text-center py-8 space-y-3">
       <div className="text-4xl">✅</div>
       <p className="font-black text-slate-800">Message Sent!</p>
-      <p className="text-sm text-slate-500">WhatsApp pe message chala gaya. Hum jald jawab denge.</p>
+      <p className="text-sm text-slate-500">Aapka message email ke through bhej diya gaya hai. Hum jald jawab denge.</p>
     </div>
   );
 
@@ -76,11 +93,11 @@ function ContactForm() {
             className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#128C7E] text-sm resize-none" />
         </div>
         <button onClick={handleSend}
-          disabled={!name.trim() || !phone.trim() || !message.trim()}
+          disabled={!name.trim() || !phone.trim() || !message.trim() || sending}
           className="w-full py-3 bg-[#25D366] hover:bg-[#20ba5a] disabled:bg-slate-200 disabled:text-slate-400 text-slate-900 font-black rounded-xl text-sm cursor-pointer transition-colors">
-          Send Message
+          {sending ? 'Sending...' : 'Send Message'}
         </button>
-        <p className="text-[10px] text-slate-400 text-center">Message WhatsApp pe jayega — 2-4 ghante mein jawab milega</p>
+        <p className="text-[10px] text-slate-400 text-center">Message aapki email (princeoffice2021@gmail.com) par jayega — 2-4 ghante mein jawab milega</p>
       </div>
     </div>
   );
