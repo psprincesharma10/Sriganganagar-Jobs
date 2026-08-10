@@ -809,15 +809,15 @@ export default function App() {
             {/* RIGHT — All Buttons */}
             <div className="flex items-center gap-1.5 flex-wrap justify-end">
               <button onClick={() => { setBlogReadPostId(null); setShowBlog(true); }}
-                className="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-white text-[11px] font-black flex items-center gap-1 cursor-pointer">
+                className="px-3 py-1.5 rounded-xl bg-blue-500 hover:bg-blue-600 text-white text-[11px] font-black flex items-center gap-1 cursor-pointer">
                 Blog
               </button>
               <button onClick={() => { setNewsReadPostId(null); setShowNews(true); }}
-                className="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-white text-[11px] font-black flex items-center gap-1 cursor-pointer">
+                className="px-3 py-1.5 rounded-xl bg-rose-500 hover:bg-rose-600 text-white text-[11px] font-black flex items-center gap-1 cursor-pointer">
                 News
               </button>
               <button onClick={handleToggleLang}
-                className="px-2 py-1.5 rounded-xl bg-white/10 hover:bg-white/15 text-white text-[11px] font-bold border border-white/10 flex items-center gap-1 cursor-pointer">
+                className="px-2 py-1.5 rounded-xl bg-purple-500 hover:bg-purple-600 text-white text-[11px] font-bold flex items-center gap-1 cursor-pointer">
                 <Languages size={12} />{lang === 'en' ? 'हिंदी' : 'EN'}
               </button>
               <button id="header-post-job-btn" onClick={() => setActiveModal('job')}
@@ -863,7 +863,7 @@ export default function App() {
                 </div>
               </button>
               <div className="flex items-center gap-1">
-                <button onClick={handleToggleLang} className="px-2 py-1 rounded-lg bg-white/10 text-white text-[10px] font-bold cursor-pointer">
+                <button onClick={handleToggleLang} className="px-2 py-1 rounded-lg bg-purple-500 text-white text-[10px] font-bold cursor-pointer">
                   {lang === 'en' ? 'हिंदी' : 'EN'}
                 </button>
                 <button onClick={() => { setShowCandidatePortal(true); window.location.hash = '/candidates'; }}
@@ -883,10 +883,10 @@ export default function App() {
               <button onClick={() => setActiveModal('ad')} className="py-2 rounded-xl bg-amber-500 text-white text-[10px] font-black flex items-center justify-center gap-1 cursor-pointer">
                 <Megaphone size={10} />Business Ad
               </button>
-              <button onClick={() => { setBlogReadPostId(null); setShowBlog(true); }} className="py-2 rounded-xl bg-white/10 text-white text-[10px] font-black flex items-center justify-center gap-1 cursor-pointer">
+              <button onClick={() => { setBlogReadPostId(null); setShowBlog(true); }} className="py-2 rounded-xl bg-blue-500 text-white text-[10px] font-black flex items-center justify-center gap-1 cursor-pointer">
                 Blog
               </button>
-              <button onClick={() => { setNewsReadPostId(null); setShowNews(true); }} className="py-2 rounded-xl bg-white/10 text-white text-[10px] font-black flex items-center justify-center gap-1 cursor-pointer">
+              <button onClick={() => { setNewsReadPostId(null); setShowNews(true); }} className="py-2 rounded-xl bg-rose-500 text-white text-[10px] font-black flex items-center justify-center gap-1 cursor-pointer">
                 News
               </button>
               <button onClick={() => { setShowCandidatePortal(true); window.location.hash = '/candidates'; }} className="py-2 rounded-xl bg-emerald-500 text-white text-[10px] font-black flex items-center justify-center gap-1 cursor-pointer">
