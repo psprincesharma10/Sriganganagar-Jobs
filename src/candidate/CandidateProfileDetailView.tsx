@@ -10,7 +10,6 @@ import {
   ArrowLeft,
   Calendar,
   DollarSign,
-  Send,
   UserCheck,
   ShieldCheck,
   Share2,
@@ -21,7 +20,6 @@ import { formatSalaryDisplay } from './skillsData';
 import {
   fetchCandidateById,
   incrementCandidateViewCount,
-  submitEmployerInquiry,
   fetchAllCandidates
 } from './candidateSupabase';
 import {
@@ -59,12 +57,7 @@ export const CandidateProfileDetailView: React.FC<CandidateProfileDetailViewProp
   const [translatedBio, setTranslatedBio] = useState<string>('');
   const [isTranslating, setIsTranslating] = useState(false);
 
-  // Inquiry Form State
-  const [inquiryName, setInquiryName] = useState('');
-  const [inquiryPhone, setInquiryPhone] = useState('');
-  const [inquiryMessage, setInquiryMessage] = useState('');
-  const [inquirySubmitted, setInquirySubmitted] = useState(false);
-  const [inquiryLoading, setInquiryLoading] = useState(false);
+  // Inquiry form removed per product decision (see handleSubmit note below)
 
   useEffect(() => {
     async function load() {
@@ -99,15 +92,7 @@ export const CandidateProfileDetailView: React.FC<CandidateProfileDetailViewProp
     setIsTranslating(false);
   };
 
-  const handleInquirySubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!candidate || !inquiryName || !inquiryPhone) return;
 
-    setInquiryLoading(true);
-    await submitEmployerInquiry(candidate.id, inquiryName, inquiryPhone, inquiryMessage);
-    setInquiryLoading(false);
-    setInquirySubmitted(true);
-  };
 
   if (isLoading) {
     return (
@@ -206,8 +191,8 @@ export const CandidateProfileDetailView: React.FC<CandidateProfileDetailViewProp
                 <p className="mt-2 text-xs text-emerald-100 flex items-center gap-1">
                   <MapPin className="w-3.5 h-3.5 text-emerald-300 shrink-0" />
                   <span>
-                    {/* Privacy: only show City/Village, District & Tahsil to employers — never the exact address/landmark */}
-                    {[candidate.village_or_town, candidate.tahsil, candidate.district]
+                    {/* Privacy: only show Tahsil & Village/Town to employers — never full address */}
+                    {[candidate.village_or_town, candidate.tahsil]
                       .filter(Boolean)
                       .join(', ')}
                   </span>
@@ -336,57 +321,6 @@ export const CandidateProfileDetailView: React.FC<CandidateProfileDetailViewProp
               </div>
             )}
           </div>
-
-          {/* Optional Employer Inquiry Form */}
-          {!isUnlocked && (
-            <div className="bg-slate-50 p-5 rounded-2xl border border-slate-200 space-y-3">
-              <h4 className="text-sm font-bold text-slate-900 flex items-center gap-1.5">
-                <Send className="w-4 h-4 text-[#075E54]" />
-                <span>Leave an Inquiry (निःशुल्क सन्देश भेजें)</span>
-              </h4>
-
-              {inquirySubmitted ? (
-                <div className="p-3 bg-emerald-100 text-emerald-900 rounded-xl text-xs font-bold">
-                  Aapka msg candidate ko bhej diya gaya hai.
-                </div>
-              ) : (
-                <form onSubmit={handleInquirySubmit} className="space-y-3">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <input
-                      type="text"
-                      required
-                      value={inquiryName}
-                      onChange={(e) => setInquiryName(e.target.value)}
-                      placeholder="Aapka Naam / Company Name"
-                      className="w-full bg-white border border-slate-300 rounded-xl p-2.5 text-xs font-medium focus:ring-2 focus:ring-[#075E54] focus:outline-none"
-                    />
-                    <input
-                      type="tel"
-                      required
-                      value={inquiryPhone}
-                      onChange={(e) => setInquiryPhone(e.target.value)}
-                      placeholder="Aapka Mobile Number"
-                      className="w-full bg-white border border-slate-300 rounded-xl p-2.5 text-xs font-medium focus:ring-2 focus:ring-[#075E54] focus:outline-none"
-                    />
-                  </div>
-                  <textarea
-                    rows={2}
-                    value={inquiryMessage}
-                    onChange={(e) => setInquiryMessage(e.target.value)}
-                    placeholder="Candidate ke liye msg (e.g. Call back for driver job)..."
-                    className="w-full bg-white border border-slate-300 rounded-xl p-2.5 text-xs font-medium focus:ring-2 focus:ring-[#075E54] focus:outline-none"
-                  />
-                  <button
-                    type="submit"
-                    disabled={inquiryLoading}
-                    className="bg-slate-800 hover:bg-slate-900 text-white font-bold text-xs py-2 px-4 rounded-xl"
-                  >
-                    Send Inquiry
-                  </button>
-                </form>
-              )}
-            </div>
-          )}
         </div>
       </div>
 

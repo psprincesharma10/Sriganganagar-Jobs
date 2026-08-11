@@ -33,11 +33,10 @@ export const CandidateCard: React.FC<CandidateCardProps> = ({
       ? `${rawPhone.slice(0, 5)} XXXXX`
       : '98765 XXXXX';
 
-  // Privacy: only show City/Village, Tahsil & District to employers — never state/country/landmark
+  // Privacy: only show Tahsil & Village/Town to employers — never district/state/country/landmark
   const fullLocation = [
     candidate.village_or_town,
     candidate.tahsil,
-    candidate.district,
   ]
     .filter(Boolean)
     .join(', ');
