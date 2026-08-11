@@ -11,21 +11,15 @@ import {
   CheckCircle2,
   Save,
   Loader2,
-  Trash2,
-  Eye,
   Sparkles,
   ToggleLeft,
-  ToggleRight,
-  MessageSquare,
-  Inbox
+  ToggleRight
 } from 'lucide-react';
-import { Candidate, UserSession, EmployerInquiry } from './candidateTypes';
+import { Candidate, UserSession } from './candidateTypes';
 import {
   fetchCandidateByPhone,
-  fetchInquiriesForCandidate,
   saveOrUpdateCandidate,
-  toggleCandidateAvailability,
-  deleteCandidateProfile
+  toggleCandidateAvailability
 } from './candidateSupabase';
 import { LocationCascadingSelect } from './LocationCascadingSelect';
 import { VoiceInput } from './VoiceInput';
@@ -57,14 +51,12 @@ export const ProfileFormView: React.FC<ProfileFormViewProps> = ({
   const [isAvailable, setIsAvailable] = useState(true);
   const [expectedSalary, setExpectedSalary] = useState('');
   const [bio, setBio] = useState('');
-  const [viewCount, setViewCount] = useState(0);
   const [isVerified, setIsVerified] = useState(false);
 
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [successMsg, setSuccessMsg] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
-  const [inquiries, setInquiries] = useState<EmployerInquiry[]>([]);
 
   useEffect(() => {
     async function loadData() {
@@ -91,11 +83,7 @@ export const ProfileFormView: React.FC<ProfileFormViewProps> = ({
           setIsAvailable(candidate.is_available ?? true);
           setExpectedSalary(candidate.expected_salary || '');
           setBio(candidate.bio || '');
-          setViewCount(candidate.view_count || 0);
           setIsVerified(candidate.is_verified || false);
-
-          const myInquiries = await fetchInquiriesForCandidate(candidate.id);
-          setInquiries(myInquiries);
         }
       } catch (e) {
         console.warn('Error loading candidate profile:', e);
@@ -169,12 +157,8 @@ export const ProfileFormView: React.FC<ProfileFormViewProps> = ({
     }
   };
 
-  const handleDeleteProfile = async () => {
-    if (existingId && window.confirm('Kya aap apni candidate profile hatana chahte hain?')) {
-      await deleteCandidateProfile(existingId);
-      onDeleted();
-    }
-  };
+  // Profile deletion is now Admin-only (see CandidateAdminView) — candidates
+  // can no longer delete their own profile from this page.
 
   if (isLoading) {
     return (
@@ -200,70 +184,7 @@ export const ProfileFormView: React.FC<ProfileFormViewProps> = ({
             Phone Number: <strong>+91 {session.phone_number}</strong>
           </p>
         </div>
-
-        {existingId && (
-          <div className="bg-emerald-950/60 border border-emerald-500/30 p-3 rounded-2xl flex items-center gap-3 text-center sm:text-right">
-            <div>
-              <span className="text-[10px] text-emerald-300 uppercase font-bold block">
-                Profile Employer Views
-              </span>
-              <span className="text-xl font-black text-amber-400 flex items-center gap-1 justify-center sm:justify-end">
-                <Eye className="w-4 h-4 text-amber-400" />
-                <span>{viewCount} Views</span>
-              </span>
-            </div>
-          </div>
-        )}
       </div>
-
-      {/* Received Messages Inbox — messages employers sent via "Leave an Inquiry" */}
-      {existingId && (
-        <div className="bg-white rounded-3xl border border-slate-200 shadow-sm p-5 sm:p-6 mb-5">
-          <h3 className="text-sm font-black text-slate-800 flex items-center gap-2 mb-1">
-            <Inbox className="w-4 h-4 text-[#075E54]" />
-            <span>Employers Se Aaye Messages ({inquiries.length})</span>
-          </h3>
-          <p className="text-xs text-slate-500 mb-3">
-            Jab koi employer aapki profile se "Leave an Inquiry" bhejta hai, wo message yahan dikhega.
-          </p>
-          {inquiries.length === 0 ? (
-            <div className="text-xs text-slate-400 bg-slate-50 border border-dashed border-slate-200 rounded-xl p-4 text-center">
-              Abhi tak koi message nahi aaya hai.
-            </div>
-          ) : (
-            <div className="space-y-2.5 max-h-72 overflow-y-auto pr-1">
-              {inquiries.map((inq) => (
-                <div key={inq.id} className="bg-emerald-50/70 border border-emerald-200 rounded-xl p-3">
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="text-xs font-bold text-slate-800 flex items-center gap-1">
-                      <User className="w-3.5 h-3.5 text-emerald-700" />
-                      {inq.employer_name || 'Employer'}
-                    </span>
-                    <span className="text-[10px] text-slate-400">
-                      {new Date(inq.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}
-                    </span>
-                  </div>
-                  {inq.employer_phone && (
-                    <a
-                      href={`tel:+91${inq.employer_phone}`}
-                      className="text-[11px] text-[#075E54] font-semibold flex items-center gap-1 mt-1 hover:underline"
-                    >
-                      <Phone className="w-3 h-3" />
-                      +91 {inq.employer_phone}
-                    </a>
-                  )}
-                  {inq.message && (
-                    <p className="text-xs text-slate-700 mt-1.5 flex items-start gap-1">
-                      <MessageSquare className="w-3.5 h-3.5 text-emerald-600 mt-0.5 shrink-0" />
-                      <span>{inq.message}</span>
-                    </p>
-                  )}
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      )}
 
       {/* Main Profile Form Card */}
       <form onSubmit={handleSubmit} className="bg-white rounded-3xl border border-slate-200 shadow-sm p-6 sm:p-8 space-y-6">
@@ -501,17 +422,7 @@ export const ProfileFormView: React.FC<ProfileFormViewProps> = ({
               </>
             )}
           </button>
-
-          {existingId && (
-            <button
-              type="button"
-              onClick={handleDeleteProfile}
-              className="text-xs text-red-600 hover:text-red-800 font-bold flex items-center gap-1.5 py-2 px-3 rounded-lg hover:bg-red-50 transition-colors"
-            >
-              <Trash2 className="w-4 h-4" />
-              <span>Delete Profile</span>
-            </button>
-          )}
+          {/* Delete Profile removed from candidate-facing view — only Admin Panel can delete a profile now */}
         </div>
       </form>
     </div>
