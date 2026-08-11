@@ -1,6 +1,7 @@
 export interface Candidate {
   id: string;
   phone_number: string;
+  password_hash?: string;
   full_name: string;
   photo_url?: string;
   skill_category: string;

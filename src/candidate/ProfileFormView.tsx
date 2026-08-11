@@ -26,31 +26,13 @@ import {
 } from './candidateSupabase';
 import { LocationCascadingSelect } from './LocationCascadingSelect';
 import { VoiceInput } from './VoiceInput';
+import { SKILLS_100 } from './skillsData';
 
 interface ProfileFormViewProps {
   session: UserSession;
   onSaved: (candidate: Candidate) => void;
   onDeleted: () => void;
 }
-
-const SKILL_CATEGORIES = [
-  'Driver',
-  'Electrician',
-  'Teacher',
-  'Computer Operator',
-  'Helper / Worker',
-  'Delivery Boy',
-  'Security Guard',
-  'Accountant',
-  'Data Entry',
-  'Plumber',
-  'Painter',
-  'Mason',
-  'Chef / Cook',
-  'Tailor',
-  'Mechanic',
-  'Other / अन्य कार्य'
-];
 
 export const ProfileFormView: React.FC<ProfileFormViewProps> = ({
   session,
@@ -316,11 +298,12 @@ export const ProfileFormView: React.FC<ProfileFormViewProps> = ({
               onChange={(e) => setSkillCategory(e.target.value)}
               className="w-full bg-slate-50 border border-slate-300 rounded-xl py-2.5 px-3 text-sm font-bold text-slate-800 focus:ring-2 focus:ring-[#075E54] focus:outline-none"
             >
-              {SKILL_CATEGORIES.map((sk) => (
-                <option key={sk} value={sk}>
-                  {sk}
+              {SKILLS_100.map((sk) => (
+                <option key={sk.id} value={sk.en}>
+                  {sk.icon} {sk.en} ({sk.hi})
                 </option>
               ))}
+              <option value="Other / अन्य कार्य">🔹 Other / अन्य कार्य</option>
             </select>
           </div>
 

@@ -66,8 +66,8 @@ export const EmployerBrowseView: React.FC<EmployerBrowseViewProps> = ({
         if (!textToSearch.includes(q)) return false;
       }
 
-      // Skill category
-      if (filters.skill && cand.skill_category !== filters.skill) {
+      // Skill category (partial match so free-text profile skills still match)
+      if (filters.skill && !(cand.skill_category || '').toLowerCase().includes(filters.skill.toLowerCase())) {
         return false;
       }
 
@@ -86,8 +86,13 @@ export const EmployerBrowseView: React.FC<EmployerBrowseViewProps> = ({
         return false;
       }
 
-      // Tahsil
-      if (filters.tahsil && cand.tahsil && !cand.tahsil.toLowerCase().includes(filters.tahsil.toLowerCase())) {
+      // Tahsil (free text partial match)
+      if (filters.tahsil && !(cand.tahsil || '').toLowerCase().includes(filters.tahsil.toLowerCase())) {
+        return false;
+      }
+
+      // Village / Town (free text partial match)
+      if (filters.village && !(cand.village_or_town || '').toLowerCase().includes(filters.village.toLowerCase())) {
         return false;
       }
 

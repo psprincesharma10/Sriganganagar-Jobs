@@ -197,6 +197,84 @@ const saveInquiriesToStorage = (inquiries: EmployerInquiry[]) => {
 };
 
 // ==========================================
+// MOBILE NUMBER + PASSWORD AUTHENTICATION
+// (No OTP / no paid SMS service — candidate sets their own password)
+// ==========================================
+
+// Hash the password client-side with SHA-256 before ever storing/sending it.
+// This is a static frontend app with no custom backend server, so this is
+// the strongest protection available without adding a paid backend service.
+async function hashPassword(password: string): Promise<string> {
+  const enc = new TextEncoder().encode(password);
+  const buf = await crypto.subtle.digest('SHA-256', enc);
+  return Array.from(new Uint8Array(buf))
+    .map((b) => b.toString(16).padStart(2, '0'))
+    .join('');
+}
+
+export async function registerCandidate(
+  phone: string,
+  password: string
+): Promise<{ success: boolean; message: string; session?: UserSession }> {
+  const cleanPhone = phone.replace(/\D/g, '').slice(-10);
+  if (cleanPhone.length !== 10) {
+    return { success: false, message: 'Kripya sahi 10-digit mobile number darj karein.' };
+  }
+  if (!password || password.length < 4) {
+    return { success: false, message: 'Password kam se kam 4 characters ka hona chahiye.' };
+  }
+
+  const existing = await fetchCandidateByPhone(cleanPhone);
+  if (existing && existing.password_hash) {
+    return { success: false, message: 'Ye mobile number pehle se register hai. Kripya Login karein.' };
+  }
+
+  const passwordHash = await hashPassword(password);
+  const candidate = await saveOrUpdateCandidate({
+    id: existing?.id,
+    phone_number: cleanPhone,
+    password_hash: passwordHash,
+    full_name: existing?.full_name,
+  });
+
+  const session: UserSession = {
+    phone_number: cleanPhone,
+    candidate_id: candidate.id,
+    is_logged_in: true,
+  };
+  saveStoredSession(session);
+  return { success: true, message: 'Registration safal! Ab apni profile complete karein.', session };
+}
+
+export async function loginCandidate(
+  phone: string,
+  password: string
+): Promise<{ success: boolean; message: string; session?: UserSession }> {
+  const cleanPhone = phone.replace(/\D/g, '').slice(-10);
+  if (cleanPhone.length !== 10) {
+    return { success: false, message: 'Kripya sahi 10-digit mobile number darj karein.' };
+  }
+
+  const existing = await fetchCandidateByPhone(cleanPhone);
+  if (!existing || !existing.password_hash) {
+    return { success: false, message: 'Ye mobile number registered nahi hai. Kripya pehle Register karein.' };
+  }
+
+  const passwordHash = await hashPassword(password);
+  if (passwordHash !== existing.password_hash) {
+    return { success: false, message: 'Galat password. Kripya dobara try karein.' };
+  }
+
+  const session: UserSession = {
+    phone_number: cleanPhone,
+    candidate_id: existing.id,
+    is_logged_in: true,
+  };
+  saveStoredSession(session);
+  return { success: true, message: 'Login safal!', session };
+}
+
+// ==========================================
 // CORE DATA ACCESS SERVICE API
 // ==========================================
 
@@ -266,6 +344,7 @@ export async function saveOrUpdateCandidate(candidateData: Partial<Candidate> & 
   const fullCandidate: Candidate = {
     id: candidateId,
     phone_number: candidateData.phone_number,
+    password_hash: candidateData.password_hash || existing?.password_hash,
     full_name: candidateData.full_name || 'Anonymous Worker',
     photo_url: candidateData.photo_url || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=300&q=80',
     skill_category: candidateData.skill_category || 'Helper / Worker',

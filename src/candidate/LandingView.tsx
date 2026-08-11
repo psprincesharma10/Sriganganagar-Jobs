@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { Candidate } from './candidateTypes';
 import { CandidateCard } from './CandidateCard';
+import { SKILLS_100 } from './skillsData';
 
 interface LandingViewProps {
   onNavigate: (view: string, param?: string) => void;
@@ -26,17 +27,6 @@ interface LandingViewProps {
   onUnlockClick: (candidate: Candidate) => void;
 }
 
-const SKILLS_GRID = [
-  { name: 'Driver (चालक)', icon: '🚗', count: '120+' },
-  { name: 'Electrician (बिजली मिस्त्री)', icon: '⚡', count: '95+' },
-  { name: 'Teacher (शिक्षक)', icon: '🎓', count: '80+' },
-  { name: 'Computer Operator', icon: '💻', count: '110+' },
-  { name: 'Helper / Labor (हेल्पर)', icon: '👷', count: '250+' },
-  { name: 'Security Guard (सुरक्षा)', icon: '🛡️', count: '70+' },
-  { name: 'Accountant (अकाउंटेंट)', icon: '📊', count: '45+' },
-  { name: 'Data Entry Operator', icon: '⌨️', count: '60+' },
-];
-
 export const LandingView: React.FC<LandingViewProps> = ({
   onNavigate,
   onOpenSignup,
@@ -44,6 +34,9 @@ export const LandingView: React.FC<LandingViewProps> = ({
   unlockedCandidateIds,
   onUnlockClick,
 }) => {
+  const [showAllSkills, setShowAllSkills] = React.useState(false);
+  const visibleSkills = showAllSkills ? SKILLS_100 : SKILLS_100.slice(0, 16);
+
   return (
     <div className="space-y-12 pb-12">
       {/* Hero Section */}
@@ -119,35 +112,48 @@ export const LandingView: React.FC<LandingViewProps> = ({
           </div>
 
           <button
-            onClick={() => onNavigate('browse')}
+            onClick={() => setShowAllSkills((v) => !v)}
             className="text-xs font-bold text-[#075E54] hover:underline flex items-center gap-1"
           >
-            <span>सभी देखें</span>
-            <ChevronRight className="w-4 h-4" />
+            <span>{showAllSkills ? 'कम दिखाएं' : `सभी ${SKILLS_100.length} देखें`}</span>
+            <ChevronRight className={`w-4 h-4 transition-transform ${showAllSkills ? 'rotate-90' : ''}`} />
           </button>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          {SKILLS_GRID.map((sk) => (
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+          {visibleSkills.map((sk) => (
             <div
-              key={sk.name}
-              onClick={() => onNavigate('browse')}
-              className="bg-white p-4 rounded-2xl border border-slate-200 hover:border-emerald-500/60 shadow-xs hover:shadow-md transition-all cursor-pointer group flex items-center gap-3"
+              key={sk.id}
+              onClick={() => onNavigate('browse', sk.en)}
+              title={sk.desc}
+              className="bg-white p-4 rounded-2xl border border-slate-200 hover:border-emerald-500/60 shadow-xs hover:shadow-md transition-all cursor-pointer group flex items-start gap-3"
             >
-              <span className="text-2xl group-hover:scale-110 transition-transform">
+              <span className="text-2xl group-hover:scale-110 transition-transform shrink-0">
                 {sk.icon}
               </span>
               <div className="min-w-0">
                 <h3 className="text-xs sm:text-sm font-bold text-slate-800 truncate group-hover:text-[#075E54]">
-                  {sk.name}
+                  {sk.en}
                 </h3>
-                <span className="text-[11px] text-emerald-700 font-semibold">
-                  {sk.count} profiles
+                <span className="text-[11px] text-slate-500 font-medium">
+                  {sk.hi}
                 </span>
+                <p className="text-[10px] text-emerald-700 mt-0.5 leading-snug line-clamp-2">
+                  {sk.desc}
+                </p>
               </div>
             </div>
           ))}
         </div>
+
+        {!showAllSkills && (
+          <button
+            onClick={() => setShowAllSkills(true)}
+            className="w-full py-2.5 rounded-xl border border-dashed border-emerald-300 text-[#075E54] text-xs font-bold hover:bg-emerald-50 transition-colors"
+          >
+            + {SKILLS_100.length - visibleSkills.length} aur categories dekhein
+          </button>
+        )}
       </section>
 
       {/* Featured Candidates */}
@@ -202,7 +208,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
             </div>
             <h3 className="font-bold text-base text-white">कैंडिडेट रजिस्ट्रेशन</h3>
             <p className="text-xs text-slate-300 leading-relaxed">
-              Candidate अपने मोबाइल नंबर व OTP से लॉगिन करके स्किल, अनुभव, और अपनी तहसील/गाँव की लोकेशन भरता है।
+              Candidate अपने मोबाइल नंबर व खुद के बनाए पासवर्ड से रजिस्टर/लॉगिन करके स्किल, अनुभव, और अपनी तहसील/गाँव की लोकेशन भरता है।
             </p>
           </div>
 

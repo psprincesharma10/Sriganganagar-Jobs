@@ -1,13 +1,6 @@
 import React from 'react';
 import { MapPin, Globe, Compass, Building, Home, HelpCircle } from 'lucide-react';
-import {
-  WORLD_LOCATIONS_DATA,
-  POPULAR_COUNTRIES,
-  getStatesForCountry,
-  getDistrictsForState,
-  getTahsilsForDistrict,
-  getVillagesForTahsil,
-} from './locationsData';
+import { INDIA_STATES, getIndiaDistricts } from './indiaLocations';
 import { VoiceInput } from './VoiceInput';
 
 interface LocationCascadingSelectProps {
@@ -31,10 +24,7 @@ export const LocationCascadingSelect: React.FC<LocationCascadingSelectProps> = (
   onChange,
   showVoiceInput = true,
 }) => {
-  const availableStates = getStatesForCountry(country);
-  const availableDistricts = getDistrictsForState(country, state);
-  const availableTahsils = getTahsilsForDistrict(country, state, district);
-  const availableVillages = getVillagesForTahsil(country, state, district, tahsil);
+  const availableDistricts = getIndiaDistricts(state);
 
   return (
     <div className="bg-emerald-50/60 p-4 rounded-xl border border-emerald-200/80 space-y-4">
@@ -49,33 +39,22 @@ export const LocationCascadingSelect: React.FC<LocationCascadingSelectProps> = (
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-        {/* 1. Country Dropdown */}
+        {/* 1. Country - locked to India */}
         <div>
           <label className="block text-xs font-semibold text-slate-700 mb-1 flex items-center gap-1">
             <Globe className="w-3.5 h-3.5 text-emerald-600" />
             1. Country (देश) *
           </label>
           <select
-            value={country}
-            onChange={(e) => {
-              onChange('country', e.target.value);
-              onChange('state', '');
-              onChange('district', '');
-              onChange('tahsil', '');
-              onChange('village_or_town', '');
-            }}
-            className="w-full bg-white border border-slate-300 rounded-lg py-2 px-3 text-sm text-slate-800 focus:ring-2 focus:ring-[#075E54] focus:outline-none shadow-sm"
+            value="India"
+            disabled
+            className="w-full bg-slate-100 border border-slate-300 rounded-lg py-2 px-3 text-sm text-slate-600 cursor-not-allowed shadow-sm"
           >
-            {POPULAR_COUNTRIES.map((c) => (
-              <option key={c} value={c}>
-                {c}
-              </option>
-            ))}
-            <option value="Other Country">Other Country / अन्य देश</option>
+            <option value="India">🇮🇳 India</option>
           </select>
         </div>
 
-        {/* 2. State Dropdown */}
+        {/* 2. State Dropdown - all Indian states */}
         <div>
           <label className="block text-xs font-semibold text-slate-700 mb-1 flex items-center gap-1">
             <Compass className="w-3.5 h-3.5 text-emerald-600" />
@@ -84,6 +63,7 @@ export const LocationCascadingSelect: React.FC<LocationCascadingSelectProps> = (
           <select
             value={state}
             onChange={(e) => {
+              onChange('country', 'India');
               onChange('state', e.target.value);
               onChange('district', '');
               onChange('tahsil', '');
@@ -92,16 +72,15 @@ export const LocationCascadingSelect: React.FC<LocationCascadingSelectProps> = (
             className="w-full bg-white border border-slate-300 rounded-lg py-2 px-3 text-sm text-slate-800 focus:ring-2 focus:ring-[#075E54] focus:outline-none shadow-sm"
           >
             <option value="">-- State chunein --</option>
-            {availableStates.map((s) => (
+            {INDIA_STATES.map((s) => (
               <option key={s} value={s}>
                 {s}
               </option>
             ))}
-            <option value="Other State">Other State / अन्य राज्य</option>
           </select>
         </div>
 
-        {/* 3. District Dropdown */}
+        {/* 3. District Dropdown - all districts for chosen state */}
         <div>
           <label className="block text-xs font-semibold text-slate-700 mb-1 flex items-center gap-1">
             <Building className="w-3.5 h-3.5 text-emerald-600" />
@@ -114,45 +93,36 @@ export const LocationCascadingSelect: React.FC<LocationCascadingSelectProps> = (
               onChange('tahsil', '');
               onChange('village_or_town', '');
             }}
-            className="w-full bg-white border border-slate-300 rounded-lg py-2 px-3 text-sm text-slate-800 focus:ring-2 focus:ring-[#075E54] focus:outline-none shadow-sm"
+            disabled={!state}
+            className="w-full bg-white border border-slate-300 rounded-lg py-2 px-3 text-sm text-slate-800 focus:ring-2 focus:ring-[#075E54] focus:outline-none shadow-sm disabled:bg-slate-100 disabled:cursor-not-allowed"
           >
-            <option value="">-- District chunein --</option>
+            <option value="">{state ? '-- District chunein --' : 'Pehle State chunein'}</option>
             {availableDistricts.map((d) => (
               <option key={d} value={d}>
                 {d}
               </option>
             ))}
-            <option value="Other District">Other District / अन्य जिला</option>
           </select>
         </div>
 
-        {/* 4. Tahsil / Tehsil / Block Dropdown */}
+        {/* 4. Tahsil / Tehsil / Block - free text (India has 5,000+ tahsils) */}
         <div>
           <label className="block text-xs font-semibold text-slate-700 mb-1 flex items-center gap-1">
             <Home className="w-3.5 h-3.5 text-emerald-600" />
             4. Tahsil / Block (तहसील)
           </label>
-          <select
+          <input
+            type="text"
             value={tahsil}
-            onChange={(e) => {
-              onChange('tahsil', e.target.value);
-              onChange('village_or_town', '');
-            }}
+            onChange={(e) => onChange('tahsil', e.target.value)}
+            placeholder="e.g. Padampur Tahsil"
             className="w-full bg-white border border-slate-300 rounded-lg py-2 px-3 text-sm text-slate-800 focus:ring-2 focus:ring-[#075E54] focus:outline-none shadow-sm"
-          >
-            <option value="">-- Tahsil chunein --</option>
-            {availableTahsils.map((t) => (
-              <option key={t} value={t}>
-                {t}
-              </option>
-            ))}
-            <option value="Other Tahsil">Other Tahsil / अन्य तहसील</option>
-          </select>
+          />
         </div>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
-        {/* 5. Village / Town name input with quick select fallback */}
+        {/* 5. Village / Town name free text input */}
         <div>
           <div className="flex items-center justify-between mb-1">
             <label className="text-xs font-semibold text-slate-700 flex items-center gap-1">
@@ -167,17 +137,11 @@ export const LocationCascadingSelect: React.FC<LocationCascadingSelectProps> = (
           </div>
           <input
             type="text"
-            list="village-suggestions"
             value={village_or_town}
             onChange={(e) => onChange('village_or_town', e.target.value)}
             placeholder="e.g. Gajsinghpur, Mirzewala, Padampur, Ward 4"
             className="w-full bg-white border border-slate-300 rounded-lg py-2 px-3 text-sm text-slate-800 focus:ring-2 focus:ring-[#075E54] focus:outline-none shadow-sm"
           />
-          <datalist id="village-suggestions">
-            {availableVillages.map((v) => (
-              <option key={v} value={v} />
-            ))}
-          </datalist>
         </div>
 
         {/* 6. Other / Landmark / Free text field */}

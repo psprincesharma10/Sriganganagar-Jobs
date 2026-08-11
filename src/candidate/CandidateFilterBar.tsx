@@ -1,14 +1,8 @@
 import React, { useState } from 'react';
 import { Search, Filter, X, MapPin, Briefcase, Sparkles, CheckCircle } from 'lucide-react';
 import { FilterState } from './candidateTypes';
-import {
-  WORLD_LOCATIONS_DATA,
-  POPULAR_COUNTRIES,
-  getStatesForCountry,
-  getDistrictsForState,
-  getTahsilsForDistrict,
-  getVillagesForTahsil,
-} from './locationsData';
+import { SKILLS_100 } from './skillsData';
+import { INDIA_STATES, getIndiaDistricts } from './indiaLocations';
 
 interface CandidateFilterBarProps {
   filters: FilterState;
@@ -16,25 +10,6 @@ interface CandidateFilterBarProps {
   onResetFilters: () => void;
   totalResults: number;
 }
-
-const SKILLS_LIST = [
-  'All Skills / सभी कार्य',
-  'Driver',
-  'Electrician',
-  'Teacher',
-  'Computer Operator',
-  'Helper / Worker',
-  'Delivery Boy',
-  'Security Guard',
-  'Accountant',
-  'Data Entry',
-  'Plumber',
-  'Painter',
-  'Mason',
-  'Chef / Cook',
-  'Tailor',
-  'Mechanic'
-];
 
 export const CandidateFilterBar: React.FC<CandidateFilterBarProps> = ({
   filters,
@@ -44,10 +19,7 @@ export const CandidateFilterBar: React.FC<CandidateFilterBarProps> = ({
 }) => {
   const [showAdvanced, setShowAdvanced] = useState(false);
 
-  const states = getStatesForCountry(filters.country || 'India');
-  const districts = getDistrictsForState(filters.country || 'India', filters.state);
-  const tahsils = getTahsilsForDistrict(filters.country || 'India', filters.state, filters.district);
-  const villages = getVillagesForTahsil(filters.country || 'India', filters.state, filters.district, filters.tahsil);
+  const districts = getIndiaDistricts(filters.state);
 
   return (
     <div className="bg-white rounded-2xl border border-slate-200 p-4 sm:p-5 shadow-sm space-y-4">
@@ -80,9 +52,10 @@ export const CandidateFilterBar: React.FC<CandidateFilterBarProps> = ({
             onChange={(e) => onFilterChange({ skill: e.target.value })}
             className="w-full py-2.5 px-3 bg-slate-50 border border-slate-300 rounded-xl text-sm font-medium text-slate-800 focus:ring-2 focus:ring-[#075E54] focus:outline-none"
           >
-            {SKILLS_LIST.map((s) => (
-              <option key={s} value={s === 'All Skills / सभी कार्य' ? '' : s}>
-                {s}
+            <option value="">All Skills / सभी कार्य</option>
+            {SKILLS_100.map((s) => (
+              <option key={s.id} value={s.en}>
+                {s.icon} {s.en} ({s.hi})
               </option>
             ))}
           </select>
@@ -113,29 +86,17 @@ export const CandidateFilterBar: React.FC<CandidateFilterBarProps> = ({
       </div>
 
       {/* Cascading Location & Status Filter Options */}
-      {(showAdvanced || filters.country !== 'India' || filters.state || filters.district) && (
-        <div className="pt-3 border-t border-slate-100 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-3 bg-slate-50/80 p-3.5 rounded-xl border border-slate-200">
-          {/* Country */}
+      {(showAdvanced || filters.state || filters.district) && (
+        <div className="pt-3 border-t border-slate-100 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-6 gap-3 bg-slate-50/80 p-3.5 rounded-xl border border-slate-200">
+          {/* Country - locked to India */}
           <div>
             <label className="block text-[11px] font-bold text-slate-600 mb-1">Country</label>
             <select
-              value={filters.country}
-              onChange={(e) =>
-                onFilterChange({
-                  country: e.target.value,
-                  state: '',
-                  district: '',
-                  tahsil: '',
-                  village: '',
-                })
-              }
-              className="w-full py-1.5 px-2 bg-white border border-slate-300 rounded-lg text-xs font-medium text-slate-800"
+              value="India"
+              disabled
+              className="w-full py-1.5 px-2 bg-slate-100 border border-slate-300 rounded-lg text-xs font-medium text-slate-600 cursor-not-allowed"
             >
-              {POPULAR_COUNTRIES.map((c) => (
-                <option key={c} value={c}>
-                  {c}
-                </option>
-              ))}
+              <option value="India">🇮🇳 India</option>
             </select>
           </div>
 
@@ -155,7 +116,7 @@ export const CandidateFilterBar: React.FC<CandidateFilterBarProps> = ({
               className="w-full py-1.5 px-2 bg-white border border-slate-300 rounded-lg text-xs font-medium text-slate-800"
             >
               <option value="">All States</option>
-              {states.map((st) => (
+              {INDIA_STATES.map((st) => (
                 <option key={st} value={st}>
                   {st}
                 </option>
@@ -175,7 +136,8 @@ export const CandidateFilterBar: React.FC<CandidateFilterBarProps> = ({
                   village: '',
                 })
               }
-              className="w-full py-1.5 px-2 bg-white border border-slate-300 rounded-lg text-xs font-medium text-slate-800"
+              disabled={!filters.state}
+              className="w-full py-1.5 px-2 bg-white border border-slate-300 rounded-lg text-xs font-medium text-slate-800 disabled:bg-slate-100 disabled:cursor-not-allowed"
             >
               <option value="">All Districts</option>
               {districts.map((d) => (
@@ -186,26 +148,28 @@ export const CandidateFilterBar: React.FC<CandidateFilterBarProps> = ({
             </select>
           </div>
 
-          {/* Tahsil */}
+          {/* Tahsil - free text (India has 5,000+ tahsils, too many for a dropdown) */}
           <div>
             <label className="block text-[11px] font-bold text-slate-600 mb-1">Tahsil / Block</label>
-            <select
+            <input
+              type="text"
               value={filters.tahsil}
-              onChange={(e) =>
-                onFilterChange({
-                  tahsil: e.target.value,
-                  village: '',
-                })
-              }
-              className="w-full py-1.5 px-2 bg-white border border-slate-300 rounded-lg text-xs font-medium text-slate-800"
-            >
-              <option value="">All Tahsils</option>
-              {tahsils.map((t) => (
-                <option key={t} value={t}>
-                  {t}
-                </option>
-              ))}
-            </select>
+              onChange={(e) => onFilterChange({ tahsil: e.target.value })}
+              placeholder="e.g. Padampur"
+              className="w-full py-1.5 px-2 bg-white border border-slate-300 rounded-lg text-xs font-medium text-slate-800 focus:ring-2 focus:ring-[#075E54] focus:outline-none"
+            />
+          </div>
+
+          {/* Village - free text (India has 6,00,000+ villages, too many for a dropdown) */}
+          <div>
+            <label className="block text-[11px] font-bold text-slate-600 mb-1">Village / Town</label>
+            <input
+              type="text"
+              value={filters.village}
+              onChange={(e) => onFilterChange({ village: e.target.value })}
+              placeholder="e.g. Gajsinghpur"
+              className="w-full py-1.5 px-2 bg-white border border-slate-300 rounded-lg text-xs font-medium text-slate-800 focus:ring-2 focus:ring-[#075E54] focus:outline-none"
+            />
           </div>
 
           {/* Minimum Experience Filter */}

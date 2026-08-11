@@ -21,6 +21,7 @@ interface CandidatePortalProps {
 export default function CandidatePortal({ onBackToMain }: CandidatePortalProps) {
   const [currentView, setCurrentView] = useState<string>('landing');
   const [selectedCandidateId, setSelectedCandidateId] = useState<string | null>(null);
+  const [skillFilterForBrowse, setSkillFilterForBrowse] = useState<string>('');
   const [session, setSession] = useState<UserSession | null>(getStoredSession());
   const [isLoginModalOpen, setIsLoginModalOpen] = useState<boolean>(false);
   const [candidates, setCandidates] = useState<Candidate[]>([]);
@@ -58,7 +59,8 @@ export default function CandidatePortal({ onBackToMain }: CandidatePortalProps) 
   const handleNavigate = (view: string, param?: string) => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
     setCurrentView(view);
-    if (param) setSelectedCandidateId(param);
+    if (view === 'detail' && param) setSelectedCandidateId(param);
+    if (view === 'browse') setSkillFilterForBrowse(param || '');
     // Update hash for SEO
     if (view === 'browse') window.location.hash = '/candidates/browse';
     else if (view === 'profile-form') window.location.hash = '/candidates/profile';
@@ -167,6 +169,7 @@ export default function CandidatePortal({ onBackToMain }: CandidatePortalProps) 
             onNavigate={handleNavigate}
             unlockedCandidateIds={unlockedCandidateIds}
             onUnlockClick={handleUnlockClick}
+            initialSkillFilter={skillFilterForBrowse}
           />
         )}
 
