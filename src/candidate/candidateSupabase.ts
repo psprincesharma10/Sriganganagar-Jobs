@@ -303,7 +303,7 @@ export async function fetchCandidateById(id: string): Promise<Candidate | null> 
         .from('candidates')
         .select('*')
         .eq('id', id)
-        .single();
+        .maybeSingle();
 
       if (!error && data) {
         return data as Candidate;
@@ -324,7 +324,7 @@ export async function fetchCandidateByPhone(phone: string): Promise<Candidate | 
         .from('candidates')
         .select('*')
         .ilike('phone_number', `%${cleanPhone}%`)
-        .single();
+        .maybeSingle();
 
       if (!error && data) {
         return data as Candidate;
@@ -339,7 +339,11 @@ export async function fetchCandidateByPhone(phone: string): Promise<Candidate | 
 
 export async function saveOrUpdateCandidate(candidateData: Partial<Candidate> & { phone_number: string }): Promise<Candidate> {
   const existing = await fetchCandidateByPhone(candidateData.phone_number);
-  const candidateId = candidateData.id || existing?.id || `cand-${Date.now()}`;
+  // IMPORTANT: the "id" column in Supabase is of type UUID, so any new
+  // candidate id must be a real UUID (crypto.randomUUID()) — a plain
+  // string like "cand-172..." causes Postgres to reject the insert with
+  // a 400 Bad Request ("invalid input syntax for type uuid").
+  const candidateId = candidateData.id || existing?.id || crypto.randomUUID();
 
   const fullCandidate: Candidate = {
     id: candidateId,
@@ -369,7 +373,7 @@ export async function saveOrUpdateCandidate(candidateData: Partial<Candidate> & 
         .from('candidates')
         .upsert(fullCandidate)
         .select()
-        .single();
+        .maybeSingle();
 
       if (!error && data) {
         return data as Candidate;
@@ -502,7 +506,7 @@ export async function recordContactUnlock(
   paymentId: string
 ): Promise<ContactUnlock> {
   const unlockRecord: ContactUnlock = {
-    id: `unlock-${Date.now()}`,
+    id: crypto.randomUUID(),
     candidate_id: candidateId,
     employer_phone: employerPhone,
     amount_paid: amount,
@@ -553,7 +557,7 @@ export async function submitEmployerInquiry(
   message: string
 ): Promise<EmployerInquiry> {
   const inquiry: EmployerInquiry = {
-    id: `inq-${Date.now()}`,
+    id: crypto.randomUUID(),
     candidate_id: candidateId,
     employer_name: name,
     employer_phone: phone,
@@ -619,7 +623,7 @@ export async function submitProfileReport(
   reporterContact?: string
 ): Promise<ProfileReport> {
   const report: ProfileReport = {
-    id: `rep-${Date.now()}`,
+    id: crypto.randomUUID(),
     candidate_id: candidateId || undefined,
     reason,
     reporter_contact: reporterContact || undefined,
