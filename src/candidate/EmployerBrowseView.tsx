@@ -62,13 +62,16 @@ export const EmployerBrowseView: React.FC<EmployerBrowseViewProps> = ({
       // Search query (name, bio, skill, village, district)
       if (filters.searchQuery.trim()) {
         const q = filters.searchQuery.toLowerCase();
-        const textToSearch = `${cand.full_name} ${cand.skill_category} ${cand.bio || ''} ${cand.village_or_town || ''} ${cand.district} ${cand.tahsil || ''}`.toLowerCase();
+        const allSkillsText = (cand.skill_categories && cand.skill_categories.length > 0 ? cand.skill_categories : [cand.skill_category]).join(' ');
+        const textToSearch = `${cand.full_name} ${allSkillsText} ${cand.bio || ''} ${cand.village_or_town || ''} ${cand.district} ${cand.tahsil || ''}`.toLowerCase();
         if (!textToSearch.includes(q)) return false;
       }
 
-      // Skill category (partial match so free-text profile skills still match)
-      if (filters.skill && !(cand.skill_category || '').toLowerCase().includes(filters.skill.toLowerCase())) {
-        return false;
+      // Skill category (matches any of the candidate's up-to-5 chosen skills)
+      if (filters.skill) {
+        const skillList = cand.skill_categories && cand.skill_categories.length > 0 ? cand.skill_categories : [cand.skill_category];
+        const matches = skillList.some((sk) => (sk || '').toLowerCase().includes(filters.skill.toLowerCase()));
+        if (!matches) return false;
       }
 
       // Country

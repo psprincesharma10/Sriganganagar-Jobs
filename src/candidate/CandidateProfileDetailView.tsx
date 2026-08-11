@@ -17,6 +17,7 @@ import {
   Loader2
 } from 'lucide-react';
 import { Candidate, TargetLanguage } from './candidateTypes';
+import { formatSalaryDisplay } from './skillsData';
 import {
   fetchCandidateById,
   incrementCandidateViewCount,
@@ -186,9 +187,17 @@ export const CandidateProfileDetailView: React.FC<CandidateProfileDetailViewProp
                 </div>
 
                 <div className="mt-1 flex flex-wrap items-center gap-2">
-                  <span className="bg-amber-400 text-emerald-950 font-black text-xs px-2.5 py-0.5 rounded-md shadow-xs">
-                    {candidate.skill_category}
-                  </span>
+                  {(candidate.skill_categories && candidate.skill_categories.length > 0
+                    ? candidate.skill_categories
+                    : [candidate.skill_category]
+                  ).map((sk) => (
+                    <span
+                      key={sk}
+                      className="bg-amber-400 text-emerald-950 font-black text-xs px-2.5 py-0.5 rounded-md shadow-xs"
+                    >
+                      {sk}
+                    </span>
+                  ))}
                   <span className="bg-emerald-800/80 text-emerald-100 text-xs font-semibold px-2.5 py-0.5 rounded-md border border-emerald-600/50">
                     {candidate.experience_years} Years Exp
                   </span>
@@ -197,7 +206,8 @@ export const CandidateProfileDetailView: React.FC<CandidateProfileDetailViewProp
                 <p className="mt-2 text-xs text-emerald-100 flex items-center gap-1">
                   <MapPin className="w-3.5 h-3.5 text-emerald-300 shrink-0" />
                   <span>
-                    {[candidate.village_or_town, candidate.tahsil, candidate.district, candidate.state, candidate.country]
+                    {/* Privacy: only show City/Village, District & Tahsil to employers — never the exact address/landmark */}
+                    {[candidate.village_or_town, candidate.tahsil, candidate.district]
                       .filter(Boolean)
                       .join(', ')}
                   </span>
@@ -237,7 +247,7 @@ export const CandidateProfileDetailView: React.FC<CandidateProfileDetailViewProp
             <div className="bg-slate-50 p-3 rounded-2xl border border-slate-200">
               <span className="text-[10px] text-slate-400 uppercase font-bold block">Expected Salary</span>
               <span className="text-xs font-extrabold text-slate-800 mt-0.5 block">
-                {candidate.expected_salary || 'Negotiable'}
+                {candidate.expected_salary ? formatSalaryDisplay(candidate.expected_salary) : 'Negotiable'}
               </span>
             </div>
 

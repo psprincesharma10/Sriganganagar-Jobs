@@ -352,6 +352,9 @@ export async function saveOrUpdateCandidate(candidateData: Partial<Candidate> & 
     full_name: candidateData.full_name || 'Anonymous Worker',
     photo_url: candidateData.photo_url || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=300&q=80',
     skill_category: candidateData.skill_category || 'Helper / Worker',
+    skill_categories: candidateData.skill_categories && candidateData.skill_categories.length > 0
+      ? candidateData.skill_categories.slice(0, 5)
+      : existing?.skill_categories || [candidateData.skill_category || 'Helper / Worker'],
     experience_years: candidateData.experience_years ?? 0,
     country: candidateData.country || 'India',
     state: candidateData.state || 'Rajasthan',
@@ -594,6 +597,13 @@ export async function fetchAllInquiries(): Promise<EmployerInquiry[]> {
     }
   }
   return getStoredInquiries();
+}
+
+// Messages received by ONE specific candidate — used to show a
+// "Received Messages" inbox inside the candidate's own "My Profile" page.
+export async function fetchInquiriesForCandidate(candidateId: string): Promise<EmployerInquiry[]> {
+  const all = await fetchAllInquiries();
+  return all.filter((i) => i.candidate_id === candidateId);
 }
 
 // ==========================================

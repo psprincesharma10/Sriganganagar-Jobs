@@ -120,6 +120,20 @@ export function findSkillById(id: string): SkillCategoryItem | undefined {
   return SKILLS_100.find((s) => s.id === id);
 }
 
+// Formats a raw salary string entered by a candidate into a proper
+// rupee display. If the candidate typed plain digits (e.g. "35000") it
+// becomes "₹35,000". If they already typed something descriptive
+// (e.g. "₹18,000 / month" or "Negotiable"), it's left untouched.
+export function formatSalaryDisplay(value?: string): string {
+  if (!value) return '';
+  const trimmed = value.trim();
+  if (/^\d+$/.test(trimmed)) {
+    const num = parseInt(trimmed, 10);
+    return `₹${num.toLocaleString('en-IN')}`;
+  }
+  return trimmed;
+}
+
 // Matches a free-text skill_category value on a candidate record back to
 // a canonical skill (by english or hindi name), used for filtering.
 export function skillMatches(candidateSkill: string, skillId: string): boolean {

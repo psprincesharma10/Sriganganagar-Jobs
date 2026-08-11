@@ -5,6 +5,7 @@ export interface Candidate {
   full_name: string;
   photo_url?: string;
   skill_category: string;
+  skill_categories?: string[]; // up to 5 skills chosen by the candidate
   experience_years: number;
   country: string;
   state: string;
