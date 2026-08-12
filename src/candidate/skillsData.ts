@@ -120,6 +120,14 @@ export function findSkillById(id: string): SkillCategoryItem | undefined {
   return SKILLS_100.find((s) => s.id === id);
 }
 
+// ==========================================
+// CONTACT UNLOCK PAYWALL — TEMPORARY SWITCH
+// ==========================================
+// Set to false: every candidate's phone number is shown to everyone for
+// free (no ₹15 unlock needed) — used to boost early traffic & trust.
+// Set back to true whenever the ₹15 pay-to-unlock system should return.
+export const CONTACT_UNLOCK_ENABLED = false;
+
 // Formats a raw salary string entered by a candidate into a proper
 // rupee display. If the candidate typed plain digits (e.g. "35000") it
 // becomes "₹35,000". If they already typed something descriptive

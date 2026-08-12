@@ -11,7 +11,7 @@ import {
   Sparkles
 } from 'lucide-react';
 import { Candidate } from './candidateTypes';
-import { formatSalaryDisplay } from './skillsData';
+import { formatSalaryDisplay, CONTACT_UNLOCK_ENABLED } from './skillsData';
 
 interface CandidateCardProps {
   candidate: Candidate;
@@ -22,10 +22,13 @@ interface CandidateCardProps {
 
 export const CandidateCard: React.FC<CandidateCardProps> = ({
   candidate,
-  isUnlocked,
+  isUnlocked: isUnlockedProp,
   onUnlockClick,
   onViewDetails,
 }) => {
+  // While CONTACT_UNLOCK_ENABLED is false, every number is shown to
+  // everyone for free — no need to pay/unlock.
+  const isUnlocked = CONTACT_UNLOCK_ENABLED ? isUnlockedProp : true;
   // Format masked phone number
   const rawPhone = candidate.phone_number.replace(/\D/g, '');
   const maskedPhone =
@@ -146,7 +149,7 @@ export const CandidateCard: React.FC<CandidateCardProps> = ({
             </div>
             <div>
               <span className="text-[10px] text-slate-400 uppercase font-bold block leading-none">
-                {isUnlocked ? 'Verified Phone' : 'Masked Phone'}
+                {isUnlocked ? 'Phone Number' : 'Masked Phone'}
               </span>
               <span className="text-sm font-extrabold tracking-wide text-slate-800">
                 {isUnlocked ? candidate.phone_number : maskedPhone}
@@ -162,11 +165,19 @@ export const CandidateCard: React.FC<CandidateCardProps> = ({
               <Lock className="w-3.5 h-3.5" />
               <span>Unlock (₹15)</span>
             </button>
-          ) : (
+          ) : CONTACT_UNLOCK_ENABLED ? (
             <span className="text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded border border-emerald-200 flex items-center gap-1">
               <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
               Unlocked
             </span>
+          ) : (
+            <a
+              href={`tel:${candidate.phone_number}`}
+              className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs py-2 px-3 rounded-lg shadow flex items-center gap-1 transition-all active:scale-95"
+            >
+              <UserCheck className="w-3.5 h-3.5" />
+              <span>Call Now</span>
+            </a>
           )}
         </div>
 

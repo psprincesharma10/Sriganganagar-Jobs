@@ -16,7 +16,7 @@ import {
   Loader2
 } from 'lucide-react';
 import { Candidate, TargetLanguage } from './candidateTypes';
-import { formatSalaryDisplay } from './skillsData';
+import { formatSalaryDisplay, CONTACT_UNLOCK_ENABLED } from './skillsData';
 import {
   fetchCandidateById,
   incrementCandidateViewCount,
@@ -43,11 +43,14 @@ interface CandidateProfileDetailViewProps {
 
 export const CandidateProfileDetailView: React.FC<CandidateProfileDetailViewProps> = ({
   candidateId,
-  isUnlocked,
+  isUnlocked: isUnlockedProp,
   onUnlockClick,
   onNavigate,
   unlockedCandidateIds,
 }) => {
+  // While CONTACT_UNLOCK_ENABLED is false, every number is shown to
+  // everyone for free — no need to pay/unlock.
+  const isUnlocked = CONTACT_UNLOCK_ENABLED ? isUnlockedProp : true;
   const [candidate, setCandidate] = useState<Candidate | null>(null);
   const [similarCandidates, setSimilarCandidates] = useState<Candidate[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -277,7 +280,9 @@ export const CandidateProfileDetailView: React.FC<CandidateProfileDetailViewProp
                 </div>
                 <div>
                   <h4 className="font-extrabold text-slate-900 text-sm">
-                    {isUnlocked ? 'Direct Contact Unlocked!' : 'Candidate Contact Number (Masked)'}
+                    {isUnlocked
+                      ? (CONTACT_UNLOCK_ENABLED ? 'Direct Contact Unlocked!' : 'Candidate Contact Number')
+                      : 'Candidate Contact Number (Masked)'}
                   </h4>
                   <p className="text-xs text-slate-600">
                     {isUnlocked ? 'Contact candidate via Phone Call or WhatsApp' : 'Pay ₹15 to view full number & call'}
