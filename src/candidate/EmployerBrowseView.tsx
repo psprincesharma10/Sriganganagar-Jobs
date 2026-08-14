@@ -10,6 +10,7 @@ interface EmployerBrowseViewProps {
   unlockedCandidateIds: Set<string>;
   onUnlockClick: (candidate: Candidate) => void;
   initialSkillFilter?: string;
+  initialSearchQuery?: string;
 }
 
 const DEFAULT_FILTERS: FilterState = {
@@ -29,6 +30,7 @@ export const EmployerBrowseView: React.FC<EmployerBrowseViewProps> = ({
   unlockedCandidateIds,
   onUnlockClick,
   initialSkillFilter,
+  initialSearchQuery,
 }) => {
   const [candidates, setCandidates] = useState<Candidate[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -36,6 +38,7 @@ export const EmployerBrowseView: React.FC<EmployerBrowseViewProps> = ({
   const [filters, setFilters] = useState<FilterState>({
     ...DEFAULT_FILTERS,
     skill: initialSkillFilter || '',
+    searchQuery: initialSearchQuery || '',
   });
 
   useEffect(() => {
@@ -164,16 +167,28 @@ export const EmployerBrowseView: React.FC<EmployerBrowseViewProps> = ({
       ) : (
         <div className="bg-white rounded-3xl p-10 text-center border border-slate-200 space-y-3">
           <Users className="w-12 h-12 text-slate-300 mx-auto" />
-          <h3 className="text-lg font-bold text-slate-800">No Candidates Found</h3>
+          <h3 className="text-lg font-bold text-slate-800">
+            {filters.skill ? `No ${filters.skill} candidates found` : 'No Candidates Found'}
+          </h3>
           <p className="text-xs text-slate-500 max-w-md mx-auto">
-            Aapke dwara chune gaye filters (skill/location) se koi candidate nahi mila. Kripya location filter badlein ya clear karein.
+            {filters.skill
+              ? `Abhi "${filters.skill}" ke liye koi registered candidate nahi hai. Filters clear karke doosri profession dekhein, ya baad mein dobara check karein.`
+              : 'Aapke dwara chune gaye filters (skill/location) se koi candidate nahi mila. Kripya location filter badlein ya clear karein.'}
           </p>
-          <button
-            onClick={handleResetFilters}
-            className="bg-[#075E54] hover:bg-[#054840] text-white font-bold text-xs py-2 px-4 rounded-xl"
-          >
-            Reset All Filters
-          </button>
+          <div className="flex flex-wrap items-center justify-center gap-2">
+            <button
+              onClick={handleResetFilters}
+              className="bg-[#075E54] hover:bg-[#054840] text-white font-bold text-xs py-2 px-4 rounded-xl"
+            >
+              Clear Filters
+            </button>
+            <button
+              onClick={() => onNavigate('landing')}
+              className="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs py-2 px-4 rounded-xl border border-slate-300"
+            >
+              Browse All 1000+ Job Roles
+            </button>
+          </div>
         </div>
       )}
     </div>

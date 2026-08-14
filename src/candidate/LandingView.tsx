@@ -18,6 +18,15 @@ import {
 import { Candidate } from './candidateTypes';
 import { CandidateCard } from './CandidateCard';
 import { SKILLS_100 } from './skillsData';
+import {
+  JOB_INDUSTRIES,
+  getDepartmentsForIndustry,
+  getRolesForDepartment,
+  TOTAL_INDUSTRIES,
+  TOTAL_DEPARTMENTS,
+  TOTAL_JOB_ROLES,
+} from './jobHierarchyData';
+import { JobHierarchyBrowserModal } from './JobHierarchyBrowserModal';
 
 interface LandingViewProps {
   onNavigate: (view: string, param?: string) => void;
@@ -36,6 +45,19 @@ export const LandingView: React.FC<LandingViewProps> = ({
 }) => {
   const [showAllSkills, setShowAllSkills] = React.useState(false);
   const visibleSkills = showAllSkills ? SKILLS_100 : SKILLS_100.slice(0, 16);
+
+  // Job Hierarchy browse state (Industry -> Department -> Role)
+  const [showAllIndustries, setShowAllIndustries] = React.useState(false);
+  const [expandedIndustryId, setExpandedIndustryId] = React.useState<number | null>(null);
+  const [expandedDeptId, setExpandedDeptId] = React.useState<number | null>(null);
+  const [showHierarchyModal, setShowHierarchyModal] = React.useState(false);
+  const visibleIndustries = showAllIndustries ? JOB_INDUSTRIES : JOB_INDUSTRIES.slice(0, 12);
+  const expandedIndustry = JOB_INDUSTRIES.find((i) => i.id === expandedIndustryId) || null;
+  const expandedIndustryDepts = expandedIndustry ? getDepartmentsForIndustry(expandedIndustry.id) : [];
+
+  const handleRoleClick = (roleName: string) => {
+    onNavigate('browse', roleName);
+  };
 
   return (
     <div className="space-y-12 pb-12">
@@ -98,7 +120,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
         </div>
       </section>
 
-      {/* Popular Skills Categories */}
+      {/* Popular Skills Categories (original quick-pick grid — unchanged) */}
       <section className="space-y-4">
         <div className="flex items-center justify-between">
           <div>
@@ -155,6 +177,126 @@ export const LandingView: React.FC<LandingViewProps> = ({
           </button>
         )}
       </section>
+
+      {/* Full Job Hierarchy: 52 Industries -> 185 Departments -> 1000+ Job Roles */}
+      <section className="space-y-4">
+        <div className="flex items-center justify-between flex-wrap gap-2">
+          <div>
+            <h2 className="text-xl sm:text-2xl font-extrabold text-slate-900 flex items-center gap-2">
+              <Briefcase className="w-6 h-6 text-[#075E54]" />
+              <span>सभी Industries — {TOTAL_JOB_ROLES}+ Job Roles</span>
+            </h2>
+            <p className="text-xs text-slate-500 mt-0.5">
+              {TOTAL_INDUSTRIES} Industries • {TOTAL_DEPARTMENTS} Departments • कोई भी profession चुनें
+            </p>
+          </div>
+          <button
+            onClick={() => setShowHierarchyModal(true)}
+            className="text-xs font-bold text-white bg-[#075E54] hover:bg-[#054840] px-3.5 py-2 rounded-xl flex items-center gap-1.5 shadow-sm"
+          >
+            <Search className="w-3.5 h-3.5" />
+            <span>Browse All {TOTAL_JOB_ROLES}+ Job Roles →</span>
+          </button>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+          {visibleIndustries.map((ind) => {
+            const isOpen = expandedIndustryId === ind.id;
+            return (
+              <div
+                key={ind.id}
+                className={`bg-white rounded-2xl border shadow-xs transition-all ${
+                  isOpen ? 'border-emerald-500/70 ring-2 ring-emerald-100 sm:col-span-2 lg:col-span-3' : 'border-slate-200 hover:border-emerald-500/50'
+                }`}
+              >
+                <button
+                  onClick={() => {
+                    setExpandedIndustryId(isOpen ? null : ind.id);
+                    setExpandedDeptId(null);
+                  }}
+                  className="w-full p-4 flex items-center justify-between gap-3 text-left"
+                >
+                  <div className="flex items-center gap-3 min-w-0">
+                    <span className="text-2xl shrink-0">{ind.icon}</span>
+                    <div className="min-w-0">
+                      <h3 className="text-sm font-bold text-slate-800 truncate">{ind.name}</h3>
+                      <span className="text-[11px] text-slate-500">
+                        {getDepartmentsForIndustry(ind.id).length} Departments
+                      </span>
+                    </div>
+                  </div>
+                  <ChevronRight className={`w-4 h-4 text-slate-400 shrink-0 transition-transform ${isOpen ? 'rotate-90' : ''}`} />
+                </button>
+
+                {isOpen && (
+                  <div className="border-t border-slate-100 p-4 space-y-2">
+                    <p className="text-[11px] text-slate-500 mb-1">{ind.description}</p>
+                    {expandedIndustryDepts.map((dept) => {
+                      const deptOpen = expandedDeptId === dept.id;
+                      const roles = deptOpen ? getRolesForDepartment(dept.id) : [];
+                      return (
+                        <div key={dept.id} className="border border-slate-200 rounded-xl overflow-hidden">
+                          <button
+                            onClick={() => setExpandedDeptId(deptOpen ? null : dept.id)}
+                            className="w-full flex items-center justify-between px-3.5 py-2.5 bg-slate-50 hover:bg-slate-100 text-left"
+                          >
+                            <span className="text-xs font-bold text-slate-800">
+                              {deptOpen ? '▼' : '▶'} {dept.name}
+                            </span>
+                          </button>
+                          {deptOpen && (
+                            <div className="p-3 flex flex-wrap gap-2 bg-white">
+                              {roles.map((role) => (
+                                <button
+                                  key={role.id}
+                                  onClick={() => handleRoleClick(role.name)}
+                                  className="text-xs font-semibold bg-emerald-50 hover:bg-emerald-100 text-emerald-900 border border-emerald-200 px-3 py-1.5 rounded-lg transition-colors"
+                                >
+                                  {role.name}
+                                </button>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+
+                    <button
+                      onClick={() => onNavigate('browse', `search:${ind.name}`)}
+                      className="w-full mt-2 text-xs font-bold text-[#075E54] hover:underline text-center py-1.5"
+                    >
+                      View All {ind.name} Jobs →
+                    </button>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+
+        {!showAllIndustries && (
+          <button
+            onClick={() => setShowAllIndustries(true)}
+            className="w-full py-2.5 rounded-xl border border-dashed border-emerald-300 text-[#075E54] text-xs font-bold hover:bg-emerald-50 transition-colors"
+          >
+            + {JOB_INDUSTRIES.length - visibleIndustries.length} aur industries dekhein
+          </button>
+        )}
+      </section>
+
+      {showHierarchyModal && (
+        <JobHierarchyBrowserModal
+          onClose={() => setShowHierarchyModal(false)}
+          onRoleClick={(roleName) => {
+            setShowHierarchyModal(false);
+            onNavigate('browse', roleName);
+          }}
+          onViewIndustryJobs={(industryName) => {
+            setShowHierarchyModal(false);
+            onNavigate('browse', `search:${industryName}`);
+          }}
+        />
+      )}
 
       {/* Featured Candidates */}
       <section className="space-y-4">

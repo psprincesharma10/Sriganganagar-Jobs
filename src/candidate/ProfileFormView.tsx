@@ -24,6 +24,7 @@ import {
 import { LocationCascadingSelect } from './LocationCascadingSelect';
 import { VoiceInput } from './VoiceInput';
 import { SKILLS_100 } from './skillsData';
+import { JOB_ROLES, TOTAL_JOB_ROLES } from './jobHierarchyData';
 
 interface ProfileFormViewProps {
   session: UserSession;
@@ -41,6 +42,8 @@ export const ProfileFormView: React.FC<ProfileFormViewProps> = ({
   const [photoUrl, setPhotoUrl] = useState('');
   const [skillCategory, setSkillCategory] = useState('Driver');
   const [selectedSkills, setSelectedSkills] = useState<string[]>(['Driver']);
+  const [skillSearchText, setSkillSearchText] = useState('');
+  const [customProfession, setCustomProfession] = useState('');
   const [experienceYears, setExperienceYears] = useState<number>(3);
   const [country, setCountry] = useState('India');
   const [state, setState] = useState('Rajasthan');
@@ -279,40 +282,99 @@ export const ProfileFormView: React.FC<ProfileFormViewProps> = ({
           <div>
             <label className="block text-xs font-bold text-slate-700 mb-1 flex items-center gap-1">
               <Briefcase className="w-3.5 h-3.5 text-[#075E54]" />
-              <span>Skill Categories — max 5 chunein (कार्य क्षेत्र) *</span>
+              <span>Skill Categories — max 5 chunein ({TOTAL_JOB_ROLES}+ professions) *</span>
             </label>
             <p className="text-[11px] text-slate-500 mb-2">
               {selectedSkills.length}/5 chuni gayi
             </p>
+            <input
+              type="text"
+              value={skillSearchText}
+              onChange={(e) => setSkillSearchText(e.target.value)}
+              placeholder={`Apni profession search karein (${TOTAL_JOB_ROLES}+ options)...`}
+              className="w-full bg-white border border-slate-300 rounded-lg py-1.5 px-3 text-xs font-medium mb-1.5 focus:ring-2 focus:ring-[#075E54] focus:outline-none"
+            />
             <div className="max-h-56 overflow-y-auto border border-slate-300 rounded-xl bg-slate-50 p-2 space-y-1">
-              {SKILLS_100.map((sk) => {
-                const checked = selectedSkills.includes(sk.en);
-                const disableUnselected = !checked && selectedSkills.length >= 5;
-                return (
-                  <label
-                    key={sk.id}
-                    className={`flex items-center gap-2 px-2 py-1.5 rounded-lg text-xs font-medium cursor-pointer ${
-                      checked ? 'bg-emerald-100 text-emerald-900' : 'hover:bg-slate-100 text-slate-700'
-                    } ${disableUnselected ? 'opacity-40 cursor-not-allowed' : ''}`}
-                  >
-                    <input
-                      type="checkbox"
-                      checked={checked}
-                      disabled={disableUnselected}
-                      onChange={() => {
-                        setSelectedSkills((prev) =>
-                          checked ? prev.filter((s) => s !== sk.en) : [...prev, sk.en].slice(0, 5)
-                        );
-                      }}
-                      className="accent-[#075E54]"
-                    />
-                    <span>
-                      {sk.icon} {sk.en} ({sk.hi})
-                    </span>
-                  </label>
-                );
-              })}
+              {(() => {
+                const q = skillSearchText.trim().toLowerCase();
+                const roleNames = q
+                  ? JOB_ROLES.filter((r) => r.name.toLowerCase().includes(q)).slice(0, 80).map((r) => r.name)
+                  : SKILLS_100.slice(0, 30).map((s) => s.en);
+                if (roleNames.length === 0) {
+                  return <p className="text-xs text-slate-400 text-center py-3">Koi profession nahi mili.</p>;
+                }
+                return roleNames.map((roleName) => {
+                  const checked = selectedSkills.includes(roleName);
+                  const disableUnselected = !checked && selectedSkills.length >= 5;
+                  return (
+                    <label
+                      key={roleName}
+                      className={`flex items-center gap-2 px-2 py-1.5 rounded-lg text-xs font-medium cursor-pointer ${
+                        checked ? 'bg-emerald-100 text-emerald-900' : 'hover:bg-slate-100 text-slate-700'
+                      } ${disableUnselected ? 'opacity-40 cursor-not-allowed' : ''}`}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={checked}
+                        disabled={disableUnselected}
+                        onChange={() => {
+                          setSelectedSkills((prev) =>
+                            checked ? prev.filter((s) => s !== roleName) : [...prev, roleName].slice(0, 5)
+                          );
+                        }}
+                        className="accent-[#075E54]"
+                      />
+                      <span>{roleName}</span>
+                    </label>
+                  );
+                });
+              })()}
             </div>
+
+            {/* Custom profession — for anything not found in the 1000+ list */}
+            <div className="mt-2 flex items-center gap-2">
+              <input
+                type="text"
+                value={customProfession}
+                onChange={(e) => setCustomProfession(e.target.value)}
+                placeholder="Apni profession nahi mili? Yahan likhein..."
+                className="flex-1 bg-white border border-dashed border-slate-300 rounded-lg py-1.5 px-3 text-xs font-medium focus:ring-2 focus:ring-[#075E54] focus:outline-none"
+              />
+              <button
+                type="button"
+                onClick={() => {
+                  const val = customProfession.trim();
+                  if (!val || selectedSkills.length >= 5) return;
+                  setSelectedSkills((prev) => [...prev, val].slice(0, 5));
+                  setCustomProfession('');
+                }}
+                disabled={!customProfession.trim() || selectedSkills.length >= 5}
+                className="text-xs font-bold bg-slate-800 hover:bg-slate-900 text-white px-3 py-1.5 rounded-lg disabled:opacity-40"
+              >
+                Add
+              </button>
+            </div>
+
+            {/* Currently selected chips */}
+            {selectedSkills.length > 0 && (
+              <div className="flex flex-wrap gap-1.5 mt-2">
+                {selectedSkills.map((sk) => (
+                  <span
+                    key={sk}
+                    className="text-[11px] font-bold bg-[#075E54] text-white px-2 py-1 rounded-md flex items-center gap-1"
+                  >
+                    {sk}
+                    <button
+                      type="button"
+                      onClick={() => setSelectedSkills((prev) => prev.filter((s) => s !== sk))}
+                      className="hover:text-red-300"
+                    >
+                      ×
+                    </button>
+                  </span>
+                ))}
+              </div>
+            )}
           </div>
 
           <div>

@@ -22,6 +22,7 @@ export default function CandidatePortal({ onBackToMain }: CandidatePortalProps) 
   const [currentView, setCurrentView] = useState<string>('landing');
   const [selectedCandidateId, setSelectedCandidateId] = useState<string | null>(null);
   const [skillFilterForBrowse, setSkillFilterForBrowse] = useState<string>('');
+  const [searchQueryForBrowse, setSearchQueryForBrowse] = useState<string>('');
   const [session, setSession] = useState<UserSession | null>(getStoredSession());
   const [isLoginModalOpen, setIsLoginModalOpen] = useState<boolean>(false);
   const [candidates, setCandidates] = useState<Candidate[]>([]);
@@ -60,7 +61,17 @@ export default function CandidatePortal({ onBackToMain }: CandidatePortalProps) 
     window.scrollTo({ top: 0, behavior: 'smooth' });
     setCurrentView(view);
     if (view === 'detail' && param) setSelectedCandidateId(param);
-    if (view === 'browse') setSkillFilterForBrowse(param || '');
+    if (view === 'browse') {
+      // A param starting with "search:" means a broad text search (e.g. "View All
+      // {Industry} Jobs" from the job hierarchy) instead of an exact skill filter.
+      if (param && param.startsWith('search:')) {
+        setSearchQueryForBrowse(param.slice('search:'.length));
+        setSkillFilterForBrowse('');
+      } else {
+        setSkillFilterForBrowse(param || '');
+        setSearchQueryForBrowse('');
+      }
+    }
     // Update hash for SEO
     if (view === 'browse') window.location.hash = '/candidates/browse';
     else if (view === 'profile-form') window.location.hash = '/candidates/profile';
@@ -170,6 +181,7 @@ export default function CandidatePortal({ onBackToMain }: CandidatePortalProps) 
             unlockedCandidateIds={unlockedCandidateIds}
             onUnlockClick={handleUnlockClick}
             initialSkillFilter={skillFilterForBrowse}
+            initialSearchQuery={searchQueryForBrowse}
           />
         )}
 

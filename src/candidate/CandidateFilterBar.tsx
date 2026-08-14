@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Search, Filter, X, MapPin, Briefcase, Sparkles, CheckCircle } from 'lucide-react';
 import { FilterState } from './candidateTypes';
-import { SKILLS_100 } from './skillsData';
+import { JOB_INDUSTRIES, getRolesForIndustry, TOTAL_JOB_ROLES } from './jobHierarchyData';
 import { INDIA_STATES, getIndiaDistricts } from './indiaLocations';
 
 interface CandidateFilterBarProps {
@@ -45,18 +45,22 @@ export const CandidateFilterBar: React.FC<CandidateFilterBarProps> = ({
           )}
         </div>
 
-        {/* Skill Select */}
+        {/* Skill Select — grouped by Industry, sources the full 1000+ role hierarchy */}
         <div className="md:col-span-4 relative">
           <select
             value={filters.skill}
             onChange={(e) => onFilterChange({ skill: e.target.value })}
             className="w-full py-2.5 px-3 bg-slate-50 border border-slate-300 rounded-xl text-sm font-medium text-slate-800 focus:ring-2 focus:ring-[#075E54] focus:outline-none"
           >
-            <option value="">All Skills / सभी कार्य</option>
-            {SKILLS_100.map((s) => (
-              <option key={s.id} value={s.en}>
-                {s.icon} {s.en} ({s.hi})
-              </option>
+            <option value="">All Skills / सभी कार्य ({TOTAL_JOB_ROLES}+ professions)</option>
+            {JOB_INDUSTRIES.map((ind) => (
+              <optgroup key={ind.id} label={`${ind.icon} ${ind.name}`}>
+                {getRolesForIndustry(ind.id).map((role) => (
+                  <option key={role.id} value={role.name}>
+                    {role.name}
+                  </option>
+                ))}
+              </optgroup>
             ))}
           </select>
         </div>
