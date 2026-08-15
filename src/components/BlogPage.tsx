@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { X, PenLine, Lock, Eye, Trash2, Calendar, User, Plus, ChevronLeft, Loader2 } from 'lucide-react';
 import { Language, BlogPost } from '../types';
 import { supabase } from '../supabaseClient';
+import { navigateTo, setCanonicalUrl, setPageTitle } from '../router';
 
 interface BlogPageProps {
   isOpen: boolean;
@@ -175,7 +176,7 @@ export default function BlogPage({ isOpen, onClose, lang, initialPostId, onPosts
       <div className="flex items-center justify-between px-4 sm:px-6 py-3.5 border-b border-slate-100 flex-shrink-0 bg-white rounded-t-3xl">
         <div className="flex items-center gap-2">
           {view !== 'list' && (
-            <button onClick={() => { setView('list'); window.location.hash = '/blog'; }} className="p-1.5 hover:bg-slate-100 rounded-xl cursor-pointer mr-1">
+            <button onClick={() => { setView('list'); navigateTo('/blog'); setCanonicalUrl('/blog'); }} className="p-1.5 hover:bg-slate-100 rounded-xl cursor-pointer mr-1">
               <ChevronLeft size={18} className="text-slate-600" />
             </button>
           )}
@@ -326,7 +327,13 @@ export default function BlogPage({ isOpen, onClose, lang, initialPostId, onPosts
                 posts.map(post => (
                   <div key={post.id}
                     className="border border-slate-100 hover:border-[#128C7E]/30 rounded-2xl p-4 cursor-pointer transition-all hover:shadow-sm group"
-                    onClick={() => { setSelectedPost(post); setView('read'); window.location.hash = `/blog/${post.id}`; }}>
+                    onClick={() => {
+                      setSelectedPost(post);
+                      setView('read');
+                      navigateTo(`/blog/${post.id}`);
+                      setCanonicalUrl(`/blog/${post.id}`);
+                      setPageTitle(`${post.title} | Sri Ganganagar Jobs Blog`);
+                    }}>
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex-1">
                         <span className="text-[10px] font-bold bg-[#eefaf7] text-[#075E54] px-2 py-0.5 rounded-full">

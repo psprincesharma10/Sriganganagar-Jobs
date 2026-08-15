@@ -4,83 +4,83 @@
   <!-- MAIN PAGES -->
   <url>
     <loc>https://www.sriganganagarjobs.in/</loc>
-    <lastmod>2026-08-09</lastmod>
+    <lastmod>2026-08-15</lastmod>
     <changefreq>hourly</changefreq>
     <priority>1.0</priority>
   </url>
 
   <!-- CANDIDATE PORTAL -->
   <url>
-    <loc>https://www.sriganganagarjobs.in/#/candidates</loc>
-    <lastmod>2026-08-09</lastmod>
+    <loc>https://www.sriganganagarjobs.in/candidates</loc>
+    <lastmod>2026-08-15</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.95</priority>
   </url>
   <url>
-    <loc>https://www.sriganganagarjobs.in/#/candidates/browse</loc>
-    <lastmod>2026-08-09</lastmod>
+    <loc>https://www.sriganganagarjobs.in/candidates/browse</loc>
+    <lastmod>2026-08-15</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
 
   <!-- CANDIDATE SKILL CATEGORIES -->
   <url>
-    <loc>https://www.sriganganagarjobs.in/#/candidates/browse?skill=Driver</loc>
-    <lastmod>2026-08-09</lastmod>
+    <loc>https://www.sriganganagarjobs.in/candidates/browse?skill=Driver</loc>
+    <lastmod>2026-08-15</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.85</priority>
   </url>
   <url>
-    <loc>https://www.sriganganagarjobs.in/#/candidates/browse?skill=Electrician</loc>
-    <lastmod>2026-08-09</lastmod>
+    <loc>https://www.sriganganagarjobs.in/candidates/browse?skill=Electrician</loc>
+    <lastmod>2026-08-15</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.85</priority>
   </url>
   <url>
-    <loc>https://www.sriganganagarjobs.in/#/candidates/browse?skill=Teacher</loc>
-    <lastmod>2026-08-09</lastmod>
+    <loc>https://www.sriganganagarjobs.in/candidates/browse?skill=Teacher</loc>
+    <lastmod>2026-08-15</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.85</priority>
   </url>
   <url>
-    <loc>https://www.sriganganagarjobs.in/#/candidates/browse?skill=Computer+Operator</loc>
-    <lastmod>2026-08-09</lastmod>
+    <loc>https://www.sriganganagarjobs.in/candidates/browse?skill=Computer+Operator</loc>
+    <lastmod>2026-08-15</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.85</priority>
   </url>
   <url>
-    <loc>https://www.sriganganagarjobs.in/#/candidates/browse?skill=Security+Guard</loc>
-    <lastmod>2026-08-09</lastmod>
+    <loc>https://www.sriganganagarjobs.in/candidates/browse?skill=Security+Guard</loc>
+    <lastmod>2026-08-15</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.85</priority>
   </url>
   <url>
-    <loc>https://www.sriganganagarjobs.in/#/candidates/browse?skill=Accountant</loc>
-    <lastmod>2026-08-09</lastmod>
+    <loc>https://www.sriganganagarjobs.in/candidates/browse?skill=Accountant</loc>
+    <lastmod>2026-08-15</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.85</priority>
   </url>
   <url>
-    <loc>https://www.sriganganagarjobs.in/#/candidates/browse?skill=Helper+%2F+Worker</loc>
-    <lastmod>2026-08-09</lastmod>
+    <loc>https://www.sriganganagarjobs.in/candidates/browse?skill=Helper+%2F+Worker</loc>
+    <lastmod>2026-08-15</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.85</priority>
   </url>
   <url>
-    <loc>https://www.sriganganagarjobs.in/#/candidates/browse?skill=Data+Entry</loc>
-    <lastmod>2026-08-09</lastmod>
+    <loc>https://www.sriganganagarjobs.in/candidates/browse?skill=Data+Entry</loc>
+    <lastmod>2026-08-15</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.85</priority>
   </url>
   <url>
-    <loc>https://www.sriganganagarjobs.in/#/candidates/browse?skill=Plumber</loc>
-    <lastmod>2026-08-09</lastmod>
+    <loc>https://www.sriganganagarjobs.in/candidates/browse?skill=Plumber</loc>
+    <lastmod>2026-08-15</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://www.sriganganagarjobs.in/#/candidates/browse?skill=Delivery+Boy</loc>
-    <lastmod>2026-08-09</lastmod>
+    <loc>https://www.sriganganagarjobs.in/candidates/browse?skill=Delivery+Boy</loc>
+    <lastmod>2026-08-15</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
@@ -88,43 +88,43 @@
   <!-- JOB SEARCH PAGES -->
   <url>
     <loc>https://www.sriganganagarjobs.in/?q=driver</loc>
-    <lastmod>2026-08-09</lastmod>
+    <lastmod>2026-08-15</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.sriganganagarjobs.in/?q=teacher</loc>
-    <lastmod>2026-08-09</lastmod>
+    <lastmod>2026-08-15</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.sriganganagarjobs.in/?q=helper</loc>
-    <lastmod>2026-08-09</lastmod>
+    <lastmod>2026-08-15</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.sriganganagarjobs.in/?q=computer+operator</loc>
-    <lastmod>2026-08-09</lastmod>
+    <lastmod>2026-08-15</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.sriganganagarjobs.in/?q=accountant</loc>
-    <lastmod>2026-08-09</lastmod>
+    <lastmod>2026-08-15</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://www.sriganganagarjobs.in/?q=security+guard</loc>
-    <lastmod>2026-08-09</lastmod>
+    <lastmod>2026-08-15</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://www.sriganganagarjobs.in/?q=delivery</loc>
-    <lastmod>2026-08-09</lastmod>
+    <lastmod>2026-08-15</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
@@ -132,65 +132,65 @@
   <!-- JOB CATEGORIES -->
   <url>
     <loc>https://www.sriganganagarjobs.in/?category=Full+Time</loc>
-    <lastmod>2026-08-09</lastmod>
+    <lastmod>2026-08-15</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://www.sriganganagarjobs.in/?category=Part+Time</loc>
-    <lastmod>2026-08-09</lastmod>
+    <lastmod>2026-08-15</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://www.sriganganagarjobs.in/?category=Daily+Worker</loc>
-    <lastmod>2026-08-09</lastmod>
+    <lastmod>2026-08-15</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://www.sriganganagarjobs.in/?category=Freelance</loc>
-    <lastmod>2026-08-09</lastmod>
+    <lastmod>2026-08-15</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.7</priority>
   </url>
 
   <!-- STATIC PAGES -->
   <url>
-    <loc>https://www.sriganganagarjobs.in/#/about</loc>
-    <lastmod>2026-08-09</lastmod>
+    <loc>https://www.sriganganagarjobs.in/about</loc>
+    <lastmod>2026-08-15</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://www.sriganganagarjobs.in/#/privacy-policy</loc>
-    <lastmod>2026-08-09</lastmod>
+    <loc>https://www.sriganganagarjobs.in/privacy-policy</loc>
+    <lastmod>2026-08-15</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://www.sriganganagarjobs.in/#/terms</loc>
-    <lastmod>2026-08-09</lastmod>
+    <loc>https://www.sriganganagarjobs.in/terms</loc>
+    <lastmod>2026-08-15</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://www.sriganganagarjobs.in/#/contact</loc>
-    <lastmod>2026-08-09</lastmod>
+    <loc>https://www.sriganganagarjobs.in/contact</loc>
+    <lastmod>2026-08-15</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://www.sriganganagarjobs.in/#/disclaimer</loc>
-    <lastmod>2026-08-09</lastmod>
+    <loc>https://www.sriganganagarjobs.in/disclaimer</loc>
+    <lastmod>2026-08-15</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
 
   <!-- BLOG -->
   <url>
-    <loc>https://www.sriganganagarjobs.in/#/blog</loc>
-    <lastmod>2026-08-09</lastmod>
+    <loc>https://www.sriganganagarjobs.in/blog</loc>
+    <lastmod>2026-08-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.85</priority>
   </url>

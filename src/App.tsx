@@ -18,6 +18,7 @@ import ServiceDetailPage from './components/ServiceDetailPage';
 import CandidatePortal from './candidate/CandidatePortal';
 import { fetchAllCandidates } from './candidate/candidateSupabase';
 import { Candidate } from './candidate/candidateTypes';
+import { navigateTo, getCurrentPath, onRouteChange, migrateLegacyHashUrl, setCanonicalUrl } from './router';
 
 import { 
   Building, 
@@ -273,33 +274,38 @@ export default function App() {
     }
   };
 
-  // --- Hash-based URL routing for AdSense crawlability ---
-  const handleHashChange = () => {
-    const hash = window.location.hash;
-    if (hash === '#/about') { setStaticPage('about'); }
-    else if (hash === '#/privacy-policy') { setStaticPage('privacy'); }
-    else if (hash === '#/terms') { setStaticPage('terms'); }
-    else if (hash === '#/contact') { setStaticPage('contact'); }
-    else if (hash === '#/disclaimer') { setStaticPage('disclaimer'); }
-    else if (hash === '#/advertise') { setStaticPage('advertise'); }
-    else if (hash.startsWith('#/blog')) {
-      const postId = hash.replace('#/blog/', '').replace('#/blog', '') || null;
+  // --- Path-based URL routing (real URLs for Google indexing, not hash) ---
+  const handleRouteChange = () => {
+    const path = getCurrentPath();
+    if (path === '/about') { setStaticPage('about'); setCanonicalUrl(path); }
+    else if (path === '/privacy-policy') { setStaticPage('privacy'); setCanonicalUrl(path); }
+    else if (path === '/terms') { setStaticPage('terms'); setCanonicalUrl(path); }
+    else if (path === '/contact') { setStaticPage('contact'); setCanonicalUrl(path); }
+    else if (path === '/disclaimer') { setStaticPage('disclaimer'); setCanonicalUrl(path); }
+    else if (path === '/advertise') { setStaticPage('advertise'); setCanonicalUrl(path); }
+    else if (path.startsWith('/blog')) {
+      const postId = path.replace('/blog/', '').replace('/blog', '') || null;
       setBlogReadPostId(postId || null);
       setShowBlog(true);
+      setCanonicalUrl(path);
     }
-    else if (hash.startsWith('#/candidates')) {
+    else if (path.startsWith('/candidates')) {
       setShowCandidatePortal(true);
+      setCanonicalUrl(path);
     }
     else {
       setStaticPage(null);
       setShowCandidatePortal(false);
+      if (path === '/') setCanonicalUrl('/');
     }
   };
 
   useEffect(() => {
-    handleHashChange();
-    window.addEventListener('hashchange', handleHashChange);
-    return () => window.removeEventListener('hashchange', handleHashChange);
+    // Convert any old bookmarked "#/..." link into a clean path once, then route normally.
+    migrateLegacyHashUrl();
+    handleRouteChange();
+    const unsubscribe = onRouteChange(handleRouteChange);
+    return unsubscribe;
   }, []);
 
   useEffect(() => {
@@ -764,7 +770,7 @@ export default function App() {
       <CandidatePortal
         onBackToMain={() => {
           setShowCandidatePortal(false);
-          window.history.pushState(null, '', window.location.pathname);
+          navigateTo('/');
         }}
       />
     );
@@ -833,7 +839,7 @@ export default function App() {
                 <Megaphone size={11} />Business Ad Lagao
               </button>
               <button id="header-candidates-btn"
-                onClick={() => { setShowCandidatePortal(true); window.location.hash = '/candidates'; }}
+                onClick={() => { setShowCandidatePortal(true); navigateTo('/candidates'); }}
                 className="px-3 py-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-white text-[11px] font-black flex items-center gap-1.5 cursor-pointer">
                 👷 Candidates
               </button>
@@ -841,7 +847,7 @@ export default function App() {
                 className="px-3 py-1.5 rounded-xl bg-white hover:bg-slate-100 text-[#075E54] text-[11px] font-black flex items-center gap-1 cursor-pointer">
                 📄 Resume
               </button>
-              <button onClick={() => { setStaticPage('contact'); window.location.hash = '/contact'; }}
+              <button onClick={() => { setStaticPage('contact'); navigateTo('/contact'); }}
                 className="px-3 py-1.5 rounded-xl bg-slate-700 hover:bg-slate-600 text-white text-[11px] font-black flex items-center gap-1 cursor-pointer">
                 📞 Contact
               </button>
@@ -866,7 +872,7 @@ export default function App() {
                 <button onClick={handleToggleLang} className="px-2 py-1 rounded-lg bg-purple-500 text-white text-[10px] font-bold cursor-pointer">
                   {lang === 'en' ? 'हिंदी' : 'EN'}
                 </button>
-                <button onClick={() => { setShowCandidatePortal(true); window.location.hash = '/candidates'; }}
+                <button onClick={() => { setShowCandidatePortal(true); navigateTo('/candidates'); }}
                   className="px-2 py-1 rounded-lg bg-emerald-500 text-white text-[10px] font-black cursor-pointer">
                   👷
                 </button>
@@ -889,7 +895,7 @@ export default function App() {
               <button onClick={() => { setNewsReadPostId(null); setShowNews(true); }} className="py-2 rounded-xl bg-rose-500 text-white text-[10px] font-black flex items-center justify-center gap-1 cursor-pointer">
                 News
               </button>
-              <button onClick={() => { setShowCandidatePortal(true); window.location.hash = '/candidates'; }} className="py-2 rounded-xl bg-emerald-500 text-white text-[10px] font-black flex items-center justify-center gap-1 cursor-pointer">
+              <button onClick={() => { setShowCandidatePortal(true); navigateTo('/candidates'); }} className="py-2 rounded-xl bg-emerald-500 text-white text-[10px] font-black flex items-center justify-center gap-1 cursor-pointer">
                 👷 Candidates
               </button>
             </div>
@@ -988,7 +994,7 @@ export default function App() {
                 className="px-4 py-2.5 rounded-xl bg-white hover:bg-slate-50 text-[#075E54] font-black text-xs shadow-lg cursor-pointer transition-colors whitespace-nowrap">
                 📢 Business Ad Lagao
               </button>
-              <button onClick={() => { setShowCandidatePortal(true); window.location.hash = '/candidates'; }}
+              <button onClick={() => { setShowCandidatePortal(true); navigateTo('/candidates'); }}
                 className="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs shadow-lg cursor-pointer transition-colors whitespace-nowrap">
                 👷 Candidates
               </button>
@@ -1279,7 +1285,7 @@ export default function App() {
               <h3 className="text-xs font-black text-slate-700 uppercase tracking-wider">
                 ⭐ Featured Candidates
               </h3>
-              <button onClick={() => { setShowCandidatePortal(true); window.location.hash = '/candidates'; }}
+              <button onClick={() => { setShowCandidatePortal(true); navigateTo('/candidates'); }}
                 className="text-[10px] text-emerald-700 font-black border border-emerald-200 bg-emerald-50 px-2 py-1 rounded-lg cursor-pointer hover:bg-emerald-100">
                 View All →
               </button>
@@ -1287,7 +1293,7 @@ export default function App() {
             {sidebarCandidates.length === 0 ? (
               <div className="text-center py-4 text-xs text-slate-400">
                 <p>Koi candidate nahi mila</p>
-                <button onClick={() => { setShowCandidatePortal(true); window.location.hash = '/candidates'; }}
+                <button onClick={() => { setShowCandidatePortal(true); navigateTo('/candidates'); }}
                   className="mt-2 text-emerald-600 font-bold underline cursor-pointer">
                   Candidate Portal Open Karein
                 </button>
@@ -1296,7 +1302,7 @@ export default function App() {
               <div className="space-y-2.5">
                 {sidebarCandidates.map(c => (
                   <div key={c.id}
-                    onClick={() => { setShowCandidatePortal(true); window.location.hash = '/candidates'; }}
+                    onClick={() => { setShowCandidatePortal(true); navigateTo('/candidates'); }}
                     className="flex items-center gap-2.5 cursor-pointer hover:bg-slate-50 rounded-xl p-1.5 transition-colors group">
                     <img
                       src={c.photo_url || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=60&q=80'}
@@ -1598,22 +1604,22 @@ export default function App() {
             {/* Col 2 — Quick Links */}
             <div className="space-y-2">
               <p className="text-[11px] font-black text-slate-300 uppercase tracking-wider mb-3">Quick Links</p>
-              <a href="#/about" className="block text-slate-400 hover:text-white transition-colors py-0.5">About Us (हमारे बारे में)</a>
-              <a href="#/privacy-policy" className="block text-slate-400 hover:text-white transition-colors py-0.5">Privacy Policy</a>
-              <a href="#/disclaimer" className="block text-slate-400 hover:text-white transition-colors py-0.5">Disclaimer</a>
-              <a href="#/advertise" className="block text-red-400 hover:text-red-300 transition-colors font-bold py-0.5">Report Scam Job</a>
-              <a href="#/blog" className="block text-slate-400 hover:text-white transition-colors py-0.5">✍️ Blog</a>
+              <a href="/about" onClick={(e) => { e.preventDefault(); navigateTo('/about'); }} className="block text-slate-400 hover:text-white transition-colors py-0.5">About Us (हमारे बारे में)</a>
+              <a href="/privacy-policy" onClick={(e) => { e.preventDefault(); navigateTo('/privacy-policy'); }} className="block text-slate-400 hover:text-white transition-colors py-0.5">Privacy Policy</a>
+              <a href="/disclaimer" onClick={(e) => { e.preventDefault(); navigateTo('/disclaimer'); }} className="block text-slate-400 hover:text-white transition-colors py-0.5">Disclaimer</a>
+              <a href="/advertise" onClick={(e) => { e.preventDefault(); navigateTo('/advertise'); }} className="block text-red-400 hover:text-red-300 transition-colors font-bold py-0.5">Report Scam Job</a>
+              <a href="/blog" onClick={(e) => { e.preventDefault(); navigateTo('/blog'); }} className="block text-slate-400 hover:text-white transition-colors py-0.5">✍️ Blog</a>
               <button onClick={() => { setNewsReadPostId(null); setShowNews(true); }} className="block text-left text-slate-400 hover:text-white transition-colors py-0.5 w-full cursor-pointer">📰 Local News</button>
             </div>
 
             {/* Col 3 — Information */}
             <div className="space-y-2">
               <p className="text-[11px] font-black text-slate-300 uppercase tracking-wider mb-3">Information</p>
-              <a href="#/contact" className="block text-slate-400 hover:text-white transition-colors py-0.5">Contact Us</a>
-              <a href="#/terms" className="block text-slate-400 hover:text-white transition-colors py-0.5">Terms & Conditions</a>
-              <a href="#/advertise" className="block text-amber-400 hover:text-amber-300 font-bold transition-colors py-0.5">Advertise With Us (विज्ञापन)</a>
+              <a href="/contact" onClick={(e) => { e.preventDefault(); navigateTo('/contact'); }} className="block text-slate-400 hover:text-white transition-colors py-0.5">Contact Us</a>
+              <a href="/terms" onClick={(e) => { e.preventDefault(); navigateTo('/terms'); }} className="block text-slate-400 hover:text-white transition-colors py-0.5">Terms & Conditions</a>
+              <a href="/advertise" onClick={(e) => { e.preventDefault(); navigateTo('/advertise'); }} className="block text-amber-400 hover:text-amber-300 font-bold transition-colors py-0.5">Advertise With Us (विज्ञापन)</a>
               <button onClick={() => setShowResume(true)} className="block text-left text-[#25D366] hover:text-green-300 font-bold transition-colors py-0.5 w-full cursor-pointer">📄 Free Resume Builder</button>
-              <button onClick={() => { setShowCandidatePortal(true); window.location.hash = '/candidates'; }} className="block text-left text-emerald-400 hover:text-emerald-300 font-bold transition-colors py-0.5 w-full cursor-pointer">👷 Candidates</button>
+              <button onClick={() => { setShowCandidatePortal(true); navigateTo('/candidates'); }} className="block text-left text-emerald-400 hover:text-emerald-300 font-bold transition-colors py-0.5 w-full cursor-pointer">👷 Candidates</button>
               <button onClick={() => setShowServices(true)} className="block text-left text-slate-400 hover:text-white transition-colors py-0.5 w-full cursor-pointer">🛠️ Our Services</button>
             </div>
 
@@ -1712,7 +1718,7 @@ export default function App() {
       {/* Blog Page */}
       <BlogPage
         isOpen={showBlog}
-        onClose={() => { setShowBlog(false); setBlogReadPostId(null); window.history.pushState(null, '', window.location.pathname); }}
+        onClose={() => { setShowBlog(false); setBlogReadPostId(null); navigateTo('/'); }}
         lang={lang}
         initialPostId={blogReadPostId}
         onPostsChanged={loadBlogPosts}
@@ -1752,7 +1758,7 @@ export default function App() {
         <StaticPage
           page={staticPage}
           lang={lang}
-          onClose={() => { setStaticPage(null); window.history.pushState(null, '', window.location.pathname); }}
+          onClose={() => { setStaticPage(null); navigateTo('/'); }}
         />
       )}
 

@@ -13,6 +13,7 @@ import { CandidateProfileDetailView } from './CandidateProfileDetailView';
 import { EmployerBrowseView } from './EmployerBrowseView';
 import { AdminDashboardView as CandidateAdminView } from './CandidateAdminView';
 import { LandingView } from './LandingView';
+import { navigateTo, getCurrentPath, onRouteChange, setCanonicalUrl, setPageTitle } from '../router';
 
 interface CandidatePortalProps {
   onBackToMain: () => void;
@@ -45,16 +46,21 @@ export default function CandidatePortal({ onBackToMain }: CandidatePortalProps) 
     load();
   }, [session?.phone_number]);
 
-  // Handle hash routing for candidate portal
+  // Path-based routing for candidate portal (real URLs, no "#")
   useEffect(() => {
-    const hash = window.location.hash;
-    if (hash === '#/candidates/browse') setCurrentView('browse');
-    else if (hash === '#/candidates/profile') setCurrentView('profile-form');
-    else if (hash.startsWith('#/candidates/detail/')) {
-      const id = hash.replace('#/candidates/detail/', '');
-      setSelectedCandidateId(id);
-      setCurrentView('detail');
-    }
+    const applyRouteFromPath = () => {
+      const path = getCurrentPath();
+      if (path === '/candidates/browse') setCurrentView('browse');
+      else if (path === '/candidates/profile') setCurrentView('profile-form');
+      else if (path.startsWith('/candidates/detail/')) {
+        const id = path.replace('/candidates/detail/', '');
+        setSelectedCandidateId(id);
+        setCurrentView('detail');
+      }
+    };
+    applyRouteFromPath();
+    const unsubscribe = onRouteChange(applyRouteFromPath);
+    return unsubscribe;
   }, []);
 
   const handleNavigate = (view: string, param?: string) => {
@@ -72,11 +78,28 @@ export default function CandidatePortal({ onBackToMain }: CandidatePortalProps) 
         setSearchQueryForBrowse('');
       }
     }
-    // Update hash for SEO
-    if (view === 'browse') window.location.hash = '/candidates/browse';
-    else if (view === 'profile-form') window.location.hash = '/candidates/profile';
-    else if (view === 'detail' && param) window.location.hash = `/candidates/detail/${param}`;
-    else if (view === 'landing') window.location.hash = '/candidates';
+    // Update the real URL (and page title/canonical) for SEO — each candidate
+    // portal section now has its own indexable URL instead of a "#" fragment.
+    if (view === 'browse') {
+      navigateTo('/candidates/browse');
+      setCanonicalUrl('/candidates/browse');
+      setPageTitle(
+        param
+          ? `${param} Jobs & Candidates in Sri Ganganagar | Sri Ganganagar Jobs`
+          : 'Search Workers & Candidates in Sri Ganganagar | Sri Ganganagar Jobs'
+      );
+    } else if (view === 'profile-form') {
+      navigateTo('/candidates/profile');
+      setCanonicalUrl('/candidates/profile');
+      setPageTitle('Candidate Profile — Sri Ganganagar Jobs');
+    } else if (view === 'detail' && param) {
+      navigateTo(`/candidates/detail/${param}`);
+      setCanonicalUrl(`/candidates/detail/${param}`);
+    } else if (view === 'landing') {
+      navigateTo('/candidates');
+      setCanonicalUrl('/candidates');
+      setPageTitle('Candidate Portal — 1000+ Job Roles | Sri Ganganagar Jobs');
+    }
   };
 
   const handleLogout = () => {

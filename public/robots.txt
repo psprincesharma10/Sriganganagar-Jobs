@@ -2,17 +2,17 @@ User-agent: *
 Allow: /
 
 # Important pages
-Allow: /#/candidates
-Allow: /#/candidates/browse
-Allow: /#/blog
-Allow: /#/about
-Allow: /#/privacy-policy
-Allow: /#/terms
-Allow: /#/contact
+Allow: /candidates
+Allow: /candidates/browse
+Allow: /blog
+Allow: /about
+Allow: /privacy-policy
+Allow: /terms
+Allow: /contact
 
 # Block admin areas
 Disallow: /admin
-Disallow: /#/candidate/dashboard
-Disallow: /#/candidate/profile
+Disallow: /candidate/dashboard
+Disallow: /candidate/profile
 
 Sitemap: https://www.sriganganagarjobs.in/sitemap.xml
