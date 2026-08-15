@@ -17,7 +17,6 @@ import {
 } from 'lucide-react';
 import { Candidate } from './candidateTypes';
 import { CandidateCard } from './CandidateCard';
-import { SKILLS_100 } from './skillsData';
 import {
   JOB_INDUSTRIES,
   getDepartmentsForIndustry,
@@ -43,9 +42,6 @@ export const LandingView: React.FC<LandingViewProps> = ({
   unlockedCandidateIds,
   onUnlockClick,
 }) => {
-  const [showAllSkills, setShowAllSkills] = React.useState(false);
-  const visibleSkills = showAllSkills ? SKILLS_100 : SKILLS_100.slice(0, 16);
-
   // Job Hierarchy browse state (Industry -> Department -> Role)
   const [showAllIndustries, setShowAllIndustries] = React.useState(false);
   const [expandedIndustryId, setExpandedIndustryId] = React.useState<number | null>(null);
@@ -120,74 +116,16 @@ export const LandingView: React.FC<LandingViewProps> = ({
         </div>
       </section>
 
-      {/* Popular Skills Categories (original quick-pick grid — unchanged) */}
-      <section className="space-y-4">
-        <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-xl sm:text-2xl font-extrabold text-slate-900 flex items-center gap-2">
-              <Briefcase className="w-6 h-6 text-[#075E54]" />
-              <span>मुख्य कार्य क्षेत्र (Skill Categories)</span>
-            </h2>
-            <p className="text-xs text-slate-500 mt-0.5">
-              अपनी स्किल चुनें और उपलब्ध वर्कर्स की सूची देखें
-            </p>
-          </div>
-
-          <button
-            onClick={() => setShowAllSkills((v) => !v)}
-            className="text-xs font-bold text-[#075E54] hover:underline flex items-center gap-1"
-          >
-            <span>{showAllSkills ? 'कम दिखाएं' : `सभी ${SKILLS_100.length} देखें`}</span>
-            <ChevronRight className={`w-4 h-4 transition-transform ${showAllSkills ? 'rotate-90' : ''}`} />
-          </button>
-        </div>
-
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
-          {visibleSkills.map((sk) => (
-            <div
-              key={sk.id}
-              onClick={() => onNavigate('browse', sk.en)}
-              title={sk.desc}
-              className="bg-white p-4 rounded-2xl border border-slate-200 hover:border-emerald-500/60 shadow-xs hover:shadow-md transition-all cursor-pointer group flex items-start gap-3"
-            >
-              <span className="text-2xl group-hover:scale-110 transition-transform shrink-0">
-                {sk.icon}
-              </span>
-              <div className="min-w-0">
-                <h3 className="text-xs sm:text-sm font-bold text-slate-800 truncate group-hover:text-[#075E54]">
-                  {sk.en}
-                </h3>
-                <span className="text-[11px] text-slate-500 font-medium">
-                  {sk.hi}
-                </span>
-                <p className="text-[10px] text-emerald-700 mt-0.5 leading-snug line-clamp-2">
-                  {sk.desc}
-                </p>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {!showAllSkills && (
-          <button
-            onClick={() => setShowAllSkills(true)}
-            className="w-full py-2.5 rounded-xl border border-dashed border-emerald-300 text-[#075E54] text-xs font-bold hover:bg-emerald-50 transition-colors"
-          >
-            + {SKILLS_100.length - visibleSkills.length} aur categories dekhein
-          </button>
-        )}
-      </section>
-
-      {/* Full Job Hierarchy: 52 Industries -> 185 Departments -> 1000+ Job Roles */}
+      {/* Job Categories: 52 Industries -> 185 Departments -> 1000+ Job Roles (single unified section) */}
       <section className="space-y-4">
         <div className="flex items-center justify-between flex-wrap gap-2">
           <div>
             <h2 className="text-xl sm:text-2xl font-extrabold text-slate-900 flex items-center gap-2">
               <Briefcase className="w-6 h-6 text-[#075E54]" />
-              <span>सभी Industries — {TOTAL_JOB_ROLES}+ Job Roles</span>
+              <span>मुख्य कार्य क्षेत्र (Skill Categories) — {TOTAL_JOB_ROLES}+ Job Roles</span>
             </h2>
             <p className="text-xs text-slate-500 mt-0.5">
-              {TOTAL_INDUSTRIES} Industries • {TOTAL_DEPARTMENTS} Departments • कोई भी profession चुनें
+              {TOTAL_INDUSTRIES} Industries • {TOTAL_DEPARTMENTS} Departments • अपनी स्किल चुनें और उपलब्ध वर्कर्स की सूची देखें
             </p>
           </div>
           <button
