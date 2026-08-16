@@ -13,6 +13,7 @@ export interface Job {
   is_featured?: boolean;       // Featured job (paid)
   salary_range?: string;       // e.g. "8000-12000"
   job_type?: string;           // Full Time / Part Time etc
+  location?: string;           // City/District where the job is (Rajasthan-wide)
   utr_number?: string;         // UTR payment proof
   payment_screenshot?: string; // base64 screenshot
   payment_phone?: string;      // who paid

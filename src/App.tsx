@@ -19,6 +19,7 @@ import CandidatePortal from './candidate/CandidatePortal';
 import { fetchAllCandidates } from './candidate/candidateSupabase';
 import { Candidate } from './candidate/candidateTypes';
 import { navigateTo, getCurrentPath, onRouteChange, migrateLegacyHashUrl, setCanonicalUrl } from './router';
+import { RAJASTHAN_CITIES_FOR_BROWSE } from './data/rajasthanCities';
 
 import { 
   Building, 
@@ -71,6 +72,7 @@ export default function App() {
   // --- Filtering & Search States ---
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
+  const [selectedLocation, setSelectedLocation] = useState<string>('All');
   const [currentPage, setCurrentPage] = useState(1);
   const JOBS_PER_PAGE = 20;
 
@@ -142,6 +144,7 @@ export default function App() {
           phone_hidden: typeof row.phone_hidden === 'boolean' ? row.phone_hidden : false,
           expires_at: row.expires_at || new Date().toISOString(),
           pinned: typeof row.pinned === 'boolean' ? row.pinned : false,
+          location: row.location || undefined,
         }));
       } else {
         console.log('Jobs table in Supabase is empty. Commencing auto-seed of default jobs...');
@@ -175,6 +178,7 @@ export default function App() {
             phone_hidden: typeof row.phone_hidden === 'boolean' ? row.phone_hidden : false,
             expires_at: row.expires_at || new Date().toISOString(),
             pinned: typeof row.pinned === 'boolean' ? row.pinned : false,
+            location: row.location || undefined,
           }));
         } else {
           finalJobs = INITIAL_JOBS;
@@ -451,6 +455,7 @@ export default function App() {
           phone_hidden: jobData.phone_hidden || false,
           expires_at: expiryDate.toISOString(),
           pinned: isFeatured, // Featured jobs pinned at top
+          location: jobData.location || null,
         }]);
 
       if (error) { console.error('Job insert error:', error); throw error; }
@@ -715,7 +720,14 @@ export default function App() {
       job.job_title_en.toLowerCase().includes(selectedCategory.toLowerCase()) ||
       job.job_title_hi.toLowerCase().includes(selectedCategory.toLowerCase());
 
-    return matchesSearch && matchesCategory;
+    // Location match: uses the real "location" field when available, and
+    // falls back to the "📍 City" line embedded in older job descriptions
+    // (posted before the location field existed) so old posts still filter correctly.
+    const matchesLocation = selectedLocation === 'All' ||
+      (job.location && job.location.toLowerCase() === selectedLocation.toLowerCase()) ||
+      job.job_description_en.toLowerCase().includes(`📍 ${selectedLocation}`.toLowerCase());
+
+    return matchesSearch && matchesCategory && matchesLocation;
   });
 
   // Sort: Pinned first, then by creation date newest first
@@ -797,7 +809,7 @@ export default function App() {
           <div className="hidden sm:flex items-center justify-between gap-2">
 
             {/* LEFT — Logo */}
-            <button onClick={() => { setSearchQuery(''); setSelectedCategory('All'); setCurrentPage(1); window.scrollTo({top:0,behavior:'smooth'}); }}
+            <button onClick={() => { setSearchQuery(''); setSelectedCategory('All'); setSelectedLocation('All'); setCurrentPage(1); window.scrollTo({top:0,behavior:'smooth'}); }}
               className="flex items-center gap-2 cursor-pointer hover:opacity-90 transition-opacity bg-transparent border-none outline-none flex-shrink-0">
               <div className="p-2 bg-white/10 rounded-xl">
                 <Building size={22} className="text-[#25D366] stroke-[2.5]" />
@@ -858,7 +870,7 @@ export default function App() {
           <div className="sm:hidden">
             {/* Top row — Logo */}
             <div className="flex items-center justify-between mb-2">
-              <button onClick={() => { setSearchQuery(''); setSelectedCategory('All'); setCurrentPage(1); window.scrollTo({top:0,behavior:'smooth'}); }}
+              <button onClick={() => { setSearchQuery(''); setSelectedCategory('All'); setSelectedLocation('All'); setCurrentPage(1); window.scrollTo({top:0,behavior:'smooth'}); }}
                 className="flex items-center gap-2 cursor-pointer bg-transparent border-none outline-none">
                 <div className="p-1.5 bg-white/10 rounded-xl">
                   <Building size={20} className="text-[#25D366]" />
@@ -1027,13 +1039,43 @@ export default function App() {
         </div>
       </div>
 
-
+      {/* Browse Jobs by City — Rajasthan-wide (also helps local SEO with a page section per city) */}
+      <div className="max-w-6xl mx-auto px-4 mt-4">
+        <div className="bg-white rounded-2xl border border-slate-200 p-4 sm:p-5">
+          <h3 className="text-sm font-black text-slate-800 mb-3 flex items-center gap-1.5">
+            <span>📍</span>
+            <span>{lang === 'en' ? 'Browse Jobs & Candidates by City (Rajasthan)' : 'शहर के अनुसार जॉब्स व कैंडिडेट्स देखें (राजस्थान)'}</span>
+          </h3>
+          <div className="flex flex-wrap gap-2">
+            {RAJASTHAN_CITIES_FOR_BROWSE.map((city) => (
+              <button
+                key={city}
+                onClick={() => {
+                  setSelectedLocation(city);
+                  setSelectedCategory('All');
+                  setSearchQuery('');
+                  setCurrentPage(1);
+                  const el = document.getElementById('job-listings-section');
+                  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }}
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                  selectedLocation === city
+                    ? 'bg-[#128C7E] text-white shadow-xs'
+                    : 'bg-[#F0F2F5] hover:bg-[#ECE5DD] text-slate-700'
+                }`}
+              >
+                {city}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
 
       {/* Main Container */}
       <main className="max-w-6xl mx-auto px-4 py-6 md:py-8 grid grid-cols-1 lg:grid-cols-12 gap-6">
         
         {/* Left / Middle Main Feed Section (8 cols) */}
-        <section className="lg:col-span-8 space-y-6">
+        <section className="lg:col-span-8 space-y-6" id="job-listings-section">
 
           {/* Admin Dashboard Active state */}
           {isAdmin && (
@@ -1122,6 +1164,23 @@ export default function App() {
                   </button>
                 ))}
               </div>
+            </div>
+
+            {/* Location Filter */}
+            <div className="space-y-2">
+              <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider block">
+                📍 {lang === 'en' ? 'Filter by Location (City)' : 'शहर के अनुसार फ़िल्टर करें'}
+              </span>
+              <select
+                value={selectedLocation}
+                onChange={(e) => setSelectedLocation(e.target.value)}
+                className="w-full sm:w-auto px-3 py-2 rounded-xl border border-slate-200 text-xs font-bold text-slate-700 bg-white focus:outline-none focus:ring-2 focus:ring-[#128C7E] cursor-pointer"
+              >
+                <option value="All">{lang === 'en' ? 'All Cities (Rajasthan)' : 'सभी शहर (राजस्थान)'}</option>
+                {RAJASTHAN_CITIES_FOR_BROWSE.map((city) => (
+                  <option key={city} value={city}>{city}</option>
+                ))}
+              </select>
             </div>
 
           </div>

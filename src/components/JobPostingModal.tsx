@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Job, Language } from '../types';
 import { X, Briefcase, AlertCircle, Phone, Sparkles } from 'lucide-react';
+import { CITY_LIST } from '../data/rajasthanCities';
 
 interface JobPostingModalProps {
   isOpen: boolean;
@@ -15,15 +16,6 @@ const JOB_CATEGORIES = [
   { en: 'Freelance', hi: 'फ्रीलांस' },
   { en: 'Daily Worker', hi: 'दैनिक मजदूर' },
   { en: 'Other', hi: 'अन्य' },
-];
-
-const CITY_LIST = [
-  'Sri Ganganagar', 'Hanumangarh', 'Suratgarh', 'Raisinghnagar', 'Padampur',
-  'Gharsana', 'Gajsinghpur', 'Karanpur', 'Keshrisinghpur', 'Sangaria',
-  'Sadulsahar', 'Vijaynagar', 'Jaitsar', 'Abohar', 'Anupgarh', 'Rawatsar',
-  'Nohar', 'Bhadra', 'Pilibanga', 'Tibi', 'Lalgarh Jattan', 'Sherewala',
-  'Anoopgarh', 'Ridhi Sidhi', 'Gol Bazar', 'Meera Chowk', 'Padampur Road',
-  'Other',
 ];
 
 export default function JobPostingModal({
@@ -76,6 +68,7 @@ export default function JobPostingModal({
       phone: cleanPhone,
       poster_name: posterName.trim() || undefined,
       phone_hidden: false,
+      location: city,
     } as any);
 
     setTitle('');
