@@ -59,6 +59,8 @@ export interface BlogPost {
   category: string;
   date: string;
   author: string;
+  header_image?: string;   // Shown above the title (card thumbnail + top of full post)
+  images?: string[];       // Up to 3 more images shown spaced through the content + one at the end
 }
 
 export interface NewsPost {

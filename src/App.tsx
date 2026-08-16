@@ -1410,10 +1410,15 @@ export default function App() {
                 {blogPosts.map(post => (
                   <div key={post.id}
                     onClick={() => { setBlogReadPostId(post.id); setShowBlog(true); }}
-                    className="cursor-pointer group pb-3 border-b border-slate-50 last:border-0 last:pb-0">
-                    <span className="text-[10px] bg-[#eefaf7] text-[#075E54] px-2 py-0.5 rounded-full font-bold">{post.category}</span>
-                    <p className="text-xs font-black text-slate-800 group-hover:text-[#075E54] transition-colors leading-tight mt-1.5 mb-1">{post.title}</p>
-                    <p className="text-[10px] text-slate-500 line-clamp-2 leading-relaxed">{post.content.substring(0, 90)}...</p>
+                    className="cursor-pointer group pb-3 border-b border-slate-50 last:border-0 last:pb-0 flex gap-2.5">
+                    {post.header_image && (
+                      <img src={post.header_image} alt="" className="w-14 h-14 rounded-lg object-cover shrink-0" />
+                    )}
+                    <div className="min-w-0">
+                      <span className="text-[10px] bg-[#eefaf7] text-[#075E54] px-2 py-0.5 rounded-full font-bold">{post.category}</span>
+                      <p className="text-xs font-black text-slate-800 group-hover:text-[#075E54] transition-colors leading-tight mt-1.5 mb-1">{post.title}</p>
+                      <p className="text-[10px] text-slate-500 line-clamp-2 leading-relaxed">{post.content.substring(0, 90)}...</p>
+                    </div>
                   </div>
                 ))}
               </div>
