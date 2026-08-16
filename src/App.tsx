@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Job, Ad, Language, BlogPost, NewsPost } from './types';
 import { INITIAL_JOBS, INITIAL_ADS } from './data';
 import JobCard from './components/JobCard';
+import JobDetailPage from './components/JobDetailPage';
 import AdBanner from './components/AdBanner';
 import JobPostingModal from './components/JobPostingModal';
 import AdPostingModal from './components/AdPostingModal';
@@ -95,6 +96,7 @@ export default function App() {
   const [showServices, setShowServices] = useState(false);
   const [activeServiceId, setActiveServiceId] = useState<string | null>(null);
   const [showCandidatePortal, setShowCandidatePortal] = useState(false);
+  const [viewingJobId, setViewingJobId] = useState<string | null>(null);
   const [sidebarCandidates, setSidebarCandidates] = useState<Candidate[]>([]);
   const [installBannerDismissed, setInstallBannerDismissed] = useState(() => {
     return localStorage.getItem('sgn_install_dismissed') === 'true';
@@ -297,9 +299,15 @@ export default function App() {
       setShowCandidatePortal(true);
       setCanonicalUrl(path);
     }
+    else if (path.startsWith('/jobs/')) {
+      const id = path.replace('/jobs/', '');
+      setViewingJobId(id);
+      setCanonicalUrl(path);
+    }
     else {
       setStaticPage(null);
       setShowCandidatePortal(false);
+      setViewingJobId(null);
       if (path === '/') setCanonicalUrl('/');
     }
   };
@@ -788,6 +796,37 @@ export default function App() {
     );
   }
 
+  // Show a dedicated single Job Detail Page (real page, not a popup)
+  if (viewingJobId) {
+    const job = jobs.find(j => String(j.id) === viewingJobId);
+    if (job) {
+      const relatedJobs = jobs.filter(j =>
+        j.id !== job.id &&
+        (j.job_title_en.split('(')[0].trim().toLowerCase() === job.job_title_en.split('(')[0].trim().toLowerCase())
+      );
+      return (
+        <JobDetailPage
+          job={job}
+          lang={lang}
+          relatedJobs={relatedJobs}
+          onOpenRelated={(rj) => { setViewingJobId(String(rj.id)); navigateTo(`/jobs/${rj.id}`); }}
+          onBack={() => { setViewingJobId(null); navigateTo('/'); }}
+        />
+      );
+    }
+    if (isLoading || jobs.length === 0) {
+      return (
+        <div className="min-h-screen flex items-center justify-center bg-slate-50">
+          <div className="text-center text-slate-400">
+            <div className="w-8 h-8 border-4 border-slate-200 border-t-[#075E54] rounded-full animate-spin mx-auto mb-3" />
+            <p className="text-sm">Loading job details...</p>
+          </div>
+        </div>
+      );
+    }
+    // Job genuinely not found (deleted/expired) — fall through to homepage below.
+  }
+
   return (
     <div id="app-root-wrapper" className="min-h-screen bg-[#F0F2F5] text-slate-900 font-sans selection:bg-[#25D366]/30">
       
@@ -1261,6 +1300,7 @@ export default function App() {
                         onTogglePhone={handleToggleJobPhone}
                         onTogglePin={handleToggleJobPin}
                         onUnlockClick={handleUnlockContact}
+                        onOpenDetail={(j) => { setViewingJobId(String(j.id)); navigateTo(`/jobs/${j.id}`); }}
                       />
                     );
 

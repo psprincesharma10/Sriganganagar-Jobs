@@ -375,11 +375,10 @@ export default function BlogPage({ isOpen, onClose, lang, initialPostId, onPosts
   );
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
-      <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={handleClose} />
-      <div className="bg-white w-full sm:max-w-3xl rounded-t-3xl sm:rounded-3xl shadow-2xl relative z-10 max-h-[94vh] flex flex-col">
+    <div className="min-h-screen bg-slate-50">
+      <div className="bg-white max-w-3xl mx-auto min-h-screen shadow-sm flex flex-col">
       {/* Top bar */}
-      <div className="px-4 sm:px-6 py-4 border-b border-slate-100 flex items-center justify-between shrink-0">
+      <div className="px-4 sm:px-6 py-4 border-b border-slate-100 flex items-center justify-between shrink-0 sticky top-0 bg-white z-10">
         <div className="flex items-center gap-2">
           {view !== 'list' && (
             <button onClick={() => { setView('list'); resetForm(); }} className="p-1.5 hover:bg-slate-100 rounded-xl cursor-pointer -ml-1.5">

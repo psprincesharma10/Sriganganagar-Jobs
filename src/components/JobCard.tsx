@@ -10,6 +10,7 @@ interface JobCardProps {
   onTogglePhone?: (id: string) => void;
   onTogglePin?: (id: string) => void;
   onUnlockClick: (job: Job) => void;
+  onOpenDetail?: (job: Job) => void;
 }
 
 export default function JobCard({
@@ -19,6 +20,7 @@ export default function JobCard({
   onDelete,
   onTogglePhone,
   onTogglePin,
+  onOpenDetail,
 }: JobCardProps) {
 
   const getDaysAgoText = (dateStr: string) => {
@@ -78,14 +80,26 @@ export default function JobCard({
       </div>
 
       {/* Title */}
-      <h3 className="text-lg font-bold text-slate-900 tracking-tight mb-2">
+      <h3
+        onClick={() => onOpenDetail?.(job)}
+        className={`text-lg font-bold text-slate-900 tracking-tight mb-2 ${onOpenDetail ? 'cursor-pointer hover:text-[#075E54] hover:underline transition-colors' : ''}`}
+      >
         {title || (lang === 'en' ? job.job_title_hi : job.job_title_en)}
       </h3>
 
       {/* Description */}
-      <p className="text-slate-600 text-sm whitespace-pre-wrap leading-relaxed mb-4">
+      <p className="text-slate-600 text-sm whitespace-pre-wrap leading-relaxed mb-3">
         {description || (lang === 'en' ? job.job_description_hi : job.job_description_en)}
       </p>
+
+      {onOpenDetail && (
+        <button
+          onClick={() => onOpenDetail(job)}
+          className="text-xs font-bold text-[#075E54] hover:underline mb-3 cursor-pointer"
+        >
+          {lang === 'en' ? 'View Full Details →' : 'पूरी जानकारी देखें →'}
+        </button>
+      )}
 
       {/* Footer Contact */}
       <div className="flex flex-wrap items-center justify-between gap-3 pt-4 border-t border-slate-100">
