@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Job, Language } from '../types';
 import { X, Star, Phone, AlertCircle, Upload, Copy, CheckCircle, Briefcase } from 'lucide-react';
+import { CITY_LIST } from '../data/rajasthanCities';
 
 interface FeaturedJobModalProps {
   isOpen: boolean;
@@ -20,13 +21,6 @@ const JOB_CATEGORIES = [
   { en: 'Freelance', hi: 'फ्रीलांस' },
   { en: 'Daily Worker', hi: 'दैनिक मजदूर' },
   { en: 'Other', hi: 'अन्य' },
-];
-
-const CITY_LIST = [
-  'Sri Ganganagar','Hanumangarh','Suratgarh','Raisinghnagar','Padampur',
-  'Gharsana','Gajsinghpur','Karanpur','Keshrisinghpur','Sangaria',
-  'Sadulsahar','Vijaynagar','Jaitsar','Abohar','Anupgarh','Rawatsar',
-  'Nohar','Bhadra','Pilibanga','Other',
 ];
 
 export default function FeaturedJobModal({ isOpen, onClose, lang, onPostFeaturedJob }: FeaturedJobModalProps) {
@@ -115,6 +109,7 @@ export default function FeaturedJobModal({ isOpen, onClose, lang, onPostFeatured
       payment_date: `${paymentDate} ${paymentTime}`,
       payment_amount: FEATURED_PRICE,
       payment_screenshot: screenshot,
+      location: city,
     });
     setSubmitting(false);
     setStep('done');
