@@ -61,6 +61,11 @@ export interface BlogPost {
   author: string;
   header_image?: string;   // Shown above the title (card thumbnail + top of full post)
   images?: string[];       // Up to 3 more images shown spaced through the content + one at the end
+  article_type?: string;   // e.g. "Career Guide", "Resume / CV Guide" — from BLOG_ARTICLE_TYPES
+  seo_title?: string;
+  slug?: string;
+  meta_description?: string;
+  keywords?: string;
 }
 
 export interface NewsPost {
@@ -69,6 +74,17 @@ export interface NewsPost {
   content: string;
   category: string;
   date: string;
+  header_image?: string;
+  images?: string[];
+  article_type?: string;   // from NEWS_ARTICLE_TYPES
+  seo_title?: string;
+  slug?: string;
+  meta_description?: string;
+  keywords?: string;
+  source_type?: string;    // Official Government Source / Press Release / etc
+  source_name?: string;
+  source_url?: string;
+  verification_status?: string; // "Source provided by editor" | "Pending editorial verification" — never falsely "Verified"
 }
 
 export type Language = 'en' | 'hi';

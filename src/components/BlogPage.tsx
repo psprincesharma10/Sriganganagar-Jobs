@@ -1,8 +1,14 @@
-import React, { useState, useEffect } from 'react';
-import { X, PenLine, Lock, Eye, Trash2, Calendar, User, Plus, ChevronLeft, Loader2, Image as ImageIcon, Upload, Pencil } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { X, PenLine, Lock, Eye, Trash2, Calendar, User, Plus, ChevronLeft, Loader2, Image as ImageIcon, Upload, Pencil, ScanEye, Search } from 'lucide-react';
 import { Language, BlogPost } from '../types';
 import { supabase } from '../supabaseClient';
 import { navigateTo, setCanonicalUrl, setPageTitle } from '../router';
+import { RichTextEditor, RichTextEditorHandle, sanitizeHtml } from './RichTextEditor';
+import { ArticleTypeSelector } from './ArticleTypeSelector';
+import { AiArticleAssistant } from './AiArticleAssistant';
+import { SeoAudit } from './SeoAudit';
+import { ArticlePreviewModal } from './ArticlePreviewModal';
+import { BLOG_ARTICLE_TYPES } from '../data/articleTemplates';
 
 interface BlogPageProps {
   isOpen: boolean;
@@ -22,6 +28,20 @@ const DEFAULT_POST = {
   category: 'Announcement',
   author: 'Prince Sharma'
 };
+
+// Detects whether stored content is HTML (from the new rich editor) vs
+// plain text (from older posts written before the WYSIWYG editor existed),
+// so both formats keep rendering correctly without any data migration.
+function isHtmlContent(content: string): boolean {
+  return /<\/?[a-z][\s\S]*>/i.test(content);
+}
+
+function stripHtmlForPreview(content: string): string {
+  if (!isHtmlContent(content)) return content;
+  const div = document.createElement('div');
+  div.innerHTML = content;
+  return div.textContent || div.innerText || '';
+}
 
 // Reads a File as a base64 data URL (same pattern used elsewhere in this app for image uploads)
 function readFileAsBase64(file: File): Promise<string> {
@@ -113,12 +133,19 @@ export default function BlogPage({ isOpen, onClose, lang, initialPostId, onPosts
   // Write/Edit form state
   const [editingPostId, setEditingPostId] = useState<string | null>(null);
   const [title, setTitle] = useState('');
-  const [content, setContent] = useState('');
+  const [content, setContent] = useState(''); // HTML (new) or plain text (legacy posts)
   const [category, setCategory] = useState('Job Tips');
   const [author, setAuthor] = useState('Prince Sharma');
   const [headerImage, setHeaderImage] = useState<string>('');
-  const [inlineImages, setInlineImages] = useState<string[]>([]); // up to 3
+  const [inlineImages, setInlineImages] = useState<string[]>([]); // up to 3, only used for legacy plain-text posts
   const [uploadingSlot, setUploadingSlot] = useState<string | null>(null);
+  const [articleType, setArticleType] = useState('');
+  const [seoTitle, setSeoTitle] = useState('');
+  const [slug, setSlug] = useState('');
+  const [metaDescription, setMetaDescription] = useState('');
+  const [keywords, setKeywords] = useState('');
+  const [showPreview, setShowPreview] = useState(false);
+  const editorRef = useRef<RichTextEditorHandle>(null);
 
   const [loading, setLoading] = useState(false);
   const [publishing, setPublishing] = useState(false);
@@ -133,6 +160,11 @@ export default function BlogPage({ isOpen, onClose, lang, initialPostId, onPosts
     author: row.author || 'Prince Sharma',
     header_image: row.header_image || undefined,
     images: Array.isArray(row.images) ? row.images : [],
+    article_type: row.article_type || undefined,
+    seo_title: row.seo_title || undefined,
+    slug: row.slug || undefined,
+    meta_description: row.meta_description || undefined,
+    keywords: row.keywords || undefined,
   });
 
   const loadPosts = async (jumpToId?: string | null) => {
@@ -213,6 +245,11 @@ export default function BlogPage({ isOpen, onClose, lang, initialPostId, onPosts
     setAuthor('Prince Sharma');
     setHeaderImage('');
     setInlineImages([]);
+    setArticleType('');
+    setSeoTitle('');
+    setSlug('');
+    setMetaDescription('');
+    setKeywords('');
   };
 
   const startEdit = (post: BlogPost) => {
@@ -223,6 +260,11 @@ export default function BlogPage({ isOpen, onClose, lang, initialPostId, onPosts
     setAuthor(post.author);
     setHeaderImage(post.header_image || '');
     setInlineImages(post.images || []);
+    setArticleType(post.article_type || '');
+    setSeoTitle(post.seo_title || '');
+    setSlug(post.slug || '');
+    setMetaDescription(post.meta_description || '');
+    setKeywords(post.keywords || '');
     setView('write');
   };
 
@@ -254,17 +296,25 @@ export default function BlogPage({ isOpen, onClose, lang, initialPostId, onPosts
     setInlineImages((prev) => prev.filter((_, i) => i !== index));
   };
 
+  const slugify = (s: string) =>
+    s.toLowerCase().trim().replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-');
+
   const handlePublish = async () => {
     if (!title.trim() || !content.trim()) return;
     setPublishing(true);
     try {
       const payload = {
         title: title.trim(),
-        content: content.trim(),
+        content: sanitizeHtml(content.trim()),
         category,
         author: author.trim() || 'Prince Sharma',
         header_image: headerImage || null,
         images: inlineImages.filter(Boolean),
+        article_type: articleType || null,
+        seo_title: seoTitle.trim() || null,
+        slug: (slug.trim() || slugify(title)) || null,
+        meta_description: metaDescription.trim() || null,
+        keywords: keywords.trim() || null,
       };
 
       if (editingPostId) {
@@ -472,9 +522,28 @@ export default function BlogPage({ isOpen, onClose, lang, initialPostId, onPosts
                 </div>
               </div>
 
+              {/* Article Type + Templates + Section Builder */}
+              <ArticleTypeSelector
+                types={BLOG_ARTICLE_TYPES}
+                selectedType={articleType}
+                onSelectType={setArticleType}
+                onInsertTemplate={(html) => editorRef.current?.insertHtml(html)}
+                onInsertSection={(html) => editorRef.current?.insertHtml(html)}
+              />
+
+              {/* AI Article Assistant */}
+              <AiArticleAssistant
+                articleType={BLOG_ARTICLE_TYPES.find(t => t.id === articleType)?.label || ''}
+                title={title}
+                fullContentPlainText={content.replace(/<[^>]+>/g, ' ')}
+                onInsertHtml={(html) => editorRef.current?.insertHtml(html)}
+                onApplyMetaDescription={setMetaDescription}
+                onApplyKeywords={setKeywords}
+              />
+
               {/* Header Image */}
               <ImageSlot
-                label="📌 Header Image (sabse upar, title ke upar dikhegi) *recommended*"
+                label="📌 Header / Featured Image (sabse upar, title ke upar dikhegi) *recommended*"
                 value={headerImage}
                 onUpload={handleHeaderImageUpload}
                 onRemove={headerImage ? () => setHeaderImage('') : undefined}
@@ -483,35 +552,64 @@ export default function BlogPage({ isOpen, onClose, lang, initialPostId, onPosts
 
               <div>
                 <label className="text-xs font-bold text-slate-600 uppercase tracking-wider block mb-1">Content *</label>
-                <textarea rows={14} value={content} onChange={e => setContent(e.target.value)}
-                  placeholder="Yahan apna blog likho... (Hindi ya English dono mein likh sakte hain). Alag paragraphs ke beech ek khaali line chhodein."
-                  className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#128C7E] text-sm resize-none leading-relaxed" />
-                <p className="text-[11px] text-slate-400 mt-1">Tip: Paragraphs ke beech ek khaali line chhodo — neeche wali images automatically un paragraphs ke beech-beech mein aur last mein set ho jaayengi.</p>
+                <RichTextEditor
+                  key={editingPostId || 'new-blog'}
+                  ref={editorRef}
+                  value={content}
+                  onChange={setContent}
+                  placeholder="Yahan apna blog likho... (Hindi ya English dono mein likh sakte hain). Toolbar se headings, bold, list, table, image, sab kuch use kar sakte ho."
+                />
               </div>
 
-              {/* Inline Images */}
-              <div>
-                <label className="text-xs font-bold text-slate-600 uppercase tracking-wider block mb-2">
-                  🖼️ Beech aur Last ki Images (max 3 — content ke beech-beech aur end mein dikhengi)
-                </label>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                  {[0, 1, 2].map((idx) => (
-                    <ImageSlot
-                      key={idx}
-                      label={idx === 2 ? 'Last Image' : `Image ${idx + 2}`}
-                      value={inlineImages[idx] || ''}
-                      onUpload={(file) => handleInlineImageUpload(idx, file)}
-                      onRemove={inlineImages[idx] ? () => removeInlineImage(idx) : undefined}
-                      uploading={uploadingSlot === `inline-${idx}`}
-                    />
-                  ))}
+              {/* SEO Fields */}
+              <div className="border border-slate-200 rounded-xl p-4 space-y-3">
+                <h4 className="text-xs font-black text-slate-700 uppercase tracking-wide">SEO Fields</h4>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-[10px] font-bold text-slate-500 uppercase">SEO Title</label>
+                    <input value={seoTitle} onChange={e => setSeoTitle(e.target.value)} placeholder={title || 'Post title'}
+                      className="w-full text-xs p-2 rounded-lg border border-slate-200 focus:outline-none focus:ring-1 focus:ring-[#128C7E]" />
+                  </div>
+                  <div>
+                    <label className="text-[10px] font-bold text-slate-500 uppercase">SEO Slug</label>
+                    <input value={slug} onChange={e => setSlug(e.target.value)} placeholder="auto-generate-from-title"
+                      className="w-full text-xs p-2 rounded-lg border border-slate-200 focus:outline-none focus:ring-1 focus:ring-[#128C7E]" />
+                  </div>
+                  <div className="sm:col-span-2">
+                    <label className="text-[10px] font-bold text-slate-500 uppercase">Meta Description</label>
+                    <textarea value={metaDescription} onChange={e => setMetaDescription(e.target.value)} rows={2}
+                      className="w-full text-xs p-2 rounded-lg border border-slate-200 focus:outline-none focus:ring-1 focus:ring-[#128C7E] resize-none" />
+                  </div>
+                  <div className="sm:col-span-2">
+                    <label className="text-[10px] font-bold text-slate-500 uppercase">Keywords</label>
+                    <input value={keywords} onChange={e => setKeywords(e.target.value)}
+                      className="w-full text-xs p-2 rounded-lg border border-slate-200 focus:outline-none focus:ring-1 focus:ring-[#128C7E]" />
+                  </div>
                 </div>
               </div>
 
+              {/* Live SEO Audit */}
+              <SeoAudit
+                title={title}
+                seoTitle={seoTitle}
+                slug={slug || slugify(title)}
+                metaDescription={metaDescription}
+                htmlContent={content}
+                headerImage={headerImage}
+              />
+
               <div className="flex gap-3">
                 <button onClick={() => { setView('list'); resetForm(); }}
-                  className="flex-1 py-3 rounded-xl border border-slate-200 text-sm font-bold text-slate-500 hover:bg-slate-50 cursor-pointer">
+                  className="py-3 px-4 rounded-xl border border-slate-200 text-sm font-bold text-slate-500 hover:bg-slate-50 cursor-pointer">
                   Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowPreview(true)}
+                  disabled={!title.trim() || !content.trim()}
+                  className="py-3 px-4 rounded-xl border border-slate-300 text-sm font-bold text-slate-600 hover:bg-slate-50 disabled:opacity-40 cursor-pointer flex items-center gap-2"
+                >
+                  <ScanEye size={15} />Preview
                 </button>
                 <button onClick={handlePublish} disabled={!title.trim() || !content.trim() || publishing}
                   className="flex-1 py-3 rounded-xl bg-[#25D366] hover:bg-[#20ba5a] disabled:bg-slate-200 disabled:text-slate-400 text-slate-900 font-black text-sm cursor-pointer flex items-center justify-center gap-2">
@@ -521,6 +619,18 @@ export default function BlogPage({ isOpen, onClose, lang, initialPostId, onPosts
                     : (editingPostId ? 'Changes Save Karein' : 'Publish Karein')}
                 </button>
               </div>
+
+              {showPreview && (
+                <ArticlePreviewModal
+                  onClose={() => setShowPreview(false)}
+                  title={title}
+                  category={category}
+                  articleType={BLOG_ARTICLE_TYPES.find(t => t.id === articleType)?.label}
+                  author={author}
+                  headerImage={headerImage}
+                  htmlContent={content}
+                />
+              )}
             </div>
           )}
 
@@ -546,7 +656,14 @@ export default function BlogPage({ isOpen, onClose, lang, initialPostId, onPosts
               </div>
               <div className="h-px bg-slate-100" />
               <div>
-                {renderContentWithImages(selectedPost.content, selectedPost.images || [])}
+                {isHtmlContent(selectedPost.content) ? (
+                  <div
+                    className="text-[15px] text-slate-700 leading-relaxed rich-preview-body"
+                    dangerouslySetInnerHTML={{ __html: sanitizeHtml(selectedPost.content) }}
+                  />
+                ) : (
+                  renderContentWithImages(selectedPost.content, selectedPost.images || [])
+                )}
               </div>
               {isAdmin && (
                 <div className="flex items-center gap-4 pt-2">

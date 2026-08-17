@@ -295,6 +295,12 @@ export default function App() {
       setShowBlog(true);
       setCanonicalUrl(path);
     }
+    else if (path.startsWith('/news')) {
+      const postId = path.replace('/news/', '').replace('/news', '') || null;
+      setNewsReadPostId(postId || null);
+      setShowNews(true);
+      setCanonicalUrl(path);
+    }
     else if (path.startsWith('/candidates')) {
       setShowCandidatePortal(true);
       setCanonicalUrl(path);
