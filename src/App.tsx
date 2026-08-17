@@ -1084,38 +1084,6 @@ export default function App() {
         </div>
       </div>
 
-      {/* Browse Jobs by City — Rajasthan-wide (also helps local SEO with a page section per city) */}
-      <div className="max-w-6xl mx-auto px-4 mt-4">
-        <div className="bg-white rounded-2xl border border-slate-200 p-4 sm:p-5">
-          <h3 className="text-sm font-black text-slate-800 mb-3 flex items-center gap-1.5">
-            <span>📍</span>
-            <span>{lang === 'en' ? 'Browse Jobs & Candidates by City (Rajasthan)' : 'शहर के अनुसार जॉब्स व कैंडिडेट्स देखें (राजस्थान)'}</span>
-          </h3>
-          <div className="flex flex-wrap gap-2">
-            {RAJASTHAN_CITIES_FOR_BROWSE.map((city) => (
-              <button
-                key={city}
-                onClick={() => {
-                  setSelectedLocation(city);
-                  setSelectedCategory('All');
-                  setSearchQuery('');
-                  setCurrentPage(1);
-                  const el = document.getElementById('job-listings-section');
-                  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                }}
-                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                  selectedLocation === city
-                    ? 'bg-[#128C7E] text-white shadow-xs'
-                    : 'bg-[#F0F2F5] hover:bg-[#ECE5DD] text-slate-700'
-                }`}
-              >
-                {city}
-              </button>
-            ))}
-          </div>
-        </div>
-      </div>
-
       {/* Main Container */}
       <main className="max-w-6xl mx-auto px-4 py-6 md:py-8 grid grid-cols-1 lg:grid-cols-12 gap-6">
         

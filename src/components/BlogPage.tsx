@@ -425,7 +425,7 @@ export default function BlogPage({ isOpen, onClose, lang, initialPostId, onPosts
   );
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="fixed inset-0 z-50 bg-slate-50 overflow-y-auto">
       <div className="bg-white max-w-3xl mx-auto min-h-screen shadow-sm flex flex-col">
       {/* Top bar */}
       <div className="px-4 sm:px-6 py-4 border-b border-slate-100 flex items-center justify-between shrink-0 sticky top-0 bg-white z-10">
