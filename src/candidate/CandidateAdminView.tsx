@@ -5,6 +5,7 @@ import {
   XCircle,
   Trash2,
   Eye,
+  Pencil,
   DollarSign,
   Phone,
   MessageSquare,
@@ -261,6 +262,13 @@ export const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({ onNaviga
                         title="View Profile"
                       >
                         <Eye className="w-3.5 h-3.5" />
+                      </button>
+                      <button
+                        onClick={() => onNavigate('admin-edit-profile', c.phone_number)}
+                        className="p-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 rounded font-bold"
+                        title="Edit Profile"
+                      >
+                        <Pencil className="w-3.5 h-3.5" />
                       </button>
                       <button
                         onClick={() => handleDelete(c.id)}

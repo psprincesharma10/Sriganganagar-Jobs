@@ -29,6 +29,11 @@ export default function CandidatePortal({ onBackToMain }: CandidatePortalProps) 
   const [candidates, setCandidates] = useState<Candidate[]>([]);
   const [unlockedCandidateIds, setUnlockedCandidateIds] = useState<Set<string>>(new Set());
   const [unlockModalCandidate, setUnlockModalCandidate] = useState<Candidate | null>(null);
+  // When admin edits a candidate's profile from the Admin Panel, this holds
+  // a temporary session pointing at that candidate — separate from the
+  // real logged-in user's own session, so admin editing never logs the
+  // real user out or overwrites their own session.
+  const [adminEditSession, setAdminEditSession] = useState<UserSession | null>(null);
 
   useEffect(() => {
     async function load() {
@@ -65,8 +70,16 @@ export default function CandidatePortal({ onBackToMain }: CandidatePortalProps) 
 
   const handleNavigate = (view: string, param?: string) => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
-    setCurrentView(view);
+    setCurrentView(view === 'admin-edit-profile' ? 'profile-form' : view);
     if (view === 'detail' && param) setSelectedCandidateId(param);
+    // Admin editing a specific candidate's profile — set a temp session
+    // pointing at that candidate's phone number, distinct from the real user session.
+    if (view === 'admin-edit-profile' && param) {
+      setAdminEditSession({ phone_number: param, is_logged_in: true });
+    } else if (view !== 'profile-form') {
+      // Leaving the profile form for any reason other than staying on it clears admin-edit mode
+      setAdminEditSession(null);
+    }
     if (view === 'browse') {
       // A param starting with "search:" means a broad text search (e.g. "View All
       // {Industry} Jobs" from the job hierarchy) instead of an exact skill filter.
@@ -209,13 +222,18 @@ export default function CandidatePortal({ onBackToMain }: CandidatePortalProps) 
         )}
 
         {currentView === 'profile-form' && (
-          session?.is_logged_in ? (
+          (adminEditSession || session?.is_logged_in) ? (
             <ProfileFormView
-              session={session}
+              session={adminEditSession || session!}
               onSaved={(cand) => {
                 setCandidates((prev) => [cand, ...prev.filter((c) => c.id !== cand.id)]);
+                if (adminEditSession) {
+                  // Admin was editing someone else's profile — go back to Admin Panel, not their own dashboard
+                  setAdminEditSession(null);
+                  handleNavigate('admin');
+                }
               }}
-              onDeleted={handleLogout}
+              onDeleted={adminEditSession ? () => { setAdminEditSession(null); handleNavigate('admin'); } : handleLogout}
             />
           ) : (
             <div className="bg-white rounded-3xl p-8 text-center max-w-md mx-auto my-12 border border-slate-200 shadow-sm space-y-4">

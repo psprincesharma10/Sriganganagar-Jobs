@@ -591,17 +591,9 @@ export default function NewsPage({ isOpen, onClose, lang, initialPostId, onPosts
                     <div key={post.id}
                       className="border border-slate-100 hover:border-[#128C7E]/30 rounded-2xl overflow-hidden cursor-pointer transition-all hover:shadow-sm group">
                       {post.header_image && (
-                        <img src={post.header_image} alt="" onClick={() => {
-                          setSelectedPost(post); setView('read');
-                          navigateTo(`/news/${post.id}`); setCanonicalUrl(`/news/${post.id}`);
-                          setPageTitle(`${post.title} | Sri Ganganagar Jobs News`);
-                        }} className="w-full h-32 object-cover" />
+                        <img src={post.header_image} alt="" onClick={() => window.open(`/news/${post.id}`, '_blank')} className="w-full h-32 object-cover" />
                       )}
-                      <div className="p-4" onClick={() => {
-                        setSelectedPost(post); setView('read');
-                        navigateTo(`/news/${post.id}`); setCanonicalUrl(`/news/${post.id}`);
-                        setPageTitle(`${post.title} | Sri Ganganagar Jobs News`);
-                      }}>
+                      <div className="p-4" onClick={() => window.open(`/news/${post.id}`, '_blank')}>
                         <div className="flex items-start justify-between gap-3">
                           <div className="flex-1">
                             <span className="text-[10px] font-bold bg-[#eefaf7] text-[#075E54] px-2 py-0.5 rounded-full">

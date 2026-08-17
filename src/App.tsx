@@ -330,7 +330,7 @@ export default function App() {
     loadSupabaseData();
     loadBlogPosts();
     loadNewsPosts();
-    fetchAllCandidates().then(data => setSidebarCandidates(data.slice(0, 5)));
+    fetchAllCandidates().then(data => setSidebarCandidates(data.slice(0, 25)));
   }, []);
 
   // --- Synchronization & Expiry Effects ---
@@ -875,7 +875,7 @@ export default function App() {
                 className="px-3 py-1.5 rounded-xl bg-blue-500 hover:bg-blue-600 text-white text-[11px] font-black flex items-center gap-1 cursor-pointer">
                 Blog
               </button>
-              <button onClick={() => { setNewsReadPostId(null); setShowNews(true); }}
+              <button onClick={() => window.open('/news', '_blank')}
                 className="px-3 py-1.5 rounded-xl bg-rose-500 hover:bg-rose-600 text-white text-[11px] font-black flex items-center gap-1 cursor-pointer">
                 News
               </button>
@@ -949,7 +949,7 @@ export default function App() {
               <button onClick={() => window.open('/blog', '_blank')} className="py-2 rounded-xl bg-blue-500 text-white text-[10px] font-black flex items-center justify-center gap-1 cursor-pointer">
                 Blog
               </button>
-              <button onClick={() => { setNewsReadPostId(null); setShowNews(true); }} className="py-2 rounded-xl bg-rose-500 text-white text-[10px] font-black flex items-center justify-center gap-1 cursor-pointer">
+              <button onClick={() => window.open('/news', '_blank')} className="py-2 rounded-xl bg-rose-500 text-white text-[10px] font-black flex items-center justify-center gap-1 cursor-pointer">
                 News
               </button>
               <button onClick={() => { setShowCandidatePortal(true); navigateTo('/candidates'); }} className="py-2 rounded-xl bg-emerald-500 text-white text-[10px] font-black flex items-center justify-center gap-1 cursor-pointer">
@@ -1456,7 +1456,7 @@ export default function App() {
                 <span>📰</span>
                 <span>{lang === 'en' ? 'Local News' : 'लोकल न्यूज़'}</span>
               </h3>
-              <button onClick={() => { setNewsReadPostId(null); setShowNews(true); }}
+              <button onClick={() => window.open('/news', '_blank')}
                 className="text-[10px] text-[#075E54] font-black border border-[#128C7E]/30 bg-[#eefaf7] px-2 py-1 rounded-lg cursor-pointer hover:bg-[#d4f5ec]">
                 {lang === 'en' ? 'View All →' : 'सब देखें →'}
               </button>
@@ -1465,7 +1465,7 @@ export default function App() {
               <div className="space-y-3">
                 {newsPosts.map(post => (
                   <div key={post.id}
-                    onClick={() => { setNewsReadPostId(post.id); setShowNews(true); }}
+                    onClick={() => window.open(`/news/${post.id}`, '_blank')}
                     className="cursor-pointer group pb-3 border-b border-slate-50 last:border-0 last:pb-0">
                     <span className="text-[10px] bg-[#eefaf7] text-[#075E54] px-2 py-0.5 rounded-full font-bold">{post.category}</span>
                     <p className="text-xs font-black text-slate-800 group-hover:text-[#075E54] transition-colors leading-tight mt-1.5 mb-1">{post.title}</p>
@@ -1474,7 +1474,7 @@ export default function App() {
                 ))}
               </div>
             ) : (
-              <div onClick={() => { setNewsReadPostId(null); setShowNews(true); }} className="cursor-pointer">
+              <div onClick={() => window.open('/news', '_blank')} className="cursor-pointer">
                 <p className="text-xs text-slate-500 mb-1">{lang === 'en' ? 'Sri Ganganagar & Rajasthan local news' : 'श्री गंगानगर और राजस्थान की ताज़ा खबरें'}</p>
                 <div className="flex flex-wrap gap-1.5 mt-2">
                   {['Local', 'Rajasthan', 'National', 'Crime'].map(tag => (
@@ -1687,7 +1687,7 @@ export default function App() {
               <a href="/disclaimer" onClick={(e) => { e.preventDefault(); navigateTo('/disclaimer'); }} className="block text-slate-400 hover:text-white transition-colors py-0.5">Disclaimer</a>
               <a href="/advertise" onClick={(e) => { e.preventDefault(); navigateTo('/advertise'); }} className="block text-red-400 hover:text-red-300 transition-colors font-bold py-0.5">Report Scam Job</a>
               <a href="/blog" onClick={(e) => { e.preventDefault(); navigateTo('/blog'); }} className="block text-slate-400 hover:text-white transition-colors py-0.5">✍️ Blog</a>
-              <button onClick={() => { setNewsReadPostId(null); setShowNews(true); }} className="block text-left text-slate-400 hover:text-white transition-colors py-0.5 w-full cursor-pointer">📰 Local News</button>
+              <button onClick={() => window.open('/news', '_blank')} className="block text-left text-slate-400 hover:text-white transition-colors py-0.5 w-full cursor-pointer">📰 Local News</button>
             </div>
 
             {/* Col 3 — Information */}
