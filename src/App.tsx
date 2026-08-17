@@ -871,7 +871,7 @@ export default function App() {
 
             {/* RIGHT — All Buttons */}
             <div className="flex items-center gap-1.5 flex-wrap justify-end">
-              <button onClick={() => { setBlogReadPostId(null); setShowBlog(true); }}
+              <button onClick={() => window.open('/blog', '_blank')}
                 className="px-3 py-1.5 rounded-xl bg-blue-500 hover:bg-blue-600 text-white text-[11px] font-black flex items-center gap-1 cursor-pointer">
                 Blog
               </button>
@@ -946,7 +946,7 @@ export default function App() {
               <button onClick={() => setActiveModal('ad')} className="py-2 rounded-xl bg-amber-500 text-white text-[10px] font-black flex items-center justify-center gap-1 cursor-pointer">
                 <Megaphone size={10} />Business Ad
               </button>
-              <button onClick={() => { setBlogReadPostId(null); setShowBlog(true); }} className="py-2 rounded-xl bg-blue-500 text-white text-[10px] font-black flex items-center justify-center gap-1 cursor-pointer">
+              <button onClick={() => window.open('/blog', '_blank')} className="py-2 rounded-xl bg-blue-500 text-white text-[10px] font-black flex items-center justify-center gap-1 cursor-pointer">
                 Blog
               </button>
               <button onClick={() => { setNewsReadPostId(null); setShowNews(true); }} className="py-2 rounded-xl bg-rose-500 text-white text-[10px] font-black flex items-center justify-center gap-1 cursor-pointer">
@@ -1414,7 +1414,7 @@ export default function App() {
                 <span>✍️</span>
                 <span>{lang === 'en' ? 'Blog — Tips & News' : 'ब्लॉग — टिप्स & न्यूज़'}</span>
               </h3>
-              <button onClick={() => { setBlogReadPostId(null); setShowBlog(true); }}
+              <button onClick={() => window.open('/blog', '_blank')}
                 className="text-[10px] text-[#075E54] font-black border border-[#128C7E]/30 bg-[#eefaf7] px-2 py-1 rounded-lg cursor-pointer hover:bg-[#d4f5ec]">
                 {lang === 'en' ? 'View All →' : 'सब देखें →'}
               </button>
@@ -1423,7 +1423,7 @@ export default function App() {
               <div className="space-y-3">
                 {blogPosts.map(post => (
                   <div key={post.id}
-                    onClick={() => { setBlogReadPostId(post.id); setShowBlog(true); }}
+                    onClick={() => window.open(`/blog/${post.id}`, '_blank')}
                     className="cursor-pointer group pb-3 border-b border-slate-50 last:border-0 last:pb-0 flex gap-2.5">
                     {post.header_image && (
                       <img src={post.header_image} alt="" className="w-14 h-14 rounded-lg object-cover shrink-0" />
@@ -1437,7 +1437,7 @@ export default function App() {
                 ))}
               </div>
             ) : (
-              <div onClick={() => { setBlogReadPostId(null); setShowBlog(true); }} className="cursor-pointer">
+              <div onClick={() => window.open('/blog', '_blank')} className="cursor-pointer">
                 <p className="text-xs text-slate-500 mb-1">{lang === 'en' ? 'Job tips, career advice & local updates' : 'जॉब टिप्स, करियर सलाह और लोकल अपडेट्स'}</p>
                 <div className="flex flex-wrap gap-1.5 mt-2">
                   {['Job Tips', 'Career Advice', 'Local News', 'Business'].map(tag => (

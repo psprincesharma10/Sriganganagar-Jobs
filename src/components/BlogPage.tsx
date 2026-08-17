@@ -706,25 +706,13 @@ export default function BlogPage({ isOpen, onClose, lang, initialPostId, onPosts
                       <img
                         src={post.header_image}
                         alt=""
-                        onClick={() => {
-                          setSelectedPost(post);
-                          setView('read');
-                          navigateTo(`/blog/${post.id}`);
-                          setCanonicalUrl(`/blog/${post.id}`);
-                          setPageTitle(`${post.title} | Sri Ganganagar Jobs Blog`);
-                        }}
+                        onClick={() => window.open(`/blog/${post.id}`, '_blank')}
                         className="w-full h-36 object-cover"
                       />
                     )}
                     <div
                       className="p-4"
-                      onClick={() => {
-                        setSelectedPost(post);
-                        setView('read');
-                        navigateTo(`/blog/${post.id}`);
-                        setCanonicalUrl(`/blog/${post.id}`);
-                        setPageTitle(`${post.title} | Sri Ganganagar Jobs Blog`);
-                      }}
+                      onClick={() => window.open(`/blog/${post.id}`, '_blank')}
                     >
                       <div className="flex items-start justify-between gap-3">
                         <div className="flex-1">
