@@ -17,10 +17,11 @@ import { navigateTo, getCurrentPath, onRouteChange, setCanonicalUrl, setPageTitl
 
 interface CandidatePortalProps {
   onBackToMain: () => void;
+  initialAdminEditPhone?: string | null;
 }
 
-export default function CandidatePortal({ onBackToMain }: CandidatePortalProps) {
-  const [currentView, setCurrentView] = useState<string>('landing');
+export default function CandidatePortal({ onBackToMain, initialAdminEditPhone }: CandidatePortalProps) {
+  const [currentView, setCurrentView] = useState<string>(initialAdminEditPhone ? 'profile-form' : 'landing');
   const [selectedCandidateId, setSelectedCandidateId] = useState<string | null>(null);
   const [skillFilterForBrowse, setSkillFilterForBrowse] = useState<string>('');
   const [searchQueryForBrowse, setSearchQueryForBrowse] = useState<string>('');
@@ -33,7 +34,9 @@ export default function CandidatePortal({ onBackToMain }: CandidatePortalProps) 
   // a temporary session pointing at that candidate — separate from the
   // real logged-in user's own session, so admin editing never logs the
   // real user out or overwrites their own session.
-  const [adminEditSession, setAdminEditSession] = useState<UserSession | null>(null);
+  const [adminEditSession, setAdminEditSession] = useState<UserSession | null>(
+    initialAdminEditPhone ? { phone_number: initialAdminEditPhone, is_logged_in: true } : null
+  );
 
   useEffect(() => {
     async function load() {
@@ -177,6 +180,12 @@ export default function CandidatePortal({ onBackToMain }: CandidatePortalProps) 
         </div>
       </div>
 
+      {adminEditSession && (
+        <div className="bg-amber-100 border-b border-amber-300 text-amber-900 text-xs font-bold py-2 px-4 text-center">
+          🛠️ Admin Mode — aap candidate {adminEditSession.phone_number} ki profile edit kar rahe ho
+        </div>
+      )}
+
       {/* Candidate Nav */}
       <div className="bg-white border-b border-slate-200 px-4 py-2 flex items-center gap-4 text-sm font-semibold overflow-x-auto">
         <button
@@ -228,12 +237,13 @@ export default function CandidatePortal({ onBackToMain }: CandidatePortalProps) 
               onSaved={(cand) => {
                 setCandidates((prev) => [cand, ...prev.filter((c) => c.id !== cand.id)]);
                 if (adminEditSession) {
-                  // Admin was editing someone else's profile — go back to Admin Panel, not their own dashboard
+                  // Admin was editing this candidate from the main site's Admin Dashboard —
+                  // go back there directly instead of anywhere inside the candidate portal.
                   setAdminEditSession(null);
-                  handleNavigate('admin');
+                  onBackToMain();
                 }
               }}
-              onDeleted={adminEditSession ? () => { setAdminEditSession(null); handleNavigate('admin'); } : handleLogout}
+              onDeleted={adminEditSession ? () => { setAdminEditSession(null); onBackToMain(); } : handleLogout}
             />
           ) : (
             <div className="bg-white rounded-3xl p-8 text-center max-w-md mx-auto my-12 border border-slate-200 shadow-sm space-y-4">

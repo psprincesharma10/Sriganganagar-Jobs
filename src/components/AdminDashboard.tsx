@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Job, Ad, Language } from '../types';
-import { Shield, Clock, Eye, EyeOff, Check, X, Pin, Trash2, Award, LogOut, Users, CheckCircle2, XCircle, Search, Loader2, AlertTriangle, DollarSign } from 'lucide-react';
+import { Shield, Clock, Eye, EyeOff, Check, X, Pin, Trash2, Pencil, Award, LogOut, Users, CheckCircle2, XCircle, Search, Loader2, AlertTriangle, DollarSign } from 'lucide-react';
 import { Candidate, ContactUnlock, ProfileReport } from '../candidate/candidateTypes';
 import { fetchAllCandidates, toggleCandidateVerification, deleteCandidateProfile, fetchAllUnlocks, fetchAllReports } from '../candidate/candidateSupabase';
 
@@ -18,12 +18,13 @@ interface AdminDashboardProps {
   onToggleJobPhone: (id: string) => void;
   onToggleJobPin: (id: string) => void;
   onLogout: () => void;
+  onEditCandidate: (phoneNumber: string) => void;
 }
 
 export default function AdminDashboard({
   jobs, ads, lang, expiryMonths, onSetExpiry,
   onApproveAd, onRejectAd, onDeleteAd, onToggleAdFeature,
-  onDeleteJob, onToggleJobPhone, onToggleJobPin, onLogout,
+  onDeleteJob, onToggleJobPhone, onToggleJobPin, onLogout, onEditCandidate,
 }: AdminDashboardProps) {
 
   const [activeTab, setActiveTab] = useState<'jobs' | 'candidates' | 'unlocks' | 'reports'>('jobs');
@@ -284,7 +285,10 @@ export default function AdminDashboard({
                         </button>
                       </td>
                       <td className="p-3 font-bold text-slate-700">{c.view_count}</td>
-                      <td className="p-3 text-right">
+                      <td className="p-3 text-right space-x-1">
+                        <button onClick={() => onEditCandidate(c.phone_number)} className="p-1.5 hover:bg-emerald-50 text-emerald-700 rounded-lg transition-colors" title="Edit Profile">
+                          <Pencil size={13} />
+                        </button>
                         <button onClick={() => handleDeleteCandidate(c.id)} className="p-1.5 hover:bg-red-50 text-red-500 rounded-lg transition-colors" title="Delete Profile">
                           <Trash2 size={13} />
                         </button>

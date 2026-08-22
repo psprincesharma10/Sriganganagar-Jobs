@@ -96,6 +96,7 @@ export default function App() {
   const [showServices, setShowServices] = useState(false);
   const [activeServiceId, setActiveServiceId] = useState<string | null>(null);
   const [showCandidatePortal, setShowCandidatePortal] = useState(false);
+  const [adminEditCandidatePhone, setAdminEditCandidatePhone] = useState<string | null>(null);
   const [viewingJobId, setViewingJobId] = useState<string | null>(null);
   const [sidebarCandidates, setSidebarCandidates] = useState<Candidate[]>([]);
   const [installBannerDismissed, setInstallBannerDismissed] = useState(() => {
@@ -796,8 +797,10 @@ export default function App() {
       <CandidatePortal
         onBackToMain={() => {
           setShowCandidatePortal(false);
+          setAdminEditCandidatePhone(null);
           navigateTo('/');
         }}
+        initialAdminEditPhone={adminEditCandidatePhone}
       />
     );
   }
@@ -1106,6 +1109,10 @@ export default function App() {
               onToggleJobPhone={handleToggleJobPhone}
               onToggleJobPin={handleToggleJobPin}
               onLogout={handleAdminLogout}
+              onEditCandidate={(phone) => {
+                setAdminEditCandidatePhone(phone);
+                setShowCandidatePortal(true);
+              }}
             />
           )}
 
