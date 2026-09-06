@@ -3,6 +3,7 @@ import { Job, Ad, Language } from '../types';
 import { Shield, Clock, Eye, EyeOff, Check, X, Pin, Trash2, Pencil, Award, LogOut, Users, CheckCircle2, XCircle, Search, Loader2, AlertTriangle, DollarSign } from 'lucide-react';
 import { Candidate, ContactUnlock, ProfileReport } from '../candidate/candidateTypes';
 import { fetchAllCandidates, toggleCandidateVerification, deleteCandidateProfile, fetchAllUnlocks, fetchAllReports } from '../candidate/candidateSupabase';
+import WebStoriesAdmin from './WebStoriesAdmin';
 
 interface AdminDashboardProps {
   jobs: Job[];
@@ -27,7 +28,7 @@ export default function AdminDashboard({
   onDeleteJob, onToggleJobPhone, onToggleJobPin, onLogout, onEditCandidate,
 }: AdminDashboardProps) {
 
-  const [activeTab, setActiveTab] = useState<'jobs' | 'candidates' | 'unlocks' | 'reports'>('jobs');
+  const [activeTab, setActiveTab] = useState<'jobs' | 'candidates' | 'unlocks' | 'reports' | 'stories'>('jobs');
   const [candidates, setCandidates] = useState<Candidate[]>([]);
   const [unlocks, setUnlocks] = useState<ContactUnlock[]>([]);
   const [reports, setReports] = useState<ProfileReport[]>([]);
@@ -124,6 +125,7 @@ export default function AdminDashboard({
           { id: 'candidates', label: '👷 Candidates' },
           { id: 'unlocks', label: '💰 Unlocks' },
           { id: 'reports', label: '🚨 Reports' },
+          { id: 'stories', label: '📱 Web Stories' },
         ].map(tab => (
           <button
             key={tab.id}
@@ -390,6 +392,8 @@ export default function AdminDashboard({
           )}
         </div>
       )}
+
+      {activeTab === 'stories' && <WebStoriesAdmin />}
 
     </div>
   );

@@ -1269,6 +1269,7 @@ export default function App() {
                 {(() => {
                   const elements: React.ReactNode[] = [];
                   let adIndex = 0;
+                  let blogIndex = 0;
 
                   paginatedJobs.forEach((job, index) => {
                     elements.push(
@@ -1301,6 +1302,35 @@ export default function App() {
                             onDelete={handleDeleteAd}
                             onToggleFeature={handleToggleAdFeature}
                           />
+                        </div>
+                      );
+                    }
+
+                    // Insert a blog post preview every 3 job listings — adds
+                    // fresh, original written content into the feed itself
+                    // (helps with AdSense "low value content" and gives the
+                    // homepage real substance instead of only short listings).
+                    if ((index + 1) % 3 === 0 && blogPosts.length > 0) {
+                      const post = blogPosts[blogIndex % blogPosts.length];
+                      blogIndex++;
+                      elements.push(
+                        <div
+                          key={`feed-blog-${post.id}-${index}`}
+                          onClick={() => window.open(`/blog/${post.id}`, '_blank')}
+                          className="my-4 bg-white border-2 border-dashed border-emerald-200 rounded-2xl p-4 cursor-pointer hover:border-emerald-400 transition-colors flex gap-3"
+                        >
+                          {post.header_image && (
+                            <img src={post.header_image} alt="" className="w-16 h-16 rounded-xl object-cover shrink-0" />
+                          )}
+                          <div className="min-w-0">
+                            <span className="text-[10px] font-bold bg-[#eefaf7] text-[#075E54] px-2 py-0.5 rounded-full">
+                              📝 {lang === 'en' ? 'From our Blog' : 'हमारे ब्लॉग से'}
+                            </span>
+                            <h4 className="text-sm font-black text-slate-800 mt-1.5 leading-tight">{post.title}</h4>
+                            <p className="text-xs text-slate-500 mt-1 line-clamp-2">
+                              {post.content.replace(/<[^>]+>/g, ' ').substring(0, 110)}...
+                            </p>
+                          </div>
                         </div>
                       );
                     }

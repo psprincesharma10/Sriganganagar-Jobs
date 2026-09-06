@@ -1,5 +1,7 @@
 {
   "rewrites": [
+    { "source": "/stories/:slug", "destination": "/api/stories/:slug" },
+    { "source": "/sitemap-stories.xml", "destination": "/api/sitemap-stories" },
     { "source": "/((?!.*\\.[a-zA-Z0-9]+$).*)", "destination": "/index.html" }
   ],
   "headers": [
@@ -9,5 +11,8 @@
         { "key": "X-Content-Type-Options", "value": "nosniff" }
       ]
     }
+  ],
+  "crons": [
+    { "path": "/api/cron/publish-stories", "schedule": "0 3 * * *" }
   ]
 }

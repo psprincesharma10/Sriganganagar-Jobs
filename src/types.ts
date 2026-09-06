@@ -88,3 +88,23 @@ export interface NewsPost {
 }
 
 export type Language = 'en' | 'hi';
+
+export interface WebStoryPage {
+  image: string;       // base64 or URL, portrait image (recommended 720x1280)
+  headline: string;    // short text overlay on this page
+  cta_text?: string;   // optional button text, e.g. "Job Dekho"
+  cta_link?: string;   // optional link, e.g. https://www.sriganganagarjobs.in
+}
+
+export interface WebStory {
+  id: string;
+  slug: string;
+  title: string;
+  category: 'intro' | 'job-category' | 'blog' | 'custom';
+  poster_image: string;
+  pages: WebStoryPage[];
+  status: 'draft' | 'scheduled' | 'published';
+  scheduled_date?: string | null;
+  created_at: string;
+  published_at?: string | null;
+}

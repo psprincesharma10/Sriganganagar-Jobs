@@ -1,5 +1,6 @@
 import { Job, Language } from '../types';
-import { Phone, Calendar, User, Pin, Trash2, Eye, EyeOff, Share2 } from 'lucide-react';
+import { Phone, Calendar, User, Pin, Trash2, Eye, EyeOff, Share2, Briefcase, GraduationCap, IndianRupee } from 'lucide-react';
+import { generateJobRichContent } from '../utils/jobContent';
 
 interface JobCardProps {
   key?: string | number;
@@ -43,6 +44,7 @@ export default function JobCard({
   const title = lang === 'en' ? job.job_title_en : job.job_title_hi;
   const isFeatured = (job as any).is_featured === true || job.pinned;
   const description = lang === 'en' ? job.job_description_en : job.job_description_hi;
+  const richContent = generateJobRichContent(job, lang);
 
   return (
     <div
@@ -92,12 +94,38 @@ export default function JobCard({
         {description || (lang === 'en' ? job.job_description_hi : job.job_description_en)}
       </p>
 
+      {/* Rich job details — shown directly on the homepage feed under every post,
+          generated automatically the moment the job is published (no click-through needed) */}
+      <div className="space-y-2.5 mb-3 bg-slate-50/70 rounded-xl p-3.5 border border-slate-100">
+        <div>
+          <span className="text-[11px] font-black text-slate-700 flex items-center gap-1.5 mb-0.5">
+            <Briefcase size={12} className="text-[#075E54]" />
+            {lang === 'en' ? 'Job Responsibilities' : 'कार्य की जिम्मेदारियां'}
+          </span>
+          <p className="text-xs text-slate-600 leading-relaxed">{richContent.responsibilities}</p>
+        </div>
+        <div>
+          <span className="text-[11px] font-black text-slate-700 flex items-center gap-1.5 mb-0.5">
+            <GraduationCap size={12} className="text-[#075E54]" />
+            {lang === 'en' ? 'Qualification & Eligibility' : 'योग्यता'}
+          </span>
+          <p className="text-xs text-slate-600 leading-relaxed">{richContent.qualification}</p>
+        </div>
+        <div>
+          <span className="text-[11px] font-black text-slate-700 flex items-center gap-1.5 mb-0.5">
+            <IndianRupee size={12} className="text-[#075E54]" />
+            {lang === 'en' ? 'Salary Details' : 'सैलरी विवरण'}
+          </span>
+          <p className="text-xs text-slate-600 leading-relaxed">{richContent.salary}</p>
+        </div>
+      </div>
+
       {onOpenDetail && (
         <button
           onClick={() => onOpenDetail(job)}
           className="text-xs font-bold text-[#075E54] hover:underline mb-3 cursor-pointer"
         >
-          {lang === 'en' ? 'View Full Details →' : 'पूरी जानकारी देखें →'}
+          {lang === 'en' ? 'Open as Full Page →' : 'पूरा पेज खोलें →'}
         </button>
       )}
 
