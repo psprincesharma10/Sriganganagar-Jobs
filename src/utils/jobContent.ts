@@ -8,6 +8,15 @@ export function extractJobLocation(job: Job): string {
   return match ? match[1].split('\n')[0].trim() : 'Sri Ganganagar';
 }
 
+// Extracts salary from the embedded "💰 Salary: ₹X" line in older/normal job
+// descriptions, falling back to the real `salary_range` field when present.
+export function extractJobSalary(job: Job): string | null {
+  if (job.salary_range) return job.salary_range;
+  const desc = job.job_description_en || job.job_description_hi || '';
+  const match = desc.match(/💰\s*Salary:\s*₹?\s*([^\n]+)/i);
+  return match ? match[1].trim() : null;
+}
+
 export interface JobRichContent {
   title: string;
   category: string;
@@ -33,13 +42,15 @@ export function generateJobRichContent(job: Job, lang: Language): JobRichContent
     ? `Specific qualification requirements, if mentioned by the employer, are included in the description above. In general, candidates with relevant prior experience in ${category} roles are preferred, though freshers may also be considered depending on the employer's requirement. Candidates residing in or near ${location}, Rajasthan are encouraged to apply directly, since most local employers prefer nearby candidates who can start quickly.`
     : `नियोक्ता द्वारा बताई गई विशेष योग्यता (अगर कोई है) ऊपर विवरण में दी गई है। सामान्यतः ${category} जैसे पदों के लिए पूर्व अनुभव रखने वाले उम्मीदवारों को प्राथमिकता दी जाती है, हालांकि नियोक्ता की जरूरत के अनुसार फ्रेशर्स पर भी विचार किया जा सकता है। ${location}, राजस्थान व आसपास के उम्मीदवार सीधे आवेदन करें, क्योंकि ज्यादातर स्थानीय नियोक्ता नज़दीकी उम्मीदवारों को प्राथमिकता देते हैं जो जल्दी काम शुरू कर सकें।`;
 
-  const salary = job.salary_range
+  const extractedSalary = extractJobSalary(job);
+
+  const salary = extractedSalary
     ? (lang === 'en'
-        ? `The employer has indicated a salary range of ₹${job.salary_range} for this position. Final salary may be discussed and confirmed directly with the employer based on your experience and skills.`
-        : `नियोक्ता ने इस पद के लिए ₹${job.salary_range} सैलरी बताई है। अंतिम सैलरी आपके अनुभव और स्किल के अनुसार नियोक्ता से सीधे बातचीत करके तय होगी।`)
+        ? `The employer has indicated a salary of ₹${extractedSalary} for this position. Final salary may be discussed and confirmed directly with the employer based on your experience and skills.`
+        : `नियोक्ता ने इस पद के लिए ₹${extractedSalary} सैलरी बताई है। अंतिम सैलरी आपके अनुभव और स्किल के अनुसार नियोक्ता से सीधे बातचीत करके तय होगी।`)
     : (lang === 'en'
-        ? `The exact salary for this position was not specified by the employer and will be discussed directly at the time of interview or on your first call, based on your experience and the employer's budget.`
-        : `इस पद के लिए सटीक सैलरी नियोक्ता ने नहीं बताई है — यह आपके अनुभव और नियोक्ता के बजट के अनुसार interview या पहली कॉल के समय सीधे तय होगी।`);
+        ? `The employer hasn't listed an exact salary for this role. Don't worry — this is common for local jobs. Simply call the employer and ask directly; the final amount usually depends on your skills, experience, and what the employer has budgeted for this position.`
+        : `नियोक्ता ने इस पद ke लिए सटीक सैलरी नहीं बताई है — local jobs mein ये आम baat hai, chinta mat karein। Seedha call karke pooch lein; final salary aapke skills, anubhav aur niyokta ke budget par depend karti hai।`);
 
   return { title, category, location, responsibilities, qualification, salary };
 }
