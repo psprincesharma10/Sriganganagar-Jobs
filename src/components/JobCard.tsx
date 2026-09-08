@@ -96,27 +96,42 @@ export default function JobCard({
 
       {/* Rich job details — shown directly on the homepage feed under every post,
           generated automatically the moment the job is published (no click-through needed) */}
-      <div className="space-y-2.5 mb-3 bg-slate-50/70 rounded-xl p-3.5 border border-slate-100">
-        <div>
-          <span className="text-[11px] font-black text-slate-700 flex items-center gap-1.5 mb-0.5">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 mb-3">
+        <div className="bg-slate-50/70 rounded-xl p-3 border border-slate-100 flex flex-col">
+          <span className="text-[11px] font-black text-slate-700 flex items-center gap-1.5 mb-1">
             <Briefcase size={12} className="text-[#075E54]" />
             {lang === 'en' ? 'Job Responsibilities' : 'कार्य की जिम्मेदारियां'}
           </span>
-          <p className="text-xs text-slate-600 leading-relaxed">{richContent.responsibilities}</p>
+          <p className="text-xs text-slate-600 leading-relaxed line-clamp-3">{richContent.responsibilities}</p>
+          {onOpenDetail && (
+            <button onClick={() => onOpenDetail(job)} className="text-[11px] font-bold text-[#075E54] hover:underline mt-1.5 text-left cursor-pointer">
+              {lang === 'en' ? 'View More →' : 'और देखें →'}
+            </button>
+          )}
         </div>
-        <div>
-          <span className="text-[11px] font-black text-slate-700 flex items-center gap-1.5 mb-0.5">
+        <div className="bg-slate-50/70 rounded-xl p-3 border border-slate-100 flex flex-col">
+          <span className="text-[11px] font-black text-slate-700 flex items-center gap-1.5 mb-1">
             <GraduationCap size={12} className="text-[#075E54]" />
             {lang === 'en' ? 'Qualification & Eligibility' : 'योग्यता'}
           </span>
-          <p className="text-xs text-slate-600 leading-relaxed">{richContent.qualification}</p>
+          <p className="text-xs text-slate-600 leading-relaxed line-clamp-3">{richContent.qualification}</p>
+          {onOpenDetail && (
+            <button onClick={() => onOpenDetail(job)} className="text-[11px] font-bold text-[#075E54] hover:underline mt-1.5 text-left cursor-pointer">
+              {lang === 'en' ? 'View More →' : 'और देखें →'}
+            </button>
+          )}
         </div>
-        <div>
-          <span className="text-[11px] font-black text-slate-700 flex items-center gap-1.5 mb-0.5">
+        <div className="bg-slate-50/70 rounded-xl p-3 border border-slate-100 flex flex-col">
+          <span className="text-[11px] font-black text-slate-700 flex items-center gap-1.5 mb-1">
             <IndianRupee size={12} className="text-[#075E54]" />
             {lang === 'en' ? 'Salary Details' : 'सैलरी विवरण'}
           </span>
-          <p className="text-xs text-slate-600 leading-relaxed">{richContent.salary}</p>
+          <p className="text-xs text-slate-600 leading-relaxed line-clamp-3">{richContent.salary}</p>
+          {onOpenDetail && (
+            <button onClick={() => onOpenDetail(job)} className="text-[11px] font-bold text-[#075E54] hover:underline mt-1.5 text-left cursor-pointer">
+              {lang === 'en' ? 'View More →' : 'और देखें →'}
+            </button>
+          )}
         </div>
       </div>
 
