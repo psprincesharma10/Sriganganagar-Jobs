@@ -1306,31 +1306,41 @@ export default function App() {
                       );
                     }
 
-                    // Insert a blog post preview every 3 job listings — adds
-                    // fresh, original written content into the feed itself
+                    // Insert TWO blog post cards side-by-side every 3 job listings —
+                    // adds fresh, original written content into the feed itself
                     // (helps with AdSense "low value content" and gives the
                     // homepage real substance instead of only short listings).
                     if ((index + 1) % 3 === 0 && blogPosts.length > 0) {
-                      const post = blogPosts[blogIndex % blogPosts.length];
-                      blogIndex++;
-                      elements.push(
+                      const postA = blogPosts[blogIndex % blogPosts.length];
+                      const postB = blogPosts[(blogIndex + 1) % blogPosts.length];
+                      blogIndex += 2;
+                      const blogCard = (post: typeof postA, keySuffix: string) => (
                         <div
-                          key={`feed-blog-${post.id}-${index}`}
-                          onClick={() => window.open(`/blog/${post.id}`, '_blank')}
-                          className="my-4 bg-white border-2 border-dashed border-emerald-200 rounded-2xl p-4 cursor-pointer hover:border-emerald-400 transition-colors flex gap-3"
+                          key={`feed-blog-${post.id}-${keySuffix}`}
+                          className="bg-white border-2 border-dashed border-emerald-200 rounded-2xl p-4 flex flex-col"
                         >
                           {post.header_image && (
-                            <img src={post.header_image} alt="" className="w-16 h-16 rounded-xl object-cover shrink-0" />
+                            <img src={post.header_image} alt="" className="w-full h-28 rounded-xl object-cover mb-2.5" />
                           )}
-                          <div className="min-w-0">
-                            <span className="text-[10px] font-bold bg-[#eefaf7] text-[#075E54] px-2 py-0.5 rounded-full">
-                              📝 {lang === 'en' ? 'From our Blog' : 'हमारे ब्लॉग से'}
-                            </span>
-                            <h4 className="text-sm font-black text-slate-800 mt-1.5 leading-tight">{post.title}</h4>
-                            <p className="text-xs text-slate-500 mt-1 line-clamp-2">
-                              {post.content.replace(/<[^>]+>/g, ' ').substring(0, 110)}...
-                            </p>
-                          </div>
+                          <span className="text-[10px] font-bold bg-[#eefaf7] text-[#075E54] px-2 py-0.5 rounded-full self-start">
+                            📝 {lang === 'en' ? 'From our Blog' : 'हमारे ब्लॉग से'}
+                          </span>
+                          <h4 className="text-sm font-black text-slate-800 mt-1.5 leading-tight">{post.title}</h4>
+                          <p className="text-xs text-slate-500 mt-1.5 leading-relaxed line-clamp-[10]">
+                            {post.content.replace(/<[^>]+>/g, ' ').substring(0, 500)}
+                          </p>
+                          <button
+                            onClick={() => window.open(`/blog/${post.id}`, '_blank')}
+                            className="text-[11px] font-bold text-[#075E54] hover:underline mt-2 text-left cursor-pointer"
+                          >
+                            {lang === 'en' ? 'View More →' : 'और देखें →'}
+                          </button>
+                        </div>
+                      );
+                      elements.push(
+                        <div key={`feed-blog-pair-${index}`} className="my-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                          {blogCard(postA, 'a')}
+                          {postB.id !== postA.id && blogCard(postB, 'b')}
                         </div>
                       );
                     }
