@@ -4,6 +4,7 @@ import { Shield, Clock, Eye, EyeOff, Check, X, Pin, Trash2, Pencil, Award, LogOu
 import { Candidate, ContactUnlock, ProfileReport } from '../candidate/candidateTypes';
 import { fetchAllCandidates, toggleCandidateVerification, deleteCandidateProfile, fetchAllUnlocks, fetchAllReports } from '../candidate/candidateSupabase';
 import WebStoriesAdmin from './WebStoriesAdmin';
+import SiteSettingsAdmin from './SiteSettingsAdmin';
 
 interface AdminDashboardProps {
   jobs: Job[];
@@ -28,7 +29,7 @@ export default function AdminDashboard({
   onDeleteJob, onToggleJobPhone, onToggleJobPin, onLogout, onEditCandidate,
 }: AdminDashboardProps) {
 
-  const [activeTab, setActiveTab] = useState<'jobs' | 'candidates' | 'unlocks' | 'reports' | 'stories'>('jobs');
+  const [activeTab, setActiveTab] = useState<'jobs' | 'candidates' | 'unlocks' | 'reports' | 'stories' | 'settings'>('jobs');
   const [candidates, setCandidates] = useState<Candidate[]>([]);
   const [unlocks, setUnlocks] = useState<ContactUnlock[]>([]);
   const [reports, setReports] = useState<ProfileReport[]>([]);
@@ -126,6 +127,7 @@ export default function AdminDashboard({
           { id: 'unlocks', label: '💰 Unlocks' },
           { id: 'reports', label: '🚨 Reports' },
           { id: 'stories', label: '📱 Web Stories' },
+          { id: 'settings', label: '🔗 Social & YouTube' },
         ].map(tab => (
           <button
             key={tab.id}
@@ -394,6 +396,8 @@ export default function AdminDashboard({
       )}
 
       {activeTab === 'stories' && <WebStoriesAdmin />}
+
+      {activeTab === 'settings' && <SiteSettingsAdmin />}
 
     </div>
   );

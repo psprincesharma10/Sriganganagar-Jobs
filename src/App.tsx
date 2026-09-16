@@ -21,6 +21,22 @@ import { fetchAllCandidates } from './candidate/candidateSupabase';
 import { Candidate } from './candidate/candidateTypes';
 import { navigateTo, getCurrentPath, onRouteChange, migrateLegacyHashUrl, setCanonicalUrl } from './router';
 import { RAJASTHAN_CITIES_FOR_BROWSE } from './data/rajasthanCities';
+import { fetchSocialLinks, fetchYoutubeSettings, extractYoutubeId } from './utils/siteSettings';
+import { SocialLinks, YoutubeSettings } from './types';
+import { Facebook, Instagram, Youtube, Twitter, Linkedin, Send, MessageCircle, Image as PinterestIcon, AtSign, Ghost } from 'lucide-react';
+
+const SOCIAL_ICON_MAP: { key: keyof SocialLinks; Icon: React.ComponentType<any>; label: string }[] = [
+  { key: 'facebook', Icon: Facebook, label: 'Facebook' },
+  { key: 'instagram', Icon: Instagram, label: 'Instagram' },
+  { key: 'youtube', Icon: Youtube, label: 'YouTube' },
+  { key: 'twitter', Icon: Twitter, label: 'X (Twitter)' },
+  { key: 'linkedin', Icon: Linkedin, label: 'LinkedIn' },
+  { key: 'telegram', Icon: Send, label: 'Telegram' },
+  { key: 'whatsapp_channel', Icon: MessageCircle, label: 'WhatsApp Channel' },
+  { key: 'pinterest', Icon: PinterestIcon, label: 'Pinterest' },
+  { key: 'threads', Icon: AtSign, label: 'Threads' },
+  { key: 'snapchat', Icon: Ghost, label: 'Snapchat' },
+];
 
 import { 
   Building, 
@@ -89,6 +105,8 @@ export default function App() {
   const [showResume, setShowResume] = useState(false);
   const [showBlog, setShowBlog] = useState(false);
   const [blogPosts, setBlogPosts] = useState<BlogPost[]>([]);
+  const [socialLinks, setSocialLinks] = useState<SocialLinks>({});
+  const [youtubeSettings, setYoutubeSettings] = useState<YoutubeSettings>({ videos: [], channel_url: '' });
   const [blogReadPostId, setBlogReadPostId] = useState<string | null>(null);
   const [showNews, setShowNews] = useState(false);
   const [newsPosts, setNewsPosts] = useState<NewsPost[]>([]);
@@ -332,6 +350,8 @@ export default function App() {
     loadBlogPosts();
     loadNewsPosts();
     fetchAllCandidates().then(data => setSidebarCandidates(data.slice(0, 25)));
+    fetchSocialLinks().then(setSocialLinks);
+    fetchYoutubeSettings().then(setYoutubeSettings);
   }, []);
 
   // --- Synchronization & Expiry Effects ---
@@ -1454,7 +1474,43 @@ export default function App() {
             )}
           </div>
 
-          {/* 2. BLOG */}
+          {/* 2. YOUTUBE VIDEOS — managed from Admin Panel > Social & YouTube */}
+          {youtubeSettings.videos.length > 0 && (
+            <div className="p-4 rounded-3xl bg-white border border-slate-100 shadow-sm">
+              <h3 className="text-xs font-black text-slate-700 uppercase tracking-wider mb-3">
+                ▶️ Watch on YouTube
+              </h3>
+              <div className="space-y-3">
+                {youtubeSettings.videos.slice(0, 2).map((v, i) => {
+                  const videoId = extractYoutubeId(v.url);
+                  if (!videoId) return null;
+                  return (
+                    <div key={i}>
+                      <div className="rounded-xl overflow-hidden aspect-video bg-slate-100">
+                        <iframe
+                          src={`https://www.youtube.com/embed/${videoId}`}
+                          title={v.title || `Video ${i + 1}`}
+                          className="w-full h-full"
+                          frameBorder="0"
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                          allowFullScreen
+                        />
+                      </div>
+                      {v.title && <p className="text-xs font-bold text-slate-700 mt-1.5">{v.title}</p>}
+                    </div>
+                  );
+                })}
+              </div>
+              {youtubeSettings.channel_url && (
+                <a href={youtubeSettings.channel_url} target="_blank" rel="noopener noreferrer"
+                  className="mt-3 flex items-center justify-center gap-1.5 text-xs font-black text-red-600 border border-red-200 bg-red-50 hover:bg-red-100 px-3 py-2 rounded-xl transition-colors">
+                  ▶️ View More Videos →
+                </a>
+              )}
+            </div>
+          )}
+
+          {/* 3. BLOG */}
           <div className="p-4 rounded-3xl bg-white border border-slate-100 shadow-sm">
             <div className="flex items-center justify-between mb-3">
               <h3 className="text-xs font-black text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
@@ -1773,6 +1829,19 @@ export default function App() {
             </div>
 
           </div>
+
+          {/* Social Media Links — managed from Admin Panel > Social & YouTube */}
+          {Object.values(socialLinks).some(Boolean) && (
+            <div className="flex flex-wrap items-center gap-2.5 pt-5 pb-5 border-t border-slate-800 mt-2">
+              <span className="text-[11px] font-black text-slate-400 uppercase tracking-wider mr-1">Follow Us:</span>
+              {SOCIAL_ICON_MAP.filter(({ key }) => socialLinks[key]).map(({ key, Icon, label }) => (
+                <a key={key} href={socialLinks[key]} target="_blank" rel="noopener noreferrer" title={label}
+                  className="w-8 h-8 rounded-lg bg-slate-800 hover:bg-[#075E54] flex items-center justify-center text-slate-300 hover:text-white transition-colors">
+                  <Icon size={15} />
+                </a>
+              ))}
+            </div>
+          )}
 
           {/* Bottom Bar */}
           <div className="border-t border-slate-800 pt-4 flex flex-col sm:flex-row items-center justify-between gap-2">

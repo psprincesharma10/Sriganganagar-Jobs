@@ -108,3 +108,26 @@ export interface WebStory {
   created_at: string;
   published_at?: string | null;
 }
+
+export interface SocialLinks {
+  facebook?: string;
+  instagram?: string;
+  youtube?: string;
+  twitter?: string;      // X
+  linkedin?: string;
+  telegram?: string;
+  whatsapp_channel?: string;
+  pinterest?: string;
+  threads?: string;
+  snapchat?: string;
+}
+
+export interface YoutubeVideoItem {
+  url: string;    // full YouTube video URL or ID
+  title: string;
+}
+
+export interface YoutubeSettings {
+  videos: YoutubeVideoItem[];   // up to 2 shown on homepage
+  channel_url: string;          // "View More" button target
+}
