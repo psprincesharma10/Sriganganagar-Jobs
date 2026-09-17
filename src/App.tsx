@@ -1107,6 +1107,49 @@ export default function App() {
         </div>
       </div>
 
+      {/* Homepage YouTube Videos — 3 fixed slots managed from Admin Panel > Social & YouTube */}
+      {youtubeSettings.videos.some((v) => v?.url) && (
+        <div className="max-w-6xl mx-auto px-4 mt-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            {[
+              { label: lang === 'en' ? 'For Employers' : 'नियोक्ता के लिए', emoji: '👔' },
+              { label: lang === 'en' ? 'For Candidates' : 'कैंडिडेट के लिए', emoji: '👷' },
+              { label: lang === 'en' ? 'Website Introduction' : 'वेबसाइट परिचय', emoji: '🎬' },
+            ].map((slot, i) => {
+              const v = youtubeSettings.videos[i];
+              const videoId = v?.url ? extractYoutubeId(v.url) : '';
+              if (!videoId) return null;
+              return (
+                <div key={i} className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                  <div className="aspect-video bg-slate-100">
+                    <iframe
+                      src={`https://www.youtube.com/embed/${videoId}`}
+                      title={v?.title || slot.label}
+                      className="w-full h-full"
+                      frameBorder="0"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                    />
+                  </div>
+                  <div className="p-3 text-center">
+                    <p className="text-sm font-black text-slate-800">{slot.emoji} {slot.label}</p>
+                    {v?.title && <p className="text-[11px] text-slate-400 mt-0.5">{v.title}</p>}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+          {youtubeSettings.channel_url && (
+            <div className="text-center mt-3">
+              <a href={youtubeSettings.channel_url} target="_blank" rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 text-xs font-black text-red-600 border border-red-200 bg-red-50 hover:bg-red-100 px-4 py-2 rounded-xl transition-colors">
+                ▶️ {lang === 'en' ? 'View More Videos' : 'और वीडियो देखें'} →
+              </a>
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Main Container */}
       <main className="max-w-6xl mx-auto px-4 py-6 md:py-8 grid grid-cols-1 lg:grid-cols-12 gap-6">
         
@@ -1473,42 +1516,6 @@ export default function App() {
               </div>
             )}
           </div>
-
-          {/* 2. YOUTUBE VIDEOS — managed from Admin Panel > Social & YouTube */}
-          {youtubeSettings.videos.length > 0 && (
-            <div className="p-4 rounded-3xl bg-white border border-slate-100 shadow-sm">
-              <h3 className="text-xs font-black text-slate-700 uppercase tracking-wider mb-3">
-                ▶️ Watch on YouTube
-              </h3>
-              <div className="space-y-3">
-                {youtubeSettings.videos.slice(0, 2).map((v, i) => {
-                  const videoId = extractYoutubeId(v.url);
-                  if (!videoId) return null;
-                  return (
-                    <div key={i}>
-                      <div className="rounded-xl overflow-hidden aspect-video bg-slate-100">
-                        <iframe
-                          src={`https://www.youtube.com/embed/${videoId}`}
-                          title={v.title || `Video ${i + 1}`}
-                          className="w-full h-full"
-                          frameBorder="0"
-                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                          allowFullScreen
-                        />
-                      </div>
-                      {v.title && <p className="text-xs font-bold text-slate-700 mt-1.5">{v.title}</p>}
-                    </div>
-                  );
-                })}
-              </div>
-              {youtubeSettings.channel_url && (
-                <a href={youtubeSettings.channel_url} target="_blank" rel="noopener noreferrer"
-                  className="mt-3 flex items-center justify-center gap-1.5 text-xs font-black text-red-600 border border-red-200 bg-red-50 hover:bg-red-100 px-3 py-2 rounded-xl transition-colors">
-                  ▶️ View More Videos →
-                </a>
-              )}
-            </div>
-          )}
 
           {/* 3. BLOG */}
           <div className="p-4 rounded-3xl bg-white border border-slate-100 shadow-sm">

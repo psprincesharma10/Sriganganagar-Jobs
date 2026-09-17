@@ -21,7 +21,7 @@ const SOCIAL_FIELDS: { key: keyof SocialLinks; label: string; icon: React.Compon
 
 export default function SiteSettingsAdmin() {
   const [links, setLinks] = useState<SocialLinks>({});
-  const [videos, setVideos] = useState<YoutubeVideoItem[]>([{ url: '', title: '' }, { url: '', title: '' }]);
+  const [videos, setVideos] = useState<YoutubeVideoItem[]>([{ url: '', title: '' }, { url: '', title: '' }, { url: '', title: '' }]);
   const [channelUrl, setChannelUrl] = useState('');
   const [loading, setLoading] = useState(true);
   const [savingLinks, setSavingLinks] = useState(false);
@@ -32,7 +32,10 @@ export default function SiteSettingsAdmin() {
     (async () => {
       const [sl, yt] = await Promise.all([fetchSocialLinks(), fetchYoutubeSettings()]);
       setLinks(sl);
-      setVideos(yt.videos && yt.videos.length > 0 ? yt.videos : [{ url: '', title: '' }, { url: '', title: '' }]);
+      const defaultVideos = [{ url: '', title: '' }, { url: '', title: '' }, { url: '', title: '' }];
+      const loaded = yt.videos && yt.videos.length > 0 ? yt.videos : defaultVideos;
+      // Ensure always exactly 3 slots (in case older data had only 2)
+      setVideos([0, 1, 2].map((i) => loaded[i] || { url: '', title: '' }));
       setChannelUrl(yt.channel_url || '');
       setLoading(false);
     })();
@@ -58,7 +61,9 @@ export default function SiteSettingsAdmin() {
   const handleSaveYoutube = async () => {
     setSavingYoutube(true);
     try {
-      await saveYoutubeSettings({ videos: videos.filter((v) => v.url.trim()), channel_url: channelUrl.trim() });
+      // Keep all 3 slots in fixed order (Employer, Candidate, Intro) even if
+      // some are empty — homepage relies on index position to know which is which.
+      await saveYoutubeSettings({ videos, channel_url: channelUrl.trim() });
       flashSaved('YouTube settings saved!');
     } catch (e: any) {
       alert(`Save nahi hua: ${e.message || e}`);
@@ -112,19 +117,24 @@ export default function SiteSettingsAdmin() {
       {/* YouTube Videos */}
       <div>
         <h3 className="text-sm font-black text-slate-800 mb-1">▶️ Homepage YouTube Videos</h3>
-        <p className="text-xs text-slate-400 mb-3">Ye 2 videos homepage ke sidebar mein Candidates list ke paas dikhengi (koi bhi duration chalegi — 1 min ho ya 10 min).</p>
+        <p className="text-xs text-slate-400 mb-3">Ye 3 videos homepage ke upar side-by-side dikhengi — job search aur candidates section ke upar (koi bhi duration chalegi — 1 min ho ya 10 min).</p>
         <div className="space-y-3">
-          {videos.map((v, i) => (
+          {[
+            { label: '1️⃣ Employer Ke Liye', hint: 'jaise "Free mein job kaise post karein"' },
+            { label: '2️⃣ Candidate Ke Liye', hint: 'jaise "Free profile kaise banayein"' },
+            { label: '3️⃣ Website Introduction', hint: 'poori site ka intro/walkthrough' },
+          ].map((slot, i) => (
             <div key={i} className="border border-slate-200 rounded-xl p-3 space-y-2">
-              <label className="text-[10px] font-bold text-slate-500 uppercase">Video {i + 1}</label>
+              <label className="text-xs font-black text-slate-700">{slot.label}</label>
+              <p className="text-[10px] text-slate-400 -mt-1">{slot.hint}</p>
               <input
-                value={v.url}
+                value={videos[i]?.url || ''}
                 onChange={(e) => updateVideo(i, 'url', e.target.value)}
                 placeholder="YouTube video link (e.g. https://youtube.com/watch?v=xxxx)"
                 className="w-full text-xs p-2 rounded-lg border border-slate-200 focus:outline-none focus:ring-1 focus:ring-[#128C7E]"
               />
               <input
-                value={v.title}
+                value={videos[i]?.title || ''}
                 onChange={(e) => updateVideo(i, 'title', e.target.value)}
                 placeholder="Video ka title (optional, display ke liye)"
                 className="w-full text-xs p-2 rounded-lg border border-slate-200 focus:outline-none focus:ring-1 focus:ring-[#128C7E]"
