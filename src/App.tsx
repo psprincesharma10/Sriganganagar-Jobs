@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Job, Ad, Language, BlogPost, NewsPost } from './types';
+import { Job, Ad, Language, BlogPost } from './types';
 import { INITIAL_JOBS, INITIAL_ADS } from './data';
 import JobCard from './components/JobCard';
 import JobDetailPage from './components/JobDetailPage';
@@ -13,7 +13,6 @@ import StaticPage, { PageType } from './components/StaticPage';
 import FeaturedJobModal from './components/FeaturedJobModal';
 import ResumeBuilder from './components/ResumeBuilder';
 import BlogPage from './components/BlogPage';
-import NewsPage from './components/NewsPage';
 import ServicesPage from './components/ServicesPage';
 import ServiceDetailPage from './components/ServiceDetailPage';
 import CandidatePortal from './candidate/CandidatePortal';
@@ -108,9 +107,6 @@ export default function App() {
   const [socialLinks, setSocialLinks] = useState<SocialLinks>({});
   const [youtubeSettings, setYoutubeSettings] = useState<YoutubeSettings>({ videos: [], channel_url: '' });
   const [blogReadPostId, setBlogReadPostId] = useState<string | null>(null);
-  const [showNews, setShowNews] = useState(false);
-  const [newsPosts, setNewsPosts] = useState<NewsPost[]>([]);
-  const [newsReadPostId, setNewsReadPostId] = useState<string | null>(null);
   const [showServices, setShowServices] = useState(false);
   const [activeServiceId, setActiveServiceId] = useState<string | null>(null);
   const [showCandidatePortal, setShowCandidatePortal] = useState(false);
@@ -278,27 +274,6 @@ export default function App() {
     }
   };
 
-  const loadNewsPosts = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('news_posts')
-        .select('*')
-        .order('created_at', { ascending: false })
-        .limit(7);
-      if (error) throw error;
-      const mapped: NewsPost[] = (data || []).map((row: any) => ({
-        id: String(row.id),
-        title: row.title,
-        content: row.content,
-        category: row.category || 'Local',
-        date: row.created_at
-      }));
-      setNewsPosts(mapped);
-    } catch (err: any) {
-      console.error('Failed to load news posts for sidebar:', err);
-    }
-  };
-
   // --- Path-based URL routing (real URLs for Google indexing, not hash) ---
   const handleRouteChange = () => {
     const path = getCurrentPath();
@@ -312,12 +287,6 @@ export default function App() {
       const postId = path.replace('/blog/', '').replace('/blog', '') || null;
       setBlogReadPostId(postId || null);
       setShowBlog(true);
-      setCanonicalUrl(path);
-    }
-    else if (path.startsWith('/news')) {
-      const postId = path.replace('/news/', '').replace('/news', '') || null;
-      setNewsReadPostId(postId || null);
-      setShowNews(true);
       setCanonicalUrl(path);
     }
     else if (path.startsWith('/candidates')) {
@@ -348,7 +317,6 @@ export default function App() {
   useEffect(() => {
     loadSupabaseData();
     loadBlogPosts();
-    loadNewsPosts();
     fetchAllCandidates().then(data => setSidebarCandidates(data.slice(0, 25)));
     fetchSocialLinks().then(setSocialLinks);
     fetchYoutubeSettings().then(setYoutubeSettings);
@@ -898,10 +866,6 @@ export default function App() {
                 className="px-3 py-1.5 rounded-xl bg-blue-500 hover:bg-blue-600 text-white text-[11px] font-black flex items-center gap-1 cursor-pointer">
                 Blog
               </button>
-              <button onClick={() => window.open('/news', '_blank')}
-                className="px-3 py-1.5 rounded-xl bg-rose-500 hover:bg-rose-600 text-white text-[11px] font-black flex items-center gap-1 cursor-pointer">
-                News
-              </button>
               <button onClick={handleToggleLang}
                 className="px-2 py-1.5 rounded-xl bg-purple-500 hover:bg-purple-600 text-white text-[11px] font-bold flex items-center gap-1 cursor-pointer">
                 <Languages size={12} />{lang === 'en' ? 'हिंदी' : 'EN'}
@@ -971,9 +935,6 @@ export default function App() {
               </button>
               <button onClick={() => window.open('/blog', '_blank')} className="py-2 rounded-xl bg-blue-500 text-white text-[10px] font-black flex items-center justify-center gap-1 cursor-pointer">
                 Blog
-              </button>
-              <button onClick={() => window.open('/news', '_blank')} className="py-2 rounded-xl bg-rose-500 text-white text-[10px] font-black flex items-center justify-center gap-1 cursor-pointer">
-                News
               </button>
               <button onClick={() => { setShowCandidatePortal(true); navigateTo('/candidates'); }} className="py-2 rounded-xl bg-emerald-500 text-white text-[10px] font-black flex items-center justify-center gap-1 cursor-pointer">
                 👷 Candidates
@@ -1550,48 +1511,11 @@ export default function App() {
               <div onClick={() => window.open('/blog', '_blank')} className="cursor-pointer">
                 <p className="text-xs text-slate-500 mb-1">{lang === 'en' ? 'Job tips, career advice & local updates' : 'जॉब टिप्स, करियर सलाह और लोकल अपडेट्स'}</p>
                 <div className="flex flex-wrap gap-1.5 mt-2">
-                  {['Job Tips', 'Career Advice', 'Local News', 'Business'].map(tag => (
+                  {['Job Tips', 'Career Advice', 'Local Updates', 'Business'].map(tag => (
                     <span key={tag} className="text-[10px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full">{tag}</span>
                   ))}
                 </div>
                 <span className="text-[10px] text-[#075E54] font-bold mt-2 inline-block">{lang === 'en' ? 'Visit Blog →' : 'ब्लॉग देखें →'}</span>
-              </div>
-            )}
-          </div>
-
-          {/* 5. LOCAL NEWS */}
-          <div className="p-4 rounded-3xl bg-white border border-slate-100 shadow-sm">
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="text-xs font-black text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
-                <span>📰</span>
-                <span>{lang === 'en' ? 'Local News' : 'लोकल न्यूज़'}</span>
-              </h3>
-              <button onClick={() => window.open('/news', '_blank')}
-                className="text-[10px] text-[#075E54] font-black border border-[#128C7E]/30 bg-[#eefaf7] px-2 py-1 rounded-lg cursor-pointer hover:bg-[#d4f5ec]">
-                {lang === 'en' ? 'View All →' : 'सब देखें →'}
-              </button>
-            </div>
-            {newsPosts.length > 0 ? (
-              <div className="space-y-3">
-                {newsPosts.map(post => (
-                  <div key={post.id}
-                    onClick={() => window.open(`/news/${post.id}`, '_blank')}
-                    className="cursor-pointer group pb-3 border-b border-slate-50 last:border-0 last:pb-0">
-                    <span className="text-[10px] bg-[#eefaf7] text-[#075E54] px-2 py-0.5 rounded-full font-bold">{post.category}</span>
-                    <p className="text-xs font-black text-slate-800 group-hover:text-[#075E54] transition-colors leading-tight mt-1.5 mb-1">{post.title}</p>
-                    <p className="text-[10px] text-slate-500 line-clamp-2 leading-relaxed">{post.content.substring(0, 90)}...</p>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div onClick={() => window.open('/news', '_blank')} className="cursor-pointer">
-                <p className="text-xs text-slate-500 mb-1">{lang === 'en' ? 'Sri Ganganagar & Rajasthan local news' : 'श्री गंगानगर और राजस्थान की ताज़ा खबरें'}</p>
-                <div className="flex flex-wrap gap-1.5 mt-2">
-                  {['Local', 'Rajasthan', 'National', 'Crime'].map(tag => (
-                    <span key={tag} className="text-[10px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full">{tag}</span>
-                  ))}
-                </div>
-                <span className="text-[10px] text-[#075E54] font-bold mt-2 inline-block">{lang === 'en' ? 'Visit News →' : 'न्यूज़ देखें →'}</span>
               </div>
             )}
           </div>
@@ -1797,7 +1721,6 @@ export default function App() {
               <a href="/disclaimer" onClick={(e) => { e.preventDefault(); navigateTo('/disclaimer'); }} className="block text-slate-400 hover:text-white transition-colors py-0.5">Disclaimer</a>
               <a href="/advertise" onClick={(e) => { e.preventDefault(); navigateTo('/advertise'); }} className="block text-red-400 hover:text-red-300 transition-colors font-bold py-0.5">Report Scam Job</a>
               <a href="/blog" onClick={(e) => { e.preventDefault(); navigateTo('/blog'); }} className="block text-slate-400 hover:text-white transition-colors py-0.5">✍️ Blog</a>
-              <button onClick={() => window.open('/news', '_blank')} className="block text-left text-slate-400 hover:text-white transition-colors py-0.5 w-full cursor-pointer">📰 Local News</button>
             </div>
 
             {/* Col 3 — Information */}
@@ -1923,15 +1846,6 @@ export default function App() {
         lang={lang}
         initialPostId={blogReadPostId}
         onPostsChanged={loadBlogPosts}
-      />
-
-      {/* News Page */}
-      <NewsPage
-        isOpen={showNews}
-        onClose={() => { setShowNews(false); setNewsReadPostId(null); }}
-        lang={lang}
-        initialPostId={newsReadPostId}
-        onPostsChanged={loadNewsPosts}
       />
 
 
