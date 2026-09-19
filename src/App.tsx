@@ -18,7 +18,7 @@ import ServiceDetailPage from './components/ServiceDetailPage';
 import CandidatePortal from './candidate/CandidatePortal';
 import { fetchAllCandidates } from './candidate/candidateSupabase';
 import { Candidate } from './candidate/candidateTypes';
-import { navigateTo, getCurrentPath, onRouteChange, migrateLegacyHashUrl, setCanonicalUrl } from './router';
+import { navigateTo, getCurrentPath, onRouteChange, migrateLegacyHashUrl, setCanonicalUrl, setPageTitle } from './router';
 import { RAJASTHAN_CITIES_FOR_BROWSE } from './data/rajasthanCities';
 import { fetchSocialLinks, fetchYoutubeSettings, extractYoutubeId } from './utils/siteSettings';
 import { SocialLinks, YoutubeSettings } from './types';
@@ -86,8 +86,8 @@ export default function App() {
   });
 
   // --- Filtering & Search States ---
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState<string>('All');
+  const [searchQuery, setSearchQuery] = useState(() => new URLSearchParams(window.location.search).get('q') || '');
+  const [selectedCategory, setSelectedCategory] = useState<string>(() => new URLSearchParams(window.location.search).get('category') || 'All');
   const [selectedLocation, setSelectedLocation] = useState<string>('All');
   const [currentPage, setCurrentPage] = useState(1);
   const JOBS_PER_PAGE = 20;
@@ -302,7 +302,21 @@ export default function App() {
       setStaticPage(null);
       setShowCandidatePortal(false);
       setViewingJobId(null);
-      if (path === '/') setCanonicalUrl('/');
+      if (path === '/') {
+        const params = new URLSearchParams(window.location.search);
+        const q = params.get('q');
+        const cat = params.get('category');
+        if (q || cat) {
+          setCanonicalUrl(`/${window.location.search}`);
+          setPageTitle(
+            q
+              ? `${q.charAt(0).toUpperCase() + q.slice(1)} Jobs in Sri Ganganagar | Sri Ganganagar Jobs`
+              : `${cat} Jobs in Sri Ganganagar | Sri Ganganagar Jobs`
+          );
+        } else {
+          setCanonicalUrl('/');
+        }
+      }
     }
   };
 

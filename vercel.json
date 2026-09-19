@@ -2,6 +2,8 @@
   "rewrites": [
     { "source": "/stories/:slug", "destination": "/api/stories/:slug" },
     { "source": "/sitemap-stories.xml", "destination": "/api/sitemap-stories" },
+    { "source": "/sitemap-jobs.xml", "destination": "/api/sitemap-jobs" },
+    { "source": "/sitemap-blog.xml", "destination": "/api/sitemap-blog" },
     { "source": "/((?!.*\\.[a-zA-Z0-9]+$).*)", "destination": "/index.html" }
   ],
   "headers": [

@@ -16,4 +16,6 @@ Disallow: /candidate/dashboard
 Disallow: /candidate/profile
 
 Sitemap: https://www.sriganganagarjobs.in/sitemap.xml
+Sitemap: https://www.sriganganagarjobs.in/sitemap-jobs.xml
+Sitemap: https://www.sriganganagarjobs.in/sitemap-blog.xml
 Sitemap: https://www.sriganganagarjobs.in/sitemap-stories.xml

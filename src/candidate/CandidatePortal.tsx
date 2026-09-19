@@ -58,7 +58,15 @@ export default function CandidatePortal({ onBackToMain, initialAdminEditPhone }:
   useEffect(() => {
     const applyRouteFromPath = () => {
       const path = getCurrentPath();
-      if (path === '/candidates/browse') setCurrentView('browse');
+      if (path === '/candidates/browse') {
+        setCurrentView('browse');
+        const skillParam = new URLSearchParams(window.location.search).get('skill');
+        if (skillParam) {
+          setSkillFilterForBrowse(skillParam);
+          setCanonicalUrl(`/candidates/browse${window.location.search}`);
+          setPageTitle(`${skillParam} Workers in Sri Ganganagar | Sri Ganganagar Jobs`);
+        }
+      }
       else if (path === '/candidates/profile') setCurrentView('profile-form');
       else if (path.startsWith('/candidates/detail/')) {
         const id = path.replace('/candidates/detail/', '');
