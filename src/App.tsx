@@ -459,7 +459,12 @@ export default function App() {
   const handleCreateJob = async (jobData: any) => {
     const isFeatured = jobData.is_featured === true;
     const expiryDate = new Date();
-    expiryDate.setDate(expiryDate.getDate() + (isFeatured ? 20 : 30));
+    // Jobs now live as long as the admin's configured expiry period (default
+    // 12 months, same setting used for Business Ads) — previously this was
+    // hardcoded to 30/20 days regardless of the admin setting, which caused
+    // jobs to silently expire (and drop out of the sitemap/search) far
+    // sooner than intended.
+    expiryDate.setMonth(expiryDate.getMonth() + defaultExpiryMonths);
 
     try {
       const { error } = await supabase
