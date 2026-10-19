@@ -18,7 +18,6 @@ interface BlogPageProps {
   onPostsChanged?: () => void;
 }
 
-const BLOG_PASSWORD = 'SGN@Prince#2026';
 
 const CATEGORIES = ['Job Tips', 'Local News', 'Career Advice', 'Business', 'Announcement', 'Other'];
 
@@ -225,15 +224,29 @@ export default function BlogPage({ isOpen, onClose, lang, initialPostId, onPosts
 
   if (!isOpen) return null;
 
-  const handleLogin = () => {
-    if (password === BLOG_PASSWORD) {
-      setIsAdmin(true);
-      resetForm();
-      setView('write');
-      setPwError('');
-      setPassword('');
-    } else {
-      setPwError('Galat password! Dobara try karein.');
+  const handleLogin = async () => {
+    // Password is verified on the SERVER (/api/admin-login) — it is no
+    // longer stored anywhere in the website's JavaScript code.
+    try {
+      const res = await fetch('/api/admin-login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (res.ok && data.ok) {
+        setIsAdmin(true);
+        resetForm();
+        setView('write');
+        setPwError('');
+        setPassword('');
+      } else if (res.status === 500) {
+        setPwError(data.error || 'Server setup incomplete (ADMIN_PASSWORD missing).');
+      } else {
+        setPwError('Galat password! Dobara try karein.');
+      }
+    } catch {
+      setPwError('Network error. Dobara try karein.');
     }
   };
 

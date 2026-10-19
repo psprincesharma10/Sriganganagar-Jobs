@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import {
   Facebook, Instagram, Youtube, Twitter, Linkedin, Send, MessageCircle,
-  Image as ImageIcon, AtSign, Ghost, Save, Loader2,
+  Image as ImageIcon, AtSign, Ghost, Save, Loader2, Plus, Trash2,
 } from 'lucide-react';
-import { SocialLinks, YoutubeVideoItem } from '../types';
-import { fetchSocialLinks, saveSocialLinks, fetchYoutubeSettings, saveYoutubeSettings } from '../utils/siteSettings';
+import { SocialLinks, YoutubeVideoItem, VideoGalleryItem } from '../types';
+import { fetchSocialLinks, saveSocialLinks, fetchYoutubeSettings, saveYoutubeSettings, fetchVideoGallery, saveVideoGallery, getVideoThumbnail } from '../utils/siteSettings';
 
 const SOCIAL_FIELDS: { key: keyof SocialLinks; label: string; icon: React.ComponentType<any>; placeholder: string }[] = [
   { key: 'facebook', label: 'Facebook Page', icon: Facebook, placeholder: 'https://facebook.com/yourpage' },
@@ -27,16 +27,20 @@ export default function SiteSettingsAdmin() {
   const [savingLinks, setSavingLinks] = useState(false);
   const [savingYoutube, setSavingYoutube] = useState(false);
   const [savedMsg, setSavedMsg] = useState('');
+  const [gallery, setGallery] = useState<VideoGalleryItem[]>([]);
+  const [newGalleryItem, setNewGalleryItem] = useState<{ platform: 'youtube' | 'instagram' | 'facebook'; url: string; title: string; thumbnail: string }>({ platform: 'youtube', url: '', title: '', thumbnail: '' });
+  const [savingGallery, setSavingGallery] = useState(false);
 
   useEffect(() => {
     (async () => {
-      const [sl, yt] = await Promise.all([fetchSocialLinks(), fetchYoutubeSettings()]);
+      const [sl, yt, gal] = await Promise.all([fetchSocialLinks(), fetchYoutubeSettings(), fetchVideoGallery()]);
       setLinks(sl);
       const defaultVideos = [{ url: '', title: '' }, { url: '', title: '' }, { url: '', title: '' }];
       const loaded = yt.videos && yt.videos.length > 0 ? yt.videos : defaultVideos;
       // Ensure always exactly 3 slots (in case older data had only 2)
       setVideos([0, 1, 2].map((i) => loaded[i] || { url: '', title: '' }));
       setChannelUrl(yt.channel_url || '');
+      setGallery(gal);
       setLoading(false);
     })();
   }, []);
@@ -74,6 +78,43 @@ export default function SiteSettingsAdmin() {
 
   const updateVideo = (i: number, field: keyof YoutubeVideoItem, value: string) => {
     setVideos((prev) => prev.map((v, idx) => (idx === i ? { ...v, [field]: value } : v)));
+  };
+
+  const handleAddGalleryItem = async () => {
+    if (!newGalleryItem.url.trim() || !newGalleryItem.title.trim()) {
+      alert('URL aur Title dono zaroori hai.');
+      return;
+    }
+    if (newGalleryItem.platform !== 'youtube' && !newGalleryItem.thumbnail.trim()) {
+      alert('Instagram/Facebook video ke liye Thumbnail image zaroori hai.');
+      return;
+    }
+    const item: VideoGalleryItem = { id: `v-${Date.now()}`, ...newGalleryItem };
+    const updated = [item, ...gallery];
+    setSavingGallery(true);
+    try {
+      await saveVideoGallery(updated);
+      setGallery(updated);
+      setNewGalleryItem({ platform: 'youtube', url: '', title: '', thumbnail: '' });
+      flashSaved('Video gallery updated!');
+    } catch (e: any) {
+      alert(`Save nahi hua: ${e.message || e}`);
+    } finally {
+      setSavingGallery(false);
+    }
+  };
+
+  const handleRemoveGalleryItem = async (id: string) => {
+    const updated = gallery.filter((g) => g.id !== id);
+    setSavingGallery(true);
+    try {
+      await saveVideoGallery(updated);
+      setGallery(updated);
+    } catch (e: any) {
+      alert(`Delete nahi hua: ${e.message || e}`);
+    } finally {
+      setSavingGallery(false);
+    }
   };
 
   if (loading) {
@@ -156,6 +197,57 @@ export default function SiteSettingsAdmin() {
           {savingYoutube ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}
           YouTube Settings Save Karein
         </button>
+      </div>
+
+      <div className="h-px bg-slate-100" />
+
+      {/* Video Gallery — unlimited videos, shown on /videos public page */}
+      <div>
+        <h3 className="text-sm font-black text-slate-800 mb-1">🎬 Video Gallery (/videos page)</h3>
+        <p className="text-xs text-slate-400 mb-3">Jitni chaho utni YouTube, Instagram ya Facebook videos yahan add karo — ye sab /videos page par grid mein dikhengi, click karte hi naye tab mein khulengi.</p>
+
+        <div className="border border-slate-200 rounded-xl p-3 space-y-2 mb-3">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+            <select value={newGalleryItem.platform} onChange={(e) => setNewGalleryItem((p) => ({ ...p, platform: e.target.value as any }))}
+              className="text-xs p-2 rounded-lg border border-slate-200 bg-white">
+              <option value="youtube">YouTube</option>
+              <option value="instagram">Instagram</option>
+              <option value="facebook">Facebook</option>
+            </select>
+            <input value={newGalleryItem.url} onChange={(e) => setNewGalleryItem((p) => ({ ...p, url: e.target.value }))}
+              placeholder="Video/Reel/Post link" className="sm:col-span-2 text-xs p-2 rounded-lg border border-slate-200" />
+          </div>
+          <input value={newGalleryItem.title} onChange={(e) => setNewGalleryItem((p) => ({ ...p, title: e.target.value }))}
+            placeholder="Title" className="w-full text-xs p-2 rounded-lg border border-slate-200" />
+          {newGalleryItem.platform !== 'youtube' && (
+            <input value={newGalleryItem.thumbnail} onChange={(e) => setNewGalleryItem((p) => ({ ...p, thumbnail: e.target.value }))}
+              placeholder="Thumbnail image URL (Instagram/Facebook ke liye zaroori)" className="w-full text-xs p-2 rounded-lg border border-slate-200" />
+          )}
+          <button onClick={handleAddGalleryItem} disabled={savingGallery}
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-[#075E54] text-white text-xs font-black rounded-lg disabled:opacity-50">
+            {savingGallery ? <Loader2 size={12} className="animate-spin" /> : <Plus size={12} />}
+            Gallery Mein Add Karein
+          </button>
+        </div>
+
+        {gallery.length > 0 && (
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+            {gallery.map((item) => (
+              <div key={item.id} className="relative border border-slate-200 rounded-lg overflow-hidden">
+                {getVideoThumbnail(item) ? (
+                  <img src={getVideoThumbnail(item)} alt="" className="w-full h-20 object-cover" />
+                ) : (
+                  <div className="w-full h-20 bg-slate-100 flex items-center justify-center text-[10px] text-slate-400">No thumbnail</div>
+                )}
+                <p className="text-[10px] font-bold text-slate-700 p-1 truncate">{item.title}</p>
+                <button onClick={() => handleRemoveGalleryItem(item.id)}
+                  className="absolute top-1 right-1 bg-white/90 rounded-full p-1 text-red-500 hover:bg-white">
+                  <Trash2 size={11} />
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

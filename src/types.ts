@@ -131,3 +131,11 @@ export interface YoutubeSettings {
   videos: YoutubeVideoItem[];   // up to 2 shown on homepage
   channel_url: string;          // "View More" button target
 }
+
+export interface VideoGalleryItem {
+  id: string;                                  // local unique id (timestamp-based)
+  platform: 'youtube' | 'instagram' | 'facebook';
+  url: string;                                 // full video/reel/post URL
+  title: string;
+  thumbnail?: string;                          // required for Instagram/Facebook, auto-derived for YouTube
+}

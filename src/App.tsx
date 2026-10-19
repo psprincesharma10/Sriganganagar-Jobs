@@ -13,6 +13,8 @@ import StaticPage, { PageType } from './components/StaticPage';
 import FeaturedJobModal from './components/FeaturedJobModal';
 import ResumeBuilder from './components/ResumeBuilder';
 import BlogPage from './components/BlogPage';
+import WebStoriesGalleryPage from './components/WebStoriesGalleryPage';
+import VideoGalleryPage from './components/VideoGalleryPage';
 import ServicesPage from './components/ServicesPage';
 import ServiceDetailPage from './components/ServiceDetailPage';
 import CandidatePortal from './candidate/CandidatePortal';
@@ -107,6 +109,8 @@ export default function App() {
   const [socialLinks, setSocialLinks] = useState<SocialLinks>({});
   const [youtubeSettings, setYoutubeSettings] = useState<YoutubeSettings>({ videos: [], channel_url: '' });
   const [blogReadPostId, setBlogReadPostId] = useState<string | null>(null);
+  const [showWebStoriesGallery, setShowWebStoriesGallery] = useState(false);
+  const [showVideoGallery, setShowVideoGallery] = useState(false);
   const [showServices, setShowServices] = useState(false);
   const [activeServiceId, setActiveServiceId] = useState<string | null>(null);
   const [showCandidatePortal, setShowCandidatePortal] = useState(false);
@@ -291,6 +295,14 @@ export default function App() {
     }
     else if (path.startsWith('/candidates')) {
       setShowCandidatePortal(true);
+      setCanonicalUrl(path);
+    }
+    else if (path === '/web-stories') {
+      setShowWebStoriesGallery(true);
+      setCanonicalUrl(path);
+    }
+    else if (path === '/videos') {
+      setShowVideoGallery(true);
       setCanonicalUrl(path);
     }
     else if (path.startsWith('/jobs/')) {
@@ -558,18 +570,32 @@ export default function App() {
   };
 
   // 4. Admin Authentication
-  const handleAdminLogin = (e: React.FormEvent) => {
+  const handleAdminLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoginError('');
 
-    if (adminPasswordInput === 'SGN@Prince#2026') {
-      setIsAdmin(true);
-      localStorage.setItem('sgn_admin_session', 'true');
-      setAdminPasswordInput('');
-      setActiveModal(null);
-      triggerToast(lang === 'en' ? 'Logged in as Admin successfully!' : 'सफलतापूर्वक एडमिन लॉगइन संपन्न हुआ!');
-    } else {
-      setLoginError(lang === 'en' ? 'Incorrect passcode!' : 'गलत पासवर्ड दर्ज किया!');
+    // Password is now verified on the SERVER (/api/admin-login) — it is no
+    // longer stored anywhere in the website's JavaScript code.
+    try {
+      const res = await fetch('/api/admin-login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password: adminPasswordInput }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (res.ok && data.ok) {
+        setIsAdmin(true);
+        localStorage.setItem('sgn_admin_session', 'true');
+        setAdminPasswordInput('');
+        setActiveModal(null);
+        triggerToast(lang === 'en' ? 'Logged in as Admin successfully!' : 'सफलतापूर्वक एडमिन लॉगइन संपन्न हुआ!');
+      } else if (res.status === 500) {
+        setLoginError(data.error || 'Server setup incomplete (ADMIN_PASSWORD missing).');
+      } else {
+        setLoginError(lang === 'en' ? 'Incorrect passcode!' : 'गलत पासवर्ड दर्ज किया!');
+      }
+    } catch {
+      setLoginError(lang === 'en' ? 'Network error. Try again.' : 'नेटवर्क एरर। दोबारा कोशिश करें।');
     }
   };
 
@@ -1740,6 +1766,8 @@ export default function App() {
               <a href="/disclaimer" onClick={(e) => { e.preventDefault(); navigateTo('/disclaimer'); }} className="block text-slate-400 hover:text-white transition-colors py-0.5">Disclaimer</a>
               <a href="/advertise" onClick={(e) => { e.preventDefault(); navigateTo('/advertise'); }} className="block text-red-400 hover:text-red-300 transition-colors font-bold py-0.5">Report Scam Job</a>
               <a href="/blog" onClick={(e) => { e.preventDefault(); navigateTo('/blog'); }} className="block text-slate-400 hover:text-white transition-colors py-0.5">✍️ Blog</a>
+              <a href="/web-stories" target="_blank" rel="noopener noreferrer" className="block text-slate-400 hover:text-white transition-colors py-0.5">📱 Web Stories</a>
+              <a href="/videos" target="_blank" rel="noopener noreferrer" className="block text-slate-400 hover:text-white transition-colors py-0.5">▶️ Videos</a>
             </div>
 
             {/* Col 3 — Information */}
@@ -1865,6 +1893,18 @@ export default function App() {
         lang={lang}
         initialPostId={blogReadPostId}
         onPostsChanged={loadBlogPosts}
+      />
+
+      {/* Web Stories Gallery Page (/web-stories) */}
+      <WebStoriesGalleryPage
+        isOpen={showWebStoriesGallery}
+        onClose={() => { setShowWebStoriesGallery(false); navigateTo('/'); }}
+      />
+
+      {/* Video Gallery Page (/videos) */}
+      <VideoGalleryPage
+        isOpen={showVideoGallery}
+        onClose={() => { setShowVideoGallery(false); navigateTo('/'); }}
       />
 
 
