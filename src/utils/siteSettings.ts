@@ -42,3 +42,30 @@ export function extractYoutubeId(input: string): string {
   if (/^[a-zA-Z0-9_-]{11}$/.test(trimmed)) return trimmed;
   return trimmed;
 }
+
+// --- Video Gallery (unlimited YouTube/Instagram/Facebook videos) ---
+import { VideoGalleryItem } from '../types';
+
+export async function fetchVideoGallery(): Promise<VideoGalleryItem[]> {
+  try {
+    const { data } = await supabase.from('site_settings').select('value').eq('key', 'video_gallery').maybeSingle();
+    return ((data?.value as any)?.videos as VideoGalleryItem[]) || [];
+  } catch {
+    return [];
+  }
+}
+
+export async function saveVideoGallery(videos: VideoGalleryItem[]): Promise<void> {
+  await supabase.from('site_settings').upsert({ key: 'video_gallery', value: { videos }, updated_at: new Date().toISOString() });
+}
+
+// Derives a real thumbnail image URL for a video entry (YouTube can be
+// auto-derived from the video ID; Instagram/Facebook need an admin-supplied one).
+export function getVideoThumbnail(item: VideoGalleryItem): string {
+  if (item.thumbnail) return item.thumbnail;
+  if (item.platform === 'youtube') {
+    const id = extractYoutubeId(item.url);
+    if (id) return `https://img.youtube.com/vi/${id}/hqdefault.jpg`;
+  }
+  return '';
+}
